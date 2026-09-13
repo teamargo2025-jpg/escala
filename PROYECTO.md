@@ -110,9 +110,9 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 **Duración estimada:** medio día a 1 día.
 **Terminó cuando:** escaneas un QR con tu celular y se abre la pantalla de inicio de ESCALA desde Vercel.
 
-- [ ] Crear proyecto Vite + React en `Proyectos/ESCALA`
-- [ ] Subir a un repositorio y conectarlo a Vercel
-- [ ] Pantalla de inicio con "Elige tu rubro" (tres botones, sin lógica)
+- [x] Crear proyecto Vite + React en `Proyectos/ESCALA`
+- [x] Subir a un repositorio y conectarlo a Vercel
+- [x] Pantalla de inicio con "Elige tu rubro" (tres botones, sin lógica)
 - [ ] Generar un QR del enlace y abrirlo en tu celular
 
 ### Fase 1 — Costos y precio, para un rubro, probado con personas

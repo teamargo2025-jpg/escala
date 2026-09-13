@@ -2,6 +2,8 @@
 
 Recorrido guiado en el celular para armar presupuesto, precio, meta de ventas y flujo de caja. Ver [PROYECTO.md](PROYECTO.md).
 
+**En línea:** https://escala-nine-rho.vercel.app/ · QR para proyectar: `qr-escala.png` (o `qr-escala.svg` para imprimir en grande).
+
 ```bash
 npm install
 npm run dev      # abre en la red local: prueba desde tu celular con la IP que muestra
