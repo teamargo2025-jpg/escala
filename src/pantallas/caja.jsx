@@ -4,7 +4,7 @@ import { CONCEPTO_INICIAL, hoy, mesDe, moverMes, nombreDia, nombreMes, porDia, r
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto } from '../lib/cuenta.js'
 import { ir, volver } from '../negocio.js'
-import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Marco, Pregunta } from '../componentes.jsx'
+import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, Pregunta } from '../componentes.jsx'
 import { plural } from './lobby.jsx'
 
 const marco = (guardado, extra) => ({
@@ -147,7 +147,7 @@ function conceptosSalida(datos, r) {
   return [...new Set([...marcados, ...base, 'Pasajes'])].slice(0, 9)
 }
 
-export function NuevoMovimiento({ tipo, agregarMovimiento, perfil, r, n, guardado }) {
+export function NuevoMovimiento({ tipo, agregarMovimiento, despachar, perfil, r, n, guardado }) {
   const esInicial = tipo === 'inicial'
   const esEntrada = tipo !== 'salida'
   const venta = `Venta de ${r.unidades}`
@@ -160,11 +160,18 @@ export function NuevoMovimiento({ tipo, agregarMovimiento, perfil, r, n, guardad
   const [monto, setMonto] = useState('')
   const [montoTocado, setMontoTocado] = useState(false)
   const [fecha, setFecha] = useState(hoy())
+  const productos = perfil.datos.productos ?? []
+  const [productoId, setProductoId] = useState(null)
+  const [descontar, setDescontar] = useState(true)
+  const producto = productos.find((p) => p.id === productoId)
+  const hayMateriales = !!producto?.materiales.length && (perfil.datos.inventario?.materiales ?? []).length > 0
 
   const esVenta = concepto === venta
   const u = Math.floor(num(unidades))
-  const montoFinal = esVenta && !montoTocado && tienePrecio ? String(Math.round(u * n.precio * 100) / 100) : monto
-  const textoConcepto = concepto === 'Otro' ? limpiarTexto(otro) : concepto
+  // Precio por unidad: el de la ficha del producto si lo tiene; si no, el precio del plan.
+  const precioUnidad = (producto && num(producto.precioVenta)) || (tienePrecio ? n.precio : 0)
+  const montoFinal = esVenta && !montoTocado && precioUnidad ? String(Math.round(u * precioUnidad * 100) / 100) : monto
+  const textoConcepto = concepto === 'Otro' ? limpiarTexto(otro) : esVenta && producto ? `Venta de ${producto.nombre}` : concepto
   const valido = textoConcepto && num(montoFinal) > 0 && (!esVenta || u > 0) && fecha <= hoy()
 
   const guardar = () => {
@@ -176,6 +183,9 @@ export function NuevoMovimiento({ tipo, agregarMovimiento, perfil, r, n, guardad
       unidades: esVenta ? u : null,
       monto: Math.round(num(montoFinal) * 100) / 100,
     })
+    if (esVenta && producto && hayMateriales && descontar) {
+      despachar({ tipo: 'inventario:usarProducto', productoId: producto.id, cantidad: u, fecha })
+    }
     volver('/caja')
   }
 
@@ -208,6 +218,26 @@ export function NuevoMovimiento({ tipo, agregarMovimiento, perfil, r, n, guardad
         </>
       )}
 
+      {esVenta && productos.length > 0 && (
+        <div>
+          <span className="campo__etiqueta">¿Qué vendiste?</span>
+          <div className="conceptos">
+            {productos.map((p) => (
+              <button
+                key={p.id}
+                className={`chip chip--concepto${productoId === p.id ? ' chip--activo' : ''}`}
+                onClick={() => {
+                  setProductoId(productoId === p.id ? null : p.id)
+                  setMontoTocado(false)
+                }}
+              >
+                {p.nombre}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {esVenta && (
         <div className="venta">
           <span className="campo__etiqueta">¿{r.cuantas} {r.unidades}?</span>
@@ -216,12 +246,18 @@ export function NuevoMovimiento({ tipo, agregarMovimiento, perfil, r, n, guardad
             <input inputMode="numeric" value={unidades} onChange={(e) => setUnidades(e.target.value.replace(/\D/g, ''))} onFocus={(e) => e.target.select()} />
             <button onClick={() => setUnidades(String(u + 1))} aria-label="Más">+</button>
           </div>
-          {tienePrecio && !montoTocado && (
+          {precioUnidad > 0 && !montoTocado && (
             <small>
-              {plural(u, r)} × {soles(n.precio)} (tu precio). Si cobraste otro monto, cámbialo abajo.
+              {producto ? `${u} × ${producto.nombre}` : plural(u, r)} × {soles(precioUnidad)} ({producto && num(producto.precioVenta) ? 'precio de su ficha' : 'tu precio'}). Si cobraste otro monto, cámbialo abajo.
             </small>
           )}
         </div>
+      )}
+
+      {esVenta && hayMateriales && (
+        <Casilla marcada={descontar} onCambio={setDescontar}>
+          Descontar de mi inventario los materiales que usa {producto.nombre}
+        </Casilla>
       )}
 
       {(concepto || esInicial) && (

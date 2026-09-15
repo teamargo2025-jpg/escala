@@ -1,6 +1,6 @@
 # ESCALA
 
-App para el celular: cada participante crea su cuenta (nombre + DNI), elige su rubro y trabaja por apartados desde un lobby: presupuesto de arranque, costos, precio, meta de ventas, flujo de caja y control de caja. Ver [PROYECTO.md](PROYECTO.md).
+App para el celular: cada participante crea su cuenta (nombre + DNI), elige su rubro y trabaja por apartados desde un lobby: su plan (presupuesto, costos, precio, meta, flujo de caja), su día a día (control de caja, inventario, costo por producto) y educación financiera. Ver [PROYECTO.md](PROYECTO.md).
 
 **En línea:** https://escala-nine-rho.vercel.app/ · QR para proyectar: `qr-escala.png` (o `qr-escala.svg` para imprimir en grande).
 
@@ -35,9 +35,11 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 |---|---|
 | Fórmula del precio, meses del flujo, redondeo, % rápidos | `src/config.js` |
 | Listas, precios de ejemplo y textos de cada oficio, o agregar un oficio | `src/data/rubros.js` |
+| Materiales y productos de ejemplo por oficio (inventario y costeo) | `src/data/materiales.js` |
+| Lecciones de educación financiera | `src/data/educacion.js` |
 | Apartados del lobby, su orden y de qué dependen | `src/lib/apartados.js` |
-| Cálculos del plan / de la caja / reglas de nombre y DNI | `src/lib/calc.js`, `src/lib/caja.js`, `src/lib/cuenta.js` |
+| Cálculos del plan / de la caja / del inventario y costeo / reglas de nombre y DNI | `src/lib/calc.js`, `src/lib/caja.js`, `src/lib/inventario.js`, `src/lib/cuenta.js` |
 | Conexión con Supabase (y modo prueba) | `src/almacen.js` |
 | Guardado en el celular, sincronización y navegación | `src/negocio.js` |
-| Pantallas | `src/pantallas/` (entrada, lobby, apartados, caja) |
+| Pantallas | `src/pantallas/` (entrada, lobby, apartados, caja, inventario, costeo, educacion) |
 | Colores y tamaños | `src/estilos.css` |

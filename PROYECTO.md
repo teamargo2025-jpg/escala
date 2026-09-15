@@ -2,7 +2,7 @@
 
 > App para el celular que guía, paso a paso y con ejemplos de su oficio, a emprendedores en capacitación para armar su presupuesto, su precio de venta, su meta de ventas y su flujo de caja, y luego llevar el control de caja de su negocio en el día a día.
 
-*Última actualización: 15 de septiembre de 2026 (v2: cuentas, lobby y control de caja)*
+*Última actualización: 15 de septiembre de 2026 (v3: educación financiera, inventario y costo por producto)*
 
 ## El problema
 
@@ -50,7 +50,12 @@ Las siguientes veces entra con nombre + DNI, o directo si la sesión sigue abier
 | 3 | Precio de venta | Costo por unidad + % de ganancia | 2 |
 | 4 | Meta de ventas | Punto de equilibrio y unidades para su ganancia deseada | 3 |
 | 5 | Flujo de caja (plan) | Proyección a 3 meses | 1 y 3 |
-| 6 | Control de caja | Registro real: "Entró dinero" / "Salió dinero", saldo, resumen del mes, ventas contra punto de equilibrio | — |
+| 6 | Control de caja | Registro real: "Entró dinero" / "Salió dinero", saldo, resumen del mes, ventas contra punto de equilibrio. Al vender un producto con ficha, usa su precio y descuenta sus materiales | — |
+| 7 | Inventario | Materiales con medida, cantidad, costo por medida (promedio al comprar) y mínimo con alerta. "Compré" (se puede anotar en caja), "Usé" (un material o lo que llevan N productos) y "Conté" | — |
+| 8 | Costo por producto | Ficha por producto o servicio: materiales que usa × su costo + horas × valor de la hora + parte de los pagos del mes → costo, precio sugerido y comparación con el precio actual. Ejemplos por oficio | — |
+| 9 | Educación financiera | 8 lecciones de 2 minutos con ejemplos del oficio y de sus números, cada una con una pregunta: separar dinero, ventas vs. ganancia, anotar, ahorro, préstamos (TCEA, SBS, gota a gota), fiado, precio, inventario | — |
+
+El lobby agrupa los apartados en **Tu plan** (1–5), **Tu negocio día a día** (6–8) y **Aprende** (9).
 
 Además:
 - Cada campo tiene "¿qué pongo aquí?" con un ejemplo del rubro elegido.
@@ -110,6 +115,8 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 | Todos crean cuenta a la vez desde el mismo WiFi | Supabase limita ingresos por IP: parte del grupo podría quedar bloqueada | Subir el límite en Authentication → Rate Limits antes del piloto y probar con 5 celulares |
 | El proyecto de Supabase está activo el día de clase | El plan gratuito pausa tras 7 días sin uso y nadie puede entrar | Revisar el panel el día anterior |
 | Nombres repetidos o escritos distinto al entrar | La persona no puede entrar | Nombre sin tildes, mayúsculas ni espacios; mensaje para agregar apellido; el facilitador busca en Supabase |
+| Las lecciones de educación financiera son correctas y claras para el grupo | Un dato errado (préstamos, SBS) daña la confianza | Revisar `src/data/educacion.js` con el equipo de la capacitación antes del piloto |
+| Los consumos de ejemplo (metros de tela por polo, ml de shampoo por servicio) son realistas | Costos que no reconocen | Revisar `src/data/materiales.js` junto con `rubros.js` con alguien de cada oficio |
 | Los ejemplos y precios sugeridos son realistas para la zona | Si no, pierden credibilidad al instante | Revisar las listas con alguien de cada oficio antes de la fase 3 |
 | "Tradicional" = precio = costo + % de ganancia **sobre el costo** | Si la PPT usa otra fórmula, la app confunde | Confirmar contra la diapositiva de precio antes de la fase 1 |
 | Flujo de caja a 3 meses, por mes | Si la PPT usa semanas u otro plazo, hay que rehacer esa pantalla | Confirmar contra la PPT antes de la fase 2 |
@@ -125,6 +132,8 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 - **Lobby con apartados** en vez de un solo recorrido. El apartado sugerido ("Sigue aquí") mantiene la guía para quien empieza.
 - **Plan (flujo de caja) y realidad (control de caja) separados.**
 - **Supabase + copia en el celular:** la app no se detiene si se corta el internet en clase.
+- **v3: inventario, fichas de costo y lecciones viven dentro de los datos del negocio** (no son tablas nuevas): no hubo que cambiar la base de datos y se sincronizan igual que el plan. El historial del inventario guarda los últimos 400 movimientos.
+- **Costo por producto = materiales + mano de obra + parte de los pagos del mes.** El valor de la hora lo pone la persona; los pagos del mes salen de "Costos del mes" si ya lo completó.
 - **Tres rubros con ejemplos propios.** La sugerencia concreta del oficio es lo que quita la hoja en blanco.
 - **Precio por costo + % sobre el costo** (método "tradicional"; pendiente de confirmar).
 - **Flujo de caja corto: 3 meses** (pendiente de confirmar el plazo exacto).
@@ -194,6 +203,18 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 - [ ] Crear y configurar el proyecto de Supabase (ver README)
 - [ ] Probar en dos celulares, y con 5 celulares a la vez en el mismo WiFi
 - [ ] Consultar con la institución el uso del DNI
+
+### Fase 2c — Educación financiera, inventario y costo por producto (v3)
+
+**Objetivo:** que la app acompañe el día a día del negocio y enseñe hábitos de manejo del dinero.
+**Terminó cuando:** una persona registra sus materiales, calcula el costo de un producto, lo vende desde la caja y ve bajar su inventario; y completa una lección.
+
+- [x] Inventario: materiales, compras (con costo promedio y anotación en caja), usos, conteos, alertas de mínimo
+- [x] Costo por producto con materiales, trabajo y pagos del mes; precio sugerido y comparación
+- [x] Vender un producto desde la caja descuenta sus materiales
+- [x] 8 lecciones con pregunta y progreso en el lobby
+- [ ] Revisar contenidos de lecciones y consumos de ejemplo
+- [ ] Probar con 2–3 personas: ¿entienden "medida" y "cuánto usa uno"?
 
 ### Fase 3 — Los tres rubros y ensayo en clase
 

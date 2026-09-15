@@ -5,6 +5,9 @@ import { RUBROS } from './data/rubros.js'
 import { CLAVE_GUARDADO, GANANCIA_INICIAL, MESES_FLUJO } from './config.js'
 import { almacen, nuevoId } from './almacen.js'
 import { calcular, num } from './lib/calc.js'
+import { hoy } from './lib/caja.js'
+import { aplicarMovimiento, inventarioVacio, usarProducto } from './lib/inventario.js'
+import { LECCIONES } from './data/educacion.js'
 
 const desdeSugerencias = (lista) =>
   lista.map((s) => ({ id: nuevoId(), nombre: s.nombre, sugerido: s.precio, ayuda: s.ayuda, precio: '', marcado: false }))
@@ -86,10 +89,98 @@ export function reducirDatos(d, accion) {
     }
     case 'hecho':
       return { ...d, hechos: { ...d.hechos, [accion.apartado]: true } }
+
+    // ---------- Educación financiera ----------
+    case 'leccion': {
+      const educacion = { ...d.educacion, [accion.id]: true }
+      const todas = LECCIONES.every((l) => educacion[l.id])
+      return { ...d, educacion, hechos: todas ? { ...d.hechos, educacion: true } : d.hechos }
+    }
+
+    // ---------- Inventario ----------
+    case 'material:agregar': {
+      const inv = inventarioDe(d)
+      const m = accion.material
+      const material = { id: m.id ?? nuevoId(), nombre: m.nombre, medida: m.medida, costo: num(m.costo), stock: 0, minimo: num(m.minimo) }
+      let nuevo = { ...inv, materiales: [...inv.materiales, material] }
+      if (num(m.stock) > 0) {
+        nuevo = aplicarMovimiento(nuevo, { id: nuevoId(), fecha: hoy(), materialId: material.id, tipo: 'ajuste', cantidad: num(m.stock), nota: 'Cantidad inicial' })
+      }
+      return { ...d, inventario: nuevo }
+    }
+    case 'material:editar': {
+      const inv = inventarioDe(d)
+      const materiales = inv.materiales.map((m) => (m.id === accion.id ? { ...m, ...accion.cambio } : m))
+      return { ...d, inventario: { ...inv, materiales } }
+    }
+    case 'material:quitar': {
+      const inv = inventarioDe(d)
+      return {
+        ...d,
+        inventario: { ...inv, materiales: inv.materiales.filter((m) => m.id !== accion.id) },
+        productos: (d.productos ?? []).map((p) => ({ ...p, materiales: p.materiales.filter((l) => l.materialId !== accion.id) })),
+      }
+    }
+    case 'material:ejemplos': {
+      const inv = inventarioDe(d)
+      const nombres = new Set(inv.materiales.map((m) => m.nombre.toLowerCase()))
+      const nuevos = accion.materiales
+        .filter((m) => !nombres.has(m.nombre.toLowerCase()))
+        .map((m) => ({ id: nuevoId(), nombre: m.nombre, medida: m.medida, costo: m.costo, stock: 0, minimo: m.minimo ?? 0 }))
+      return { ...d, inventario: { ...inv, materiales: [...inv.materiales, ...nuevos] } }
+    }
+    case 'inventario:movimiento':
+      return { ...d, inventario: aplicarMovimiento(inventarioDe(d), { id: nuevoId(), fecha: hoy(), ...accion.movimiento }) }
+    case 'inventario:usarProducto': {
+      const producto = (d.productos ?? []).find((p) => p.id === accion.productoId)
+      if (!producto) return d
+      return { ...d, inventario: usarProducto(inventarioDe(d), producto, accion.cantidad, { fecha: accion.fecha ?? hoy(), nuevoId }) }
+    }
+
+    // ---------- Costo por producto ----------
+    case 'producto:guardar': {
+      const productos = d.productos ?? []
+      const existe = productos.some((p) => p.id === accion.producto.id)
+      return {
+        ...d,
+        productos: existe ? productos.map((p) => (p.id === accion.producto.id ? accion.producto : p)) : [...productos, accion.producto],
+      }
+    }
+    case 'producto:quitar':
+      return { ...d, productos: (d.productos ?? []).filter((p) => p.id !== accion.id) }
+    case 'producto:ejemplo': {
+      // Crea la ficha de ejemplo y, si faltan, sus materiales en el inventario (con cantidad 0).
+      const ej = accion.ejemplo
+      let inv = inventarioDe(d)
+      const idPorClave = {}
+      for (const [clave] of Object.entries(ej.usa)) {
+        const base = accion.materiales.find((m) => m.clave === clave)
+        if (!base) continue
+        let m = inv.materiales.find((x) => x.nombre.toLowerCase() === base.nombre.toLowerCase())
+        if (!m) {
+          m = { id: nuevoId(), nombre: base.nombre, medida: base.medida, costo: base.costo, stock: 0, minimo: base.minimo ?? 0 }
+          inv = { ...inv, materiales: [...inv.materiales, m] }
+        }
+        idPorClave[clave] = m.id
+      }
+      const producto = {
+        id: accion.id ?? nuevoId(),
+        nombre: ej.nombre,
+        horas: String(ej.horas),
+        incluirFijos: true,
+        precioVenta: '',
+        materiales: Object.entries(ej.usa)
+          .filter(([clave]) => idPorClave[clave])
+          .map(([clave, cantidad]) => ({ materialId: idPorClave[clave], cantidad: String(cantidad) })),
+      }
+      return { ...d, inventario: inv, productos: [...(d.productos ?? []), producto] }
+    }
     default:
       return d
   }
 }
+
+export const inventarioDe = (d) => d.inventario ?? inventarioVacio()
 
 // ---------- Guardado local + sincronización ----------
 const claveCache = (userId) => `escala:u:${userId}`

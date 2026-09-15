@@ -8,7 +8,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "test": "node --test src/lib/calc.test.js src/lib/nuevo.test.js",
+    "test": "node --test src/lib/calc.test.js src/lib/nuevo.test.js src/lib/inventario.test.js",
     "probar:supabase": "node scripts/probar-supabase.mjs"
   },
   "dependencies": {

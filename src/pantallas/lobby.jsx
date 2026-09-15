@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { RUBROS } from '../data/rubros.js'
 import { MESES_FLUJO } from '../config.js'
-import { APARTADO, destinoDisponible, estadoApartados } from '../lib/apartados.js'
+import { APARTADO, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
+import { LECCIONES } from '../data/educacion.js'
+import { costoProducto, porAcabarse } from '../lib/inventario.js'
 import { hoy, mesDe, resumenMes, saldo } from '../lib/caja.js'
 import { soles } from '../lib/calc.js'
 import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
@@ -10,7 +12,7 @@ import { CampoTexto, EstadoGuardado, Logo, Marco, MensajeError } from '../compon
 
 export const plural = (n, r) => `${n.toLocaleString('es-PE')} ${n === 1 ? r.unidad : r.unidades}`
 
-function detalleApartado(id, n, r, movimientos) {
+function detalleApartado(id, n, r, movimientos, datos) {
   switch (id) {
     case 'presupuesto':
       return n.inversion > 0 ? `${soles(n.inversion)} para arrancar` : 'Ya tengo todo para empezar'
@@ -24,6 +26,26 @@ function detalleApartado(id, n, r, movimientos) {
       return `${MESES_FLUJO} meses: ${n.totalFlujo >= 0 ? 'te quedan' : 'te faltan'} ${soles(Math.abs(n.totalFlujo))}`
     case 'caja':
       return movimientos.length ? `Saldo: ${soles(saldo(movimientos))}` : ''
+    case 'inventario': {
+      const mats = datos.inventario?.materiales ?? []
+      if (!mats.length) return ''
+      const contados = new Set((datos.inventario.movimientos ?? []).map((m) => m.materialId))
+      const bajos = porAcabarse(mats).filter((m) => contados.has(m.id)).length
+      return `${mats.length} materiales${bajos ? ` · ⚠️ ${bajos} por acabarse` : ''}`
+    }
+    case 'costeo': {
+      const productos = datos.productos ?? []
+      if (!productos.length) return ''
+      const pierden = productos.filter((p) => {
+        const c = costoProducto(p, datos.inventario?.materiales ?? [], { valorHora: Number(datos.valorHora) || 0, fijoPorUnidad: datos.hechos?.costos ? n.fijoPorUnidad : 0 })
+        return Number(p.precioVenta) > 0 && Number(p.precioVenta) < c.total
+      }).length
+      return `${productos.length} ${productos.length === 1 ? 'producto' : 'productos'}${pierden ? ` · ⚠️ ${pierden} con pérdida` : ''}`
+    }
+    case 'educacion': {
+      const hechas = LECCIONES.filter((l) => datos.educacion?.[l.id]).length
+      return hechas ? `${hechas} de ${LECCIONES.length} lecciones` : ''
+    }
     default:
       return ''
   }
@@ -36,6 +58,9 @@ const QUE_ES = {
   meta: 'Cuánto vender al mes',
   flujo: 'Cómo te irá los primeros meses',
   caja: 'Anota el dinero que entra y sale',
+  inventario: 'Cuánto material tienes y cuándo comprar',
+  costeo: 'Cuánto te cuesta de verdad cada producto',
+  educacion: '8 lecciones cortas para cuidar tu dinero',
 }
 
 function textoResumen(perfil, r, n, movimientos) {
@@ -140,20 +165,22 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
           )}
         </section>
 
-        <section className="apartados">
-          {lista.map((a) => {
+        {GRUPOS.map((g) => (
+        <section key={g.id} className="apartados">
+          <h2 className="grupo__titulo">{g.nombre}</h2>
+          {lista.filter((a) => a.grupo === g.id).map((a) => {
             const esSiguiente = a.id === siguiente
-            const detalle = a.estado === 'hecho' || a.id === 'caja' ? detalleApartado(a.id, n, r, movimientos) : ''
+            const detalle = a.estado === 'hecho' || a.grupo !== 'plan' ? detalleApartado(a.id, n, r, movimientos, perfil.datos) : ''
             return (
               <button
                 key={a.id}
-                className={`apartado apartado--${a.estado}${esSiguiente ? ' apartado--siguiente' : ''}${a.id === 'caja' ? ' apartado--caja' : ''}`}
+                className={`apartado apartado--${a.estado}${esSiguiente ? ' apartado--siguiente' : ''}`}
                 onClick={() => ir(`/${destinoDisponible(lista, a.id)}`)}
               >
                 <span className="apartado__icono">{a.estado === 'hecho' ? '✓' : a.estado === 'bloqueado' ? '🔒' : a.emoji}</span>
                 <span className="apartado__texto">
                   <span className="apartado__nombre">
-                    {a.id !== 'caja' && <span className="apartado__num">{a.numero}.</span>} {a.nombre}
+                    {a.numero && <span className="apartado__num">{a.numero}.</span>} {a.nombre}
                   </span>
                   <span className="apartado__detalle">
                     {a.estado === 'bloqueado'
@@ -166,6 +193,7 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
             )
           })}
         </section>
+        ))}
 
         {hayAlgo && (
           <button className="btn btn--whatsapp" onClick={() => compartirTexto(textoResumen(perfil, r, n, movimientos))}>

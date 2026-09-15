@@ -11,6 +11,9 @@ import { Bienvenida, Crear, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
 import { Lobby, Perfil } from './pantallas/lobby.jsx'
 import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.jsx'
 import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
+import { Inventario, Material, MovimientoInventario } from './pantallas/inventario.jsx'
+import { Costeo, FichaProducto } from './pantallas/costeo.jsx'
+import { Educacion, Leccion } from './pantallas/educacion.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
@@ -154,6 +157,24 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     const caja = { ...comunes, movimientos: neg.movimientos, agregarMovimiento: neg.agregarMovimiento, borrarMovimiento: neg.borrarMovimiento }
     if (!sub) return <Caja {...caja} />
     if (['entrada', 'salida', 'inicial'].includes(sub)) return <NuevoMovimiento key={sub} tipo={sub} {...caja} />
+  }
+
+  if (seccion === 'inventario') {
+    const props = { ...comunes, agregarMovimiento: neg.agregarMovimiento }
+    if (!sub) return <Inventario {...props} />
+    if (sub === 'nuevo') return <Material key="nuevo" {...props} />
+    if (sub === 'material' && ruta[2]) return <Material key={ruta[2]} id={ruta[2]} {...props} />
+    if (['compra', 'uso', 'conteo'].includes(sub)) return <MovimientoInventario key={sub} tipo={sub} {...props} />
+  }
+
+  if (seccion === 'costeo') {
+    if (!sub) return <Costeo {...comunes} />
+    return <FichaProducto key={sub} id={sub} {...comunes} />
+  }
+
+  if (seccion === 'educacion') {
+    if (!sub) return <Educacion {...comunes} />
+    return <Leccion key={sub} id={sub} {...comunes} />
   }
 
   if (seccion === 'perfil') {
