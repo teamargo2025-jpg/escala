@@ -16,3 +16,7 @@ export const GANANCIAS_RAPIDAS = [20, 30, 40, 50]
 export const GANANCIA_INICIAL = 30
 
 export const CLAVE_GUARDADO = 'escala:v1'
+
+// Dominio interno para convertir el apodo en "correo" de Supabase Auth. Nunca se envían correos;
+// .invalid es un dominio reservado que no existe, así nadie recibe nada por error.
+export const DOMINIO_CUENTAS = 'cuentas.escala.invalid'

@@ -8,9 +8,10 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "test": "node --test src/lib/calc.test.js"
+    "test": "node --test src/lib/calc.test.js src/lib/nuevo.test.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

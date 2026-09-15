@@ -1,5 +1,4 @@
 import { useId, useState } from 'react'
-import { TOTAL_PASOS } from './estado.js'
 import { num, soles, totalMarcado } from './lib/calc.js'
 
 export function Logo({ grande }) {
@@ -15,8 +14,16 @@ export function Logo({ grande }) {
   )
 }
 
-// Estructura de cada pantalla: barra de avance arriba, contenido, botón grande abajo.
-export function Marco({ paso, titulo, onAtras, children, pie }) {
+const TEXTO_GUARDADO = { ok: '✓ Guardado', guardando: 'Guardando…', pendiente: 'Sin internet: se guarda al volver' }
+
+export function EstadoGuardado({ estado }) {
+  if (!estado) return null
+  return <span className={`guardado guardado--${estado}`}>{TEXTO_GUARDADO[estado]}</span>
+}
+
+// Estructura de cada pantalla: barra arriba (volver, título, avance), contenido, botón grande abajo.
+// `pasos` = { actual, total } para apartados de varias pantallas o para el registro.
+export function Marco({ titulo, emoji, pasos, onAtras, children, pie, guardado }) {
   return (
     <div className="marco">
       <header className="barra">
@@ -29,16 +36,32 @@ export function Marco({ paso, titulo, onAtras, children, pie }) {
         )}
         <div className="barra__centro">
           <div className="barra__texto">
-            <span>
-              Paso {paso} de {TOTAL_PASOS}
-            </span>
-            <strong>{titulo}</strong>
+            <strong>
+              {emoji && <span aria-hidden="true">{emoji} </span>}
+              {titulo}
+            </strong>
+            {pasos ? (
+              <span>
+                {pasos.actual} de {pasos.total}
+              </span>
+            ) : (
+              <EstadoGuardado estado={guardado} />
+            )}
           </div>
-          <div className="avance" role="progressbar" aria-valuemin={0} aria-valuemax={TOTAL_PASOS} aria-valuenow={paso}>
-            {Array.from({ length: TOTAL_PASOS }, (_, i) => (
-              <span key={i} className={i < paso ? 'hecho' : ''} />
-            ))}
-          </div>
+          {pasos && (
+            <div
+              className="avance"
+              style={{ gridTemplateColumns: `repeat(${pasos.total}, 1fr)` }}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={pasos.total}
+              aria-valuenow={pasos.actual}
+            >
+              {Array.from({ length: pasos.total }, (_, i) => (
+                <span key={i} className={i < pasos.actual ? 'hecho' : ''} />
+              ))}
+            </div>
+          )}
         </div>
       </header>
       <main className="contenido">{children}</main>
@@ -177,6 +200,46 @@ export function ListaItems({ items, lista, despachar, textoTotal, textoAgregar =
         <strong>{soles(total)}</strong>
       </div>
     </div>
+  )
+}
+
+export function CampoTexto({ valor, onCambio, placeholder, etiqueta, grande, tipo = 'text', inputMode, maxLength, autoComplete = 'off', onEnter, autoFocus }) {
+  return (
+    <label className={`campo${grande ? ' campo--grande campo--texto' : ''}`}>
+      {etiqueta && <span className="campo__etiqueta">{etiqueta}</span>}
+      <span className="campo__caja">
+        <input
+          type={tipo}
+          inputMode={inputMode}
+          value={valor}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          autoComplete={autoComplete}
+          autoCapitalize={inputMode ? 'off' : 'words'}
+          autoFocus={autoFocus}
+          onChange={(e) => onCambio(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onEnter?.()}
+        />
+      </span>
+    </label>
+  )
+}
+
+export function Casilla({ marcada, onCambio, children }) {
+  return (
+    <button className={`casilla${marcada ? ' casilla--marcada' : ''}`} role="checkbox" aria-checked={marcada} onClick={() => onCambio(!marcada)}>
+      <span className="item__check">{marcada ? '✓' : ''}</span>
+      <span>{children}</span>
+    </button>
+  )
+}
+
+export function MensajeError({ children }) {
+  if (!children) return null
+  return (
+    <p className="mensaje-error" role="alert">
+      {children}
+    </p>
   )
 }
 

@@ -1,8 +1,8 @@
 # ESCALA
 
-> App para el celular que guía, paso a paso y con ejemplos de su oficio, a emprendedores en capacitación para armar su presupuesto, su precio de venta, su meta de ventas y su flujo de caja.
+> App para el celular que guía, paso a paso y con ejemplos de su oficio, a emprendedores en capacitación para armar su presupuesto, su precio de venta, su meta de ventas y su flujo de caja, y luego llevar el control de caja de su negocio en el día a día.
 
-*Última actualización: 13 de septiembre de 2026*
+*Última actualización: 15 de septiembre de 2026 (v2: cuentas, lobby y control de caja)*
 
 ## El problema
 
@@ -24,11 +24,42 @@ Resultado: la parte práctica no deja a cada persona con los números de *su* ne
 
 Usan **solo su propio celular**, dentro de la clase, con internet disponible. El nivel de manejo de números y de tecnología es variable; hay que diseñar para el más bajo.
 
-**Facilitador (tú).** Proyecta el material con cañón multimedia y guía la sesión. En la v1 no necesita ver los datos de los participantes.
+**Facilitador (tú).** Proyecta el material con cañón multimedia y guía la sesión. Por ahora no ve los datos de los participantes.
 
-## Qué hace la primera versión
+Después de la capacitación, los participantes siguen usando el **control de caja** en su vida diaria, desde su celular.
 
-Un solo recorrido guiado, una pregunta a la vez, en este orden (cada paso usa lo anterior):
+## Qué hace la versión 2
+
+**Entrada con cuenta.** Al abrir por primera vez, una pregunta por pantalla:
+
+1. **¿Cómo te llamas?** Es su usuario (sin importar mayúsculas, tildes ni espacios).
+2. **¿Cómo se llama tu emprendimiento?**
+3. **Tu DNI** (o carné de extranjería). Es su clave. Acepta que se guarden sus datos.
+4. **¿De qué rubro es?** Se cargan los ejemplos de ese oficio.
+
+Las siguientes veces entra con nombre + DNI, o directo si la sesión sigue abierta en su celular.
+
+**Lobby.** Saludo con su nombre y el de su emprendimiento, un resumen "Tu negocio hoy" con los números clave, y una tarjeta por apartado con su estado (hecho ✓, siguiente sugerido, bloqueado con "Primero: …"). Botón para enviar el resumen por WhatsApp.
+
+**Apartados** (cada uno se entra, se completa con "Listo" y vuelve al lobby):
+
+| # | Apartado | Qué tiene | Requiere |
+|---|---|---|---|
+| 1 | Presupuesto de arranque | Herramientas y gastos iniciales → inversión total | — |
+| 2 | Costos del mes | Fijos, variables y cuántas unidades puede hacer al mes | — |
+| 3 | Precio de venta | Costo por unidad + % de ganancia | 2 |
+| 4 | Meta de ventas | Punto de equilibrio y unidades para su ganancia deseada | 3 |
+| 5 | Flujo de caja (plan) | Proyección a 3 meses | 1 y 3 |
+| 6 | Control de caja | Registro real: "Entró dinero" / "Salió dinero", saldo, resumen del mes, ventas contra punto de equilibrio | — |
+
+Además:
+- Cada campo tiene "¿qué pongo aquí?" con un ejemplo del rubro elegido.
+- Los datos se guardan en Supabase y también en el celular: si se corta el internet, sigue funcionando y sube los cambios al volver.
+- Quien usó la v1 en ese celular puede traer sus números al crear su cuenta.
+
+## Qué hacía la primera versión (histórico)
+
+Un solo recorrido guiado, sin cuentas y con datos solo en el celular:
 
 1. **Elige tu rubro.** Se cargan sugerencias y ejemplos de ese oficio.
 2. **Lo que necesitas para arrancar.** La app sugiere herramientas, máquinas y gastos iniciales del rubro; la persona marca y pone precio. Ve **cuánto dinero necesita para empezar**.
@@ -47,13 +78,13 @@ Además:
 
 | Fuera | Por qué |
 |---|---|
-| Cuentas y contraseñas | En clase, crear cuentas se come media sesión y trae olvidos de clave. Guardar en el celular basta. |
-| Panel del facilitador con los resultados de todos | Obliga a base de datos y a manejar datos personales de un grupo vulnerable. Se agrega solo si en la práctica hace falta. |
+| Panel del facilitador con los resultados de todos | Ya hay base de datos, pero ver datos de otros exige más cuidado con la privacidad. Se agrega solo si en la práctica hace falta. |
+| Recuperar la cuenta sin ayuda | Sin correo real no hay "olvidé mi clave". El facilitador busca el nombre en Supabase. |
 | Exportar a PDF | La captura de pantalla cumple lo mismo y todos saben hacerla. |
 | Gráficos elaborados | Una barra simple basta para ver positivo/negativo. Lo interactivo cuesta más que todo lo demás. |
 | Más rubros | Primero validar los tres. Agregar uno después es cargar ejemplos, no programar. |
 | Impuestos, depreciación de equipos | Complican el recorrido. Entran solo si la PPT los enseña (ver preguntas abiertas). |
-| Funcionar sin internet | En la clase hay internet. |
+| Entrar por primera vez sin internet | Crear cuenta o entrar necesita conexión; después, si se corta, la app sigue y sincroniza al volver. |
 
 ## Cómo sabremos que funcionó
 
@@ -66,7 +97,7 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 - **Equipo:** una persona, con Claude Code.
 - **Presupuesto:** cero. Todo en planes gratuitos.
 - **Fecha:** hay capacitación pendiente, sin fecha cerrada ("aún hay tiempo").
-- **Stack:** Vite + React, desplegado en Vercel. Sin backend en la v1; datos en el almacenamiento del navegador.
+- **Stack:** Vite + React en Vercel, Supabase (Auth + Postgres) para cuentas y datos. Usa 1 de los 2 proyectos gratuitos de Supabase.
 - **Uso:** celulares de gama variada, pantalla chica. Botones grandes, poco texto por pantalla.
 - **Moneda:** soles.
 
@@ -75,6 +106,10 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 | Qué asumimos / qué puede fallar | Impacto | Cómo lo comprobamos barato |
 |---|---|---|
 | Una persona del perfil puede completar el recorrido sola, en su celular, en el tiempo de clase | Si no, la app no sirve aunque calcule bien | Fase 1: costos + precio de un rubro, probado con 2–3 personas sin explicarles nada |
+| El DNI como clave es aceptable para el grupo y la institución | El DNI es dato personal (Ley 29733) y no es secreto: quien sepa el nombre y el DNI de alguien entra a su cuenta | Consultar con la institución antes del piloto. El DNI solo viaja cifrado a Supabase Auth; nunca va a una tabla ni se guarda en el celular |
+| Todos crean cuenta a la vez desde el mismo WiFi | Supabase limita ingresos por IP: parte del grupo podría quedar bloqueada | Subir el límite en Authentication → Rate Limits antes del piloto y probar con 5 celulares |
+| El proyecto de Supabase está activo el día de clase | El plan gratuito pausa tras 7 días sin uso y nadie puede entrar | Revisar el panel el día anterior |
+| Nombres repetidos o escritos distinto al entrar | La persona no puede entrar | Nombre sin tildes, mayúsculas ni espacios; mensaje para agregar apellido; el facilitador busca en Supabase |
 | Los ejemplos y precios sugeridos son realistas para la zona | Si no, pierden credibilidad al instante | Revisar las listas con alguien de cada oficio antes de la fase 3 |
 | "Tradicional" = precio = costo + % de ganancia **sobre el costo** | Si la PPT usa otra fórmula, la app confunde | Confirmar contra la diapositiva de precio antes de la fase 1 |
 | Flujo de caja a 3 meses, por mes | Si la PPT usa semanas u otro plazo, hay que rehacer esa pantalla | Confirmar contra la PPT antes de la fase 2 |
@@ -85,7 +120,11 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 
 - **Recorrido guiado, no plantilla digital.** El problema del papel es la hoja vacía; copiarla a una pantalla no lo resuelve.
 - **Costos preguntados sin jerga.** "Lo que pagas aunque no vendas" en vez de "costo fijo". El término se muestra después, como aprendizaje.
-- **Sin cuentas ni base de datos en la v1.** Menos fricción en clase y ningún dato personal fuera del celular.
+- ~~Sin cuentas ni base de datos en la v1.~~ **Cambiado en v2 (15/09/2026):** cuentas con Supabase, para que los datos sigan a la persona y el control de caja le sirva en su vida diaria.
+- **Usuario = nombre, clave = DNI** (o carné de extranjería). Fácil de recordar; se acepta que no es una clave secreta.
+- **Lobby con apartados** en vez de un solo recorrido. El apartado sugerido ("Sigue aquí") mantiene la guía para quien empieza.
+- **Plan (flujo de caja) y realidad (control de caja) separados.**
+- **Supabase + copia en el celular:** la app no se detiene si se corta el internet en clase.
 - **Tres rubros con ejemplos propios.** La sugerencia concreta del oficio es lo que quita la hoja en blanco.
 - **Precio por costo + % sobre el costo** (método "tradicional"; pendiente de confirmar).
 - **Flujo de caja corto: 3 meses** (pendiente de confirmar el plazo exacto).
@@ -141,6 +180,20 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 - Flujo de caja a 3 meses (o el plazo que confirme la PPT)
 - Pantalla de resumen + botón compartir
 - Guardado del avance en el celular
+
+### Fase 2b — Cuentas, lobby y control de caja (v2)
+
+**Objetivo:** que cada participante tenga su cuenta, trabaje por apartados y pueda seguir usando el control de caja después del curso.
+**Terminó cuando:** desde dos celulares distintos entras con el mismo nombre + DNI y ves los mismos números y movimientos de caja.
+
+- [x] Registro (nombre → emprendimiento → DNI → rubro) y entrada con nombre + DNI
+- [x] Lobby con resumen y apartados con dependencias
+- [x] Control de caja: entradas, salidas, saldo, resumen del mes, ventas contra punto de equilibrio
+- [x] Guardado en el celular + sincronización con reintentos
+- [x] Base de datos donde cada persona solo accede a lo suyo (`supabase/001_inicial.sql`)
+- [ ] Crear y configurar el proyecto de Supabase (ver README)
+- [ ] Probar en dos celulares, y con 5 celulares a la vez en el mismo WiFi
+- [ ] Consultar con la institución el uso del DNI
 
 ### Fase 3 — Los tres rubros y ensayo en clase
 
