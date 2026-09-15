@@ -23,6 +23,8 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
    - En tu computadora: copiar `.env.example` como `.env.local` y pegarlas.
    - En Vercel: Project → Settings → Environment Variables → agregar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (Production y Preview) → Deployments → Redeploy.
 
+**Comprobar que todo quedó bien:** `npm run probar:supabase` crea dos cuentas de prueba y revisa registro, entrada, guardado y que ninguna cuenta vea datos ajenos. Luego bórralas en Authentication → Users (empiezan con `pruebaescala`).
+
 **Antes de cada clase:** el plan gratuito de Supabase pausa el proyecto tras 7 días sin uso. Entra al panel y, si dice *Paused*, pulsa *Restore*.
 
 **Si alguien olvida con qué nombre se registró:** Authentication → Users. El correo interno es el nombre sin tildes, espacios ni mayúsculas (María José → `mariajose@cuentas.escala.invalid`).
