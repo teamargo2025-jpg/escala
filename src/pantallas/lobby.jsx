@@ -5,7 +5,7 @@ import { APARTADO, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apa
 import { LECCIONES } from '../data/educacion.js'
 import { costoProducto, porAcabarse } from '../lib/inventario.js'
 import { hoy, mesDe, resumenMes, saldo } from '../lib/caja.js'
-import { soles } from '../lib/calc.js'
+import { num, soles } from '../lib/calc.js'
 import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
 import { ir, volver } from '../negocio.js'
 import { CampoTexto, EstadoGuardado, Logo, Marco, MensajeError } from '../componentes.jsx'
@@ -37,8 +37,8 @@ function detalleApartado(id, n, r, movimientos, datos) {
       const productos = datos.productos ?? []
       if (!productos.length) return ''
       const pierden = productos.filter((p) => {
-        const c = costoProducto(p, datos.inventario?.materiales ?? [], { valorHora: Number(datos.valorHora) || 0, fijoPorUnidad: datos.hechos?.costos ? n.fijoPorUnidad : 0 })
-        return Number(p.precioVenta) > 0 && Number(p.precioVenta) < c.total
+        const c = costoProducto(p, datos.inventario?.materiales ?? [], { valorHora: num(datos.valorHora), fijoPorUnidad: datos.hechos?.costos ? n.fijoPorUnidad : 0 })
+        return num(p.precioVenta) > 0 && num(p.precioVenta) < c.total
       }).length
       return `${productos.length} ${productos.length === 1 ? 'producto' : 'productos'}${pierden ? ` · ⚠️ ${pierden} con pérdida` : ''}`
     }

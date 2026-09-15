@@ -6,7 +6,7 @@ import { validarApodo, validarEmprendimiento } from './lib/cuenta.js'
 import {
   datosIniciales, datosVersionAnterior, irAlInicio, olvidarVersionAnterior, reemplazar, useNegocio, useRuta, volver,
 } from './negocio.js'
-import { Logo } from './componentes.jsx'
+import { Logo, Redirigir } from './componentes.jsx'
 import { Bienvenida, Crear, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
 import { Lobby, Perfil } from './pantallas/lobby.jsx'
 import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.jsx'
@@ -24,13 +24,6 @@ function Cargando() {
       <Logo grande />
     </div>
   )
-}
-
-function Redirigir({ a }) {
-  useEffect(() => {
-    reemplazar(a)
-  }, [a])
-  return null
 }
 
 export default function App() {

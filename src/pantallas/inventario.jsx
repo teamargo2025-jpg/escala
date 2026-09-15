@@ -6,7 +6,7 @@ import { num, soles } from '../lib/calc.js'
 import { limpiarTexto } from '../lib/cuenta.js'
 import { MEDIDAS, alcanzaPara, fmtCantidad, porAcabarse, valorInventario } from '../lib/inventario.js'
 import { inventarioDe, ir, volver } from '../negocio.js'
-import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, MensajeError, Pregunta } from '../componentes.jsx'
+import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, MensajeError, Pregunta, Redirigir } from '../componentes.jsx'
 
 const marco = (guardado, extra) => ({
   titulo: APARTADO.inventario.nombre,
@@ -172,7 +172,7 @@ export function Material({ id, datos, despachar, guardado }) {
   const [paquete, setPaquete] = useState({ abierto: false, cantidad: '', precio: '' })
   const [borrar, setBorrar] = useState(false)
 
-  if (id && !existente) return null
+  if (id && !existente) return <Redirigir a="/inventario" />
   const valido = limpiarTexto(nombre).length >= 2
   const usadoEn = (datos.productos ?? []).filter((p) => p.materiales.some((l) => l.materialId === id))
   const costoPaquete = num(paquete.cantidad) > 0 && num(paquete.precio) > 0 ? num(paquete.precio) / num(paquete.cantidad) : null

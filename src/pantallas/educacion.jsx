@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react'
 import { LECCION, LECCIONES } from '../data/educacion.js'
 import { APARTADO } from '../lib/apartados.js'
 import { ir, volver } from '../negocio.js'
-import { BotonSiguiente, Marco } from '../componentes.jsx'
+import { BotonSiguiente, Marco, Redirigir } from '../componentes.jsx'
 
 // "**negrita**" → <strong>
 function Texto({ children }) {
@@ -65,7 +65,7 @@ export function Leccion({ id, datos, despachar, guardado, r, n }) {
   const l = LECCION[id]
   const [paso, setPaso] = useState(0)
   const [elegida, setElegida] = useState(null)
-  if (!l) return null
+  if (!l) return <Redirigir a="/educacion" />
   const tarjetas = l.tarjetas(r, n, datos.hechos ?? {})
   const pregunta = l.pregunta(r, n)
   const total = tarjetas.length + 1

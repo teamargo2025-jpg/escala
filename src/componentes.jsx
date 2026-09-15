@@ -1,5 +1,13 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { num, soles, totalMarcado } from './lib/calc.js'
+import { reemplazar } from './negocio.js'
+
+export function Redirigir({ a }) {
+  useEffect(() => {
+    reemplazar(a)
+  }, [a])
+  return null
+}
 
 export function Logo({ grande }) {
   return (

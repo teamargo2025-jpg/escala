@@ -6,8 +6,8 @@ import { num, soles } from '../lib/calc.js'
 import { limpiarTexto } from '../lib/cuenta.js'
 import { MEDIDAS, alcanzaPara, costoProducto, resultadoPrecio } from '../lib/inventario.js'
 import { nuevoId } from '../almacen.js'
-import { inventarioDe, ir, reemplazar, volver } from '../negocio.js'
-import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, Pregunta } from '../componentes.jsx'
+import { inventarioDe, ir, volver } from '../negocio.js'
+import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, Pregunta, Redirigir } from '../componentes.jsx'
 import { singular } from './inventario.jsx'
 
 const marco = (guardado, extra) => ({
@@ -105,7 +105,7 @@ export function FichaProducto({ id, datos, despachar, guardado, r, n }) {
   const [nuevoMat, setNuevoMat] = useState(null) // mini formulario para crear un material sin salir
   const [borrar, setBorrar] = useState(false)
 
-  if (id !== 'nuevo' && !existente) return null
+  if (id !== 'nuevo' && !existente) return <Redirigir a="/costeo" />
   const cambiar = (cambio) => setP((x) => ({ ...x, ...cambio }))
   const opciones = opcionesCosto(datos, n)
   const c = costoProducto(p, inv.materiales, opciones)
@@ -120,8 +120,7 @@ export function FichaProducto({ id, datos, despachar, guardado, r, n }) {
   const guardar = () => {
     if (!valido) return
     despachar({ tipo: 'producto:guardar', producto: { ...p, nombre: limpiarTexto(p.nombre) } })
-    if (id === 'nuevo') reemplazar('/costeo')
-    else volver('/costeo')
+    volver('/costeo')
   }
 
   const crearMaterial = () => {
