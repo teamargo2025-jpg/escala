@@ -98,21 +98,16 @@ export function Pregunta({ children, sub }) {
   )
 }
 
-// "¿Qué pongo aquí?": se abre con un toque, muestra un ejemplo del oficio.
+// "¿Qué pongo aquí?": siempre a la vista, con un ejemplo del oficio. Nadie tiene que descubrir que existe.
 export function Ayuda({ children, etiqueta = '¿Qué pongo aquí?' }) {
-  const [abierta, setAbierta] = useState(false)
   const id = useId()
   return (
-    <div className="ayuda">
-      <button className="ayuda__btn" aria-expanded={abierta} aria-controls={id} onClick={() => setAbierta(!abierta)}>
-        <span className="ayuda__icono">?</span> {etiqueta}
-      </button>
-      {abierta && (
-        <div className="ayuda__caja" id={id}>
-          {children}
-        </div>
-      )}
-    </div>
+    <aside className="ayuda" aria-labelledby={id}>
+      <p className="ayuda__titulo" id={id}>
+        <span className="ayuda__icono" aria-hidden="true">?</span> {etiqueta}
+      </p>
+      <div className="ayuda__caja">{children}</div>
+    </aside>
   )
 }
 
@@ -185,6 +180,7 @@ export function ListaItems({ items, lista, despachar, textoTotal, textoAgregar =
               </button>
             )}
           </div>
+          {it.ayuda && <p className="item__ayuda item__ayuda--siempre">💡 {it.ayuda}</p>}
           {it.marcado && (
             <div className="item__detalle">
               <CampoNumero
@@ -195,7 +191,6 @@ export function ListaItems({ items, lista, despachar, textoTotal, textoAgregar =
               {it.sugerido != null && num(it.precio) === it.sugerido && (
                 <span className="item__nota">Precio de ejemplo. Cámbialo si pagas otro.</span>
               )}
-              {it.ayuda && <p className="item__ayuda">{it.ayuda}</p>}
             </div>
           )}
         </div>

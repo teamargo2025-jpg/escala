@@ -99,15 +99,16 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
   const hayAlgo = Object.values(hechos).some(Boolean) || movimientos.length > 0
 
   const destacados = [
-    hechos.precio && { etiqueta: 'Precio de venta', valor: soles(n.precio), nota: `por ${r.unidad}` },
-    hechos.meta && n.equilibrio != null && { etiqueta: 'Para no perder', valor: plural(n.equilibrio, r), nota: 'al mes' },
-    !hechos.precio && hechos.presupuesto && { etiqueta: 'Para arrancar', valor: soles(n.inversion) },
-    !hechos.precio && hechos.costos && { etiqueta: 'Te cuesta', valor: soles(n.costoUnidad, { decimales: 2 }), nota: `cada ${r.unidad}` },
+    hechos.precio && { etiqueta: 'Precio de venta', valor: soles(n.precio), nota: `por ${r.unidad}`, de: 'precio' },
+    hechos.meta && n.equilibrio != null && { etiqueta: 'Para no perder', valor: plural(n.equilibrio, r), nota: 'al mes', de: 'meta' },
+    !hechos.precio && hechos.presupuesto && { etiqueta: 'Para arrancar', valor: soles(n.inversion), de: 'presupuesto' },
+    !hechos.precio && hechos.costos && { etiqueta: 'Te cuesta', valor: soles(n.costoUnidad, { decimales: 2 }), nota: `cada ${r.unidad}`, de: 'costos' },
     movimientos.length > 0 && {
       etiqueta: 'En caja',
       valor: soles(saldo(movimientos)),
       nota: caja.cantidad ? `este mes ${caja.resultado >= 0 ? '+ ' : ''}${soles(caja.resultado)}` : null,
       tono: saldo(movimientos) >= 0 ? 'pos' : 'neg',
+      de: 'caja',
     },
   ].filter(Boolean)
 
@@ -153,7 +154,7 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
           {destacados.length ? (
             <div className="tablero__grilla">
               {destacados.slice(0, 4).map((d) => (
-                <div key={d.etiqueta} className="tablero__dato">
+                <div key={d.etiqueta} className="tablero__dato" style={{ '--c': APARTADO[d.de].color, '--c-claro': APARTADO[d.de].claro }}>
                   <span>{d.etiqueta}</span>
                   <strong className={d.tono || ''}>{d.valor}</strong>
                   {d.nota && <small>{d.nota}</small>}
@@ -167,7 +168,7 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
 
         {GRUPOS.map((g) => (
         <section key={g.id} className="apartados">
-          <h2 className="grupo__titulo">{g.nombre}</h2>
+          <h2 className="grupo__titulo" style={{ '--c': g.color }}>{g.nombre}</h2>
           {lista.filter((a) => a.grupo === g.id).map((a) => {
             const esSiguiente = a.id === siguiente
             const detalle = a.estado === 'hecho' || a.grupo !== 'plan' ? detalleApartado(a.id, n, r, movimientos, perfil.datos) : ''
@@ -175,6 +176,7 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
               <button
                 key={a.id}
                 className={`apartado apartado--${a.estado}${esSiguiente ? ' apartado--siguiente' : ''}`}
+                style={{ '--c': a.color, '--c-claro': a.claro }}
                 onClick={() => ir(`/${destinoDisponible(lista, a.id)}`)}
               >
                 <span className="apartado__icono">{a.estado === 'hecho' ? '✓' : a.estado === 'bloqueado' ? '🔒' : a.emoji}</span>

@@ -1,22 +1,23 @@
 // Los apartados del lobby, su orden, de qué dependen y cuándo están completos.
 // grupo 'plan': se hacen una vez, en orden sugerido. 'dia': herramientas de uso diario. 'aprende': educación.
 
+// color: tono que distingue cada apartado en el lobby (franja e ícono). Se leen con texto blanco encima.
 export const GRUPOS = [
-  { id: 'plan', nombre: 'Tu plan' },
-  { id: 'dia', nombre: 'Tu negocio día a día' },
-  { id: 'aprende', nombre: 'Aprende' },
+  { id: 'plan', nombre: 'Tu plan', color: '#6d28d9' },
+  { id: 'dia', nombre: 'Tu negocio día a día', color: '#1f8a5b' },
+  { id: 'aprende', nombre: 'Aprende', color: '#c2366f' },
 ]
 
 export const APARTADOS = [
-  { id: 'presupuesto', grupo: 'plan', numero: 1, nombre: 'Presupuesto de arranque', emoji: '💰', requiere: [] },
-  { id: 'costos', grupo: 'plan', numero: 2, nombre: 'Costos del mes', emoji: '🧾', requiere: [] },
-  { id: 'precio', grupo: 'plan', numero: 3, nombre: 'Precio de venta', emoji: '🏷️', requiere: ['costos'] },
-  { id: 'meta', grupo: 'plan', numero: 4, nombre: 'Meta de ventas', emoji: '🎯', requiere: ['precio'] },
-  { id: 'flujo', grupo: 'plan', numero: 5, nombre: 'Flujo de caja', emoji: '📅', requiere: ['presupuesto', 'precio'] },
-  { id: 'caja', grupo: 'dia', nombre: 'Control de caja', emoji: '📒', requiere: [] },
-  { id: 'inventario', grupo: 'dia', nombre: 'Inventario', emoji: '📦', requiere: [] },
-  { id: 'costeo', grupo: 'dia', nombre: 'Costo por producto', emoji: '🧮', requiere: [] },
-  { id: 'educacion', grupo: 'aprende', nombre: 'Educación financiera', emoji: '🎓', requiere: [] },
+  { id: 'presupuesto', grupo: 'plan', numero: 1, nombre: 'Presupuesto de arranque', emoji: '💰', color: '#b7730c', claro: '#fff1d6', requiere: [] },
+  { id: 'costos', grupo: 'plan', numero: 2, nombre: 'Costos del mes', emoji: '🧾', color: '#d4551f', claro: '#ffe6da', requiere: [] },
+  { id: 'precio', grupo: 'plan', numero: 3, nombre: 'Precio de venta', emoji: '🏷️', color: '#c2366f', claro: '#fde2ed', requiere: ['costos'] },
+  { id: 'meta', grupo: 'plan', numero: 4, nombre: 'Meta de ventas', emoji: '🎯', color: '#2f6fdb', claro: '#e0ebfd', requiere: ['precio'] },
+  { id: 'flujo', grupo: 'plan', numero: 5, nombre: 'Flujo de caja', emoji: '📅', color: '#0e8a8a', claro: '#daf3f2', requiere: ['presupuesto', 'precio'] },
+  { id: 'caja', grupo: 'dia', nombre: 'Control de caja', emoji: '📒', color: '#1f8a5b', claro: '#dff3e8', requiere: [] },
+  { id: 'inventario', grupo: 'dia', nombre: 'Inventario', emoji: '📦', color: '#9a6417', claro: '#f7ecd9', requiere: [] },
+  { id: 'costeo', grupo: 'dia', nombre: 'Costo por producto', emoji: '🧮', color: '#5b4bd6', claro: '#e8e5fc', requiere: [] },
+  { id: 'educacion', grupo: 'aprende', nombre: 'Educación financiera', emoji: '🎓', color: '#9b34c9', claro: '#f3e4fb', requiere: [] },
 ]
 
 export const APARTADO = Object.fromEntries(APARTADOS.map((a) => [a.id, a]))
