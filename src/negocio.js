@@ -64,6 +64,8 @@ export function reducirDatos(d, accion) {
         // Al marcar por primera vez se llena con el precio de ejemplo: nunca una casilla vacía.
         if (accion.cambio.marcado && it.precio === '' && it.sugerido != null) cambio.precio = String(it.sugerido)
         if ('precio' in accion.cambio && num(accion.cambio.precio) > 0) cambio.marcado = true
+        // Si le cambian el nombre, la ayuda del ejemplo ya no corresponde.
+        if ('nombre' in accion.cambio) delete cambio.ayuda
         return cambio
       })
       return { ...d, [accion.lista]: lista }

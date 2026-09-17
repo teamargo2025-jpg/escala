@@ -515,3 +515,15 @@ h1, h2, p { margin: 0; }
   background: var(--papel); display: grid; place-items: center;
 }
 .emoji-opcion--activo { border-color: var(--marca); background: var(--acento-claro); box-shadow: 0 0 0 3px var(--acento-claro); }
+
+/* ---------- Renombrar una fila de la lista ---------- */
+.item__editar {
+  flex: none; width: 44px; height: 44px; border: 0; background: none; font-size: 19px; border-radius: 10px; opacity: 0.75;
+}
+.item__editar:active { background: var(--acento-claro); }
+.item--editando { border-color: var(--marca); background: #fff; }
+.item__editor { display: grid; gap: 10px; padding: 12px; }
+.item__editor .item__nombre-input { border: 2px solid var(--linea); border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 800; }
+.item__editor .item__nombre-input:focus { border-color: var(--marca); }
+.item__editor-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.item__editor-botones .btn { width: 100%; }

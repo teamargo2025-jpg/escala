@@ -145,13 +145,42 @@ export function CampoNumero({ valor, onCambio, prefijo = 'S/', sufijo, placehold
 }
 
 // Lista de sugerencias marcables con precio, más "agregar otro".
+// Cualquier fila se puede renombrar o quitar con el lápiz: las sugerencias son un punto de partida, no una regla.
 export function ListaItems({ items, lista, despachar, textoTotal, textoAgregar = 'Agregar otro' }) {
+  const [editando, setEditando] = useState(null)
   const total = totalMarcado(items)
   const cambiar = (id, cambio) => despachar({ tipo: 'item', lista, id, cambio })
+  const quitar = (id) => {
+    setEditando(null)
+    despachar({ tipo: 'quitarItem', lista, id })
+  }
   return (
     <div className="lista">
-      {items.map((it) => (
-        <div key={it.id} className={`item${it.marcado ? ' item--marcado' : ''}`}>
+      {items.map((it) => {
+        const enEdicion = editando === it.id || (it.propio && !it.nombre)
+        return (
+        <div key={it.id} className={`item${it.marcado ? ' item--marcado' : ''}${enEdicion ? ' item--editando' : ''}`}>
+          {enEdicion ? (
+            <div className="item__editor">
+              <input
+                className="item__nombre-input"
+                placeholder="¿Qué es?"
+                autoFocus
+                value={it.nombre}
+                maxLength={60}
+                onChange={(e) => cambiar(it.id, { nombre: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && it.nombre && setEditando(null)}
+              />
+              <div className="item__editor-botones">
+                <button className="btn btn--chico btn--suave" onClick={() => quitar(it.id)}>
+                  Quitar
+                </button>
+                <button className="btn btn--chico btn--principal" disabled={!it.nombre.trim()} onClick={() => setEditando(null)}>
+                  Guardar
+                </button>
+              </div>
+            </div>
+          ) : (
           <div className="item__fila">
             <button
               className="item__check"
@@ -162,24 +191,14 @@ export function ListaItems({ items, lista, despachar, textoTotal, textoAgregar =
             >
               {it.marcado ? '✓' : ''}
             </button>
-            {it.propio ? (
-              <input
-                className="item__nombre-input"
-                placeholder="¿Qué es?"
-                value={it.nombre}
-                onChange={(e) => cambiar(it.id, { nombre: e.target.value })}
-              />
-            ) : (
-              <span className="item__nombre" onClick={() => cambiar(it.id, { marcado: !it.marcado })}>
-                {it.nombre}
-              </span>
-            )}
-            {it.propio && (
-              <button className="item__quitar" aria-label="Quitar" onClick={() => despachar({ tipo: 'quitarItem', lista, id: it.id })}>
-                ✕
-              </button>
-            )}
+            <span className="item__nombre" onClick={() => cambiar(it.id, { marcado: !it.marcado })}>
+              {it.nombre}
+            </span>
+            <button className="item__editar" aria-label={`Cambiar el nombre de ${it.nombre}`} onClick={() => setEditando(it.id)}>
+              ✏️
+            </button>
           </div>
+          )}
           {it.ayuda && <p className="item__ayuda item__ayuda--siempre">💡 {it.ayuda}</p>}
           {it.marcado && (
             <div className="item__detalle">
@@ -194,7 +213,8 @@ export function ListaItems({ items, lista, despachar, textoTotal, textoAgregar =
             </div>
           )}
         </div>
-      ))}
+        )
+      })}
       <button className="btn btn--suave" onClick={() => despachar({ tipo: 'agregarItem', lista })}>
         + {textoAgregar}
       </button>
