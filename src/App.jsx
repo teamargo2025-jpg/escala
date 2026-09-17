@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { rubroDe } from './data/rubros.js'
+import { TEMA_POR_DEFECTO, aplicarTema } from './data/temas.js'
 import { almacen, MENSAJES_ERROR } from './almacen.js'
 import { destinoDisponible, estadoApartados } from './lib/apartados.js'
 import { validarApodo, validarEmprendimiento } from './lib/cuenta.js'
@@ -14,6 +15,7 @@ import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
 import { Inventario, Material, MovimientoInventario } from './pantallas/inventario.jsx'
 import { Costeo, FichaProducto } from './pantallas/costeo.jsx'
 import { Educacion, Leccion } from './pantallas/educacion.jsx'
+import { Asesores } from './pantallas/asesores.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
@@ -35,6 +37,11 @@ export default function App() {
   useEffect(() => {
     almacen.sesion().then(setUsuario, () => setUsuario(null))
   }, [])
+
+  // Sin sesión, la app vuelve a su color de siempre.
+  useEffect(() => {
+    if (usuario === null) aplicarTema(TEMA_POR_DEFECTO)
+  }, [usuario])
 
   const clave = ruta.join('/')
   useEffect(() => {
@@ -82,6 +89,11 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   useEffect(() => {
     if (ruta.length) setUltimoHecho(null)
   }, [ruta.length])
+
+  const tema = perfil?.datos?.tema ?? TEMA_POR_DEFECTO
+  useEffect(() => {
+    aplicarTema(tema)
+  }, [tema])
 
   const terminar = useCallback(
     (apartado) => {
@@ -170,6 +182,8 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     return <Leccion key={sub} id={sub} {...comunes} />
   }
 
+  if (seccion === 'asesores') return <Asesores perfil={perfil} guardado={guardado} />
+
   if (seccion === 'perfil') {
     if (sub === 'rubro') {
       return (
@@ -197,7 +211,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
         />
       )
     }
-    return <Perfil perfil={perfil} cambiarPerfil={neg.cambiarPerfil} onSalir={onSalir} />
+    return <Perfil perfil={perfil} cambiarPerfil={neg.cambiarPerfil} despachar={despachar} onSalir={onSalir} />
   }
 
   return <Redirigir a="/" />

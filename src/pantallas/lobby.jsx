@@ -8,6 +8,7 @@ import { hoy, mesDe, resumenMes, saldo } from '../lib/caja.js'
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
 import { ir, volver } from '../negocio.js'
+import { TEMAS, TEMA_POR_DEFECTO } from '../data/temas.js'
 import { CampoTexto, EstadoGuardado, Logo, Marco, MensajeError } from '../componentes.jsx'
 
 export const plural = (n, r) => `${n.toLocaleString('es-PE')} ${n === 1 ? r.unidad : r.unidades}`
@@ -117,9 +118,14 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
       <header className="lobby__cabeza">
         <div className="lobby__fila">
           <Logo />
-          <button className="lobby__perfil" onClick={() => ir('/perfil')} aria-label="Mi cuenta">
-            {perfil.nickname.slice(0, 1).toUpperCase()}
-          </button>
+          <div className="lobby__acciones">
+            <button className="btn-asesor" onClick={() => ir('/asesores')}>
+              💬 <span>Asesor</span>
+            </button>
+            <button className="lobby__perfil" onClick={() => ir('/perfil')} aria-label="Mi cuenta">
+              {perfil.nickname.slice(0, 1).toUpperCase()}
+            </button>
+          </div>
         </div>
         <p className="lobby__hola">Hola, {perfil.nickname} 👋</p>
         <div className="lobby__negocio">
@@ -207,7 +213,7 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
   )
 }
 
-export function Perfil({ perfil, cambiarPerfil, onSalir }) {
+export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
   const r = rubroDe(perfil)
   const [nombre, setNombre] = useState(perfil.emprendimiento)
   const [salirSeguro, setSalirSeguro] = useState(false)
@@ -236,6 +242,36 @@ export function Perfil({ perfil, cambiarPerfil, onSalir }) {
           Guardar nombre
         </button>
       )}
+
+      <div>
+        <span className="campo__etiqueta">Color de la app</span>
+        <div className="temas">
+          {TEMAS.map((t) => {
+            const elegido = (perfil.datos.tema ?? TEMA_POR_DEFECTO) === t.id
+            return (
+              <button
+                key={t.id}
+                className={`tema${elegido ? ' tema--elegido' : ''}`}
+                style={{ '--muestra': t.muestra }}
+                onClick={() => despachar({ tipo: 'campo', campo: 'tema', valor: t.id })}
+                aria-pressed={elegido}
+              >
+                <span className="tema__color">{elegido ? '✓' : ''}</span>
+                {t.nombre}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <button className="fila-opcion" onClick={() => ir('/asesores')}>
+        <span className="rubro__emoji">💬</span>
+        <span>
+          <small>¿Necesitas ayuda?</small>
+          <strong>Hablar con un asesor</strong>
+        </span>
+        <span className="apartado__flecha">→</span>
+      </button>
 
       <button className="fila-opcion" onClick={() => ir('/perfil/rubro')}>
         <span className="rubro__emoji">{r.emoji}</span>

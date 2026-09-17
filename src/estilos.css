@@ -527,3 +527,30 @@ h1, h2, p { margin: 0; }
 .item__editor .item__nombre-input:focus { border-color: var(--marca); }
 .item__editor-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .item__editor-botones .btn { width: 100%; }
+
+/* ---------- Asesor ---------- */
+.lobby__acciones { display: flex; align-items: center; gap: 8px; }
+.btn-asesor {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 99px;
+  border: 2px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.12); color: #fff;
+  font-weight: 800; font-size: 15px;
+}
+.btn-asesor span { white-space: nowrap; }
+.asesor__intro { font-size: 17px; color: var(--tinta-2); }
+.asesor { display: grid; gap: 10px; background: var(--papel); border: 2px solid var(--linea); border-radius: var(--radio); padding: 16px; box-shadow: var(--sombra); }
+.asesor__cabeza { display: flex; align-items: center; gap: 12px; }
+.asesor__cabeza div { display: grid; }
+.asesor__cabeza strong { font-size: 20px; font-weight: 900; }
+.asesor__cabeza span { color: var(--tinta-2); font-size: 15px; }
+.asesor__emoji { flex: none; width: 54px; height: 54px; display: grid; place-items: center; font-size: 28px; background: var(--acento-claro); border-radius: 14px; }
+.asesor__horario { font-size: 15px; color: var(--tinta-3); }
+.asesor .btn { text-align: center; text-decoration: none; line-height: 30px; }
+
+/* ---------- Elegir color de la app ---------- */
+.temas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tema {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-height: 60px; text-align: left;
+  background: var(--papel); border: 2px solid var(--linea); border-radius: var(--radio); font-weight: 800; font-size: 17px;
+}
+.tema__color { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--muestra); color: #fff; display: grid; place-items: center; font-weight: 900; }
+.tema--elegido { border-color: var(--muestra); box-shadow: 0 0 0 3px var(--acento-claro); }

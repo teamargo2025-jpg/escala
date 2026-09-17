@@ -3,7 +3,7 @@
 
 // color: tono que distingue cada apartado en el lobby (franja e ícono). Se leen con texto blanco encima.
 export const GRUPOS = [
-  { id: 'plan', nombre: 'Tu plan', color: '#6d28d9' },
+  { id: 'plan', nombre: 'Tu plan', color: 'var(--marca)' },
   { id: 'dia', nombre: 'Tu negocio día a día', color: '#1f8a5b' },
   { id: 'aprende', nombre: 'Aprende', color: '#c2366f' },
 ]
