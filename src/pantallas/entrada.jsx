@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LISTA_RUBROS, RUBROS } from '../data/rubros.js'
+import { EMOJIS_RUBRO, LISTA_RUBROS, RUBROS, crearRubro } from '../data/rubros.js'
 import { almacen, MENSAJES_ERROR, MODO_PRUEBA } from '../almacen.js'
 import { ir, reemplazar, volver } from '../negocio.js'
 import {
@@ -7,27 +7,42 @@ import {
 } from '../lib/cuenta.js'
 import { Ayuda, BotonSiguiente, CampoTexto, Casilla, Logo, Marco, MensajeError, Pregunta } from '../componentes.jsx'
 
+const LO_QUE_SABRAS = [
+  { emoji: '💰', texto: 'cuánto dinero necesitas para empezar', color: '#b7730c', claro: '#fff1d6' },
+  { emoji: '🏷️', texto: 'a qué precio vender', color: '#c2366f', claro: '#fde2ed' },
+  { emoji: '🎯', texto: 'cuánto tienes que vender al mes', color: '#2f6fdb', claro: '#e0ebfd' },
+  { emoji: '📒', texto: 'cuánto dinero entra y sale cada día', color: '#1f8a5b', claro: '#dff3e8' },
+]
+
 export function Bienvenida() {
   return (
-    <div className="inicio">
-      <Logo grande />
-      {MODO_PRUEBA && <p className="modo-prueba">Modo prueba: las cuentas se guardan solo en este navegador.</p>}
-      <h1>Saca las cuentas de tu negocio</h1>
-      <p>Paso a paso, con ejemplos de tu oficio. Vas a saber:</p>
-      <ul className="inicio__lista">
-        <li><span>💰</span> cuánto dinero necesitas para empezar</li>
-        <li><span>🏷️</span> a qué precio vender</li>
-        <li><span>🎯</span> cuánto tienes que vender al mes</li>
-        <li><span>📒</span> cuánto dinero entra y sale cada día</li>
-      </ul>
-      <div className="inicio__botones">
-        <button className="btn btn--principal" onClick={() => ir('/crear/nombre')}>
-          Crear mi cuenta
-        </button>
-        <button className="btn btn--claro" onClick={() => ir('/entrar')}>
-          Ya tengo cuenta
-        </button>
-      </div>
+    <div className="portada">
+      <header className="portada__alto">
+        <Logo grande />
+        <h1>Saca las cuentas de tu negocio</h1>
+        <p>Paso a paso, con ejemplos de tu oficio.</p>
+      </header>
+
+      <main className="portada__cuerpo">
+        {MODO_PRUEBA && <p className="modo-prueba">Modo prueba: las cuentas se guardan solo en este navegador.</p>}
+        <h2 className="portada__titulo">Vas a saber:</h2>
+        <ul className="portada__lista">
+          {LO_QUE_SABRAS.map((x) => (
+            <li key={x.texto} style={{ '--c': x.color, '--c-claro': x.claro }}>
+              <span className="portada__emoji">{x.emoji}</span>
+              {x.texto}
+            </li>
+          ))}
+        </ul>
+        <div className="portada__botones">
+          <button className="btn btn--principal" onClick={() => ir('/crear/nombre')}>
+            Crear mi cuenta
+          </button>
+          <button className="btn btn--suave" onClick={() => ir('/entrar')}>
+            Ya tengo cuenta
+          </button>
+        </div>
+      </main>
     </div>
   )
 }
@@ -223,13 +238,32 @@ export function Entrar({ form, setForm, alEntrar }) {
 }
 
 // ---------- Rubro: último paso del registro, o cambio desde el perfil ----------
-export function ElegirRubro({ nombre, rubroActual, anterior, onElegir, onAtras, esRegistro }) {
+export function ElegirRubro({ nombre, rubroActual, rubroPropioActual, anterior, onElegir, onAtras, esRegistro }) {
   const [usarAnterior, setUsarAnterior] = useState(!!anterior)
   const [confirmar, setConfirmar] = useState(null)
+  const [propio, setPropio] = useState(null) // formulario de "otro oficio"
   const elegir = (id) => {
-    if (rubroActual && id === rubroActual) return onAtras()
+    if (rubroActual && id === rubroActual && id !== 'otro') return onAtras()
     if (rubroActual) return setConfirmar(id)
+    if (id === 'otro') return setPropio({ nombre: '', unidad: '', unidades: '', genero: 'm', emoji: EMOJIS_RUBRO[0] })
     onElegir(id, usarAnterior && anterior?.rubro === id ? anterior.datos : null)
+  }
+  const confirmarPropio = (datosPropio) => {
+    setPropio(null)
+    setConfirmar(null)
+    onElegir('otro', null, crearRubro(datosPropio))
+  }
+  if (propio) {
+    return (
+      <NuevoRubro
+        valor={propio}
+        setValor={setPropio}
+        onListo={confirmarPropio}
+        onAtras={() => setPropio(null)}
+        esRegistro={esRegistro}
+        total={TOTAL_REGISTRO}
+      />
+    )
   }
   return (
     <Marco
@@ -257,20 +291,113 @@ export function ElegirRubro({ nombre, rubroActual, anterior, onElegir, onAtras, 
             <span className="rubro__flecha">{rubroActual === r.id ? '✓' : '→'}</span>
           </button>
         ))}
+        <button className={`rubro rubro--otro${rubroActual === 'otro' ? ' rubro--elegido' : ''}`} onClick={() => elegir('otro')}>
+          <span className="rubro__emoji">{rubroActual === 'otro' ? rubroPropioActual?.emoji ?? '✏️' : '✏️'}</span>
+          <span className="rubro__nombre">
+            {rubroActual === 'otro' && rubroPropioActual ? rubroPropioActual.nombre : 'Otro oficio'}
+            <small>Escribe el tuyo: carpintería, comida, zapatería…</small>
+          </span>
+          <span className="rubro__flecha">→</span>
+        </button>
       </div>
       {confirmar && (
         <div className="confirmar" role="alertdialog">
           <p>
-            Si cambias a <strong>{RUBROS[confirmar].nombre}</strong>, se borran tus números de presupuesto, costos,
-            precio, meta y flujo, y empiezas con los ejemplos del nuevo rubro. Tu control de caja no se borra.
+            Si cambias a <strong>{confirmar === 'otro' ? 'otro oficio' : RUBROS[confirmar].nombre}</strong>, se borran tus números de
+            presupuesto, costos, precio, meta y flujo, y empiezas con los ejemplos del nuevo rubro. Tu control de caja, tu inventario y tus productos no se borran.
           </p>
-          <button className="btn btn--peligro" onClick={() => onElegir(confirmar, null)}>
+          <button
+            className="btn btn--peligro"
+            onClick={() =>
+              confirmar === 'otro'
+                ? setPropio({ nombre: '', unidad: '', unidades: '', genero: 'm', emoji: EMOJIS_RUBRO[0] })
+                : onElegir(confirmar, null)
+            }
+          >
             Sí, cambiar de rubro
           </button>
           <button className="btn btn--suave" onClick={() => setConfirmar(null)}>
             No, dejarlo como está
           </button>
         </div>
+      )}
+    </Marco>
+  )
+}
+
+// ---------- Oficio propio: la persona describe su rubro ----------
+function NuevoRubro({ valor, setValor, onListo, onAtras, esRegistro, total }) {
+  const v = valor
+  const cambiar = (c) => setValor({ ...v, ...c })
+  const nombreOk = limpiarTexto(v.nombre).length >= 3
+  const unidadOk = limpiarTexto(v.unidad).length >= 3
+  const listo = nombreOk && unidadOk
+  const vista = crearRubro({ ...v, nombre: v.nombre || 'Mi oficio', unidad: v.unidad || 'producto' })
+
+  return (
+    <Marco
+      titulo="Mi oficio"
+      emoji={v.emoji}
+      pasos={esRegistro ? { actual: total, total } : null}
+      onAtras={onAtras}
+      pie={
+        <BotonSiguiente onClick={() => listo && onListo(v)} disabled={!listo} aviso="Escribe tu oficio y qué vendes.">
+          Listo
+        </BotonSiguiente>
+      }
+    >
+      <Pregunta sub="Escribe tu oficio y la app se adapta a lo que tú vendes.">¿A qué te dedicas?</Pregunta>
+      <CampoTexto autoFocus valor={v.nombre} placeholder="Ej. Carpintería" maxLength={40} onCambio={(x) => cambiar({ nombre: x })} />
+
+      <div>
+        <span className="campo__etiqueta">Elige un dibujo para tu oficio</span>
+        <div className="conceptos">
+          {EMOJIS_RUBRO.map((e) => (
+            <button key={e} className={`emoji-opcion${v.emoji === e ? ' emoji-opcion--activo' : ''}`} onClick={() => cambiar({ emoji: e })} aria-label={`Dibujo ${e}`}>
+              {e}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <CampoTexto
+        etiqueta="¿Qué vendes? Escríbelo en singular, uno solo"
+        valor={v.unidad}
+        placeholder="Ej. mueble, torta, corte, arreglo"
+        maxLength={24}
+        onCambio={(x) => cambiar({ unidad: x, unidades: '' })}
+      />
+      <Ayuda>
+        Es lo que le cobras a tu cliente cada vez. Un carpintero vende <strong>muebles</strong>, una cocinera vende{' '}
+        <strong>platos</strong>, un zapatero vende <strong>arreglos</strong>. <br />
+        Escríbelo <strong>en singular</strong>: la app dice el resto sola.
+      </Ayuda>
+
+      {unidadOk && (
+        <>
+          <div>
+            <span className="campo__etiqueta">¿Cómo se dice?</span>
+            <div className="chips chips--dos">
+              <button className={`chip${v.genero === 'm' ? ' chip--activo' : ''}`} onClick={() => cambiar({ genero: 'm' })}>
+                un {vista.unidad}
+              </button>
+              <button className={`chip${v.genero === 'f' ? ' chip--activo' : ''}`} onClick={() => cambiar({ genero: 'f' })}>
+                una {vista.unidad}
+              </button>
+            </div>
+          </div>
+          <CampoTexto
+            etiqueta="Y si son varios, ¿cómo les dices?"
+            valor={v.unidades || vista.unidades}
+            maxLength={30}
+            onCambio={(x) => cambiar({ unidades: x })}
+          />
+          <div className="explica">
+            Así te van a preguntar las cosas: <br />
+            <strong>"¿{vista.cuantas} {vista.unidades} puedes hacer en un mes?"</strong> <br />
+            <strong>"¿Qué gastas para hacer {vista.un} {vista.unidad}?"</strong>
+          </div>
+        </>
       )}
     </Marco>
   )

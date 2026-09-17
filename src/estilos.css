@@ -483,3 +483,35 @@ h1, h2, p { margin: 0; }
 .apartado__flecha { color: var(--c, var(--tinta-3)); }
 .tablero__dato { background: var(--c-claro, var(--papel)); border-left: 5px solid var(--c, var(--linea)); }
 .tablero__dato span { color: var(--c, var(--tinta-2)); }
+
+/* ---------- Portada (bienvenida) ---------- */
+.portada { min-height: 100dvh; display: flex; flex-direction: column; background: var(--fondo); }
+.portada__alto {
+  background: var(--superficie-marca); color: #fff; padding: 32px 24px 34px;
+  border-radius: 0 0 28px 28px; display: grid; gap: 10px;
+}
+.portada__alto h1 { font-size: 34px; line-height: 1.08; font-weight: 900; margin-top: 14px; }
+.portada__alto p { color: var(--sobre-oscuro); }
+.portada__cuerpo {
+  flex: 1; display: flex; flex-direction: column; gap: 12px;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+}
+.portada__titulo { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tinta-3); }
+.portada__lista { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.portada__lista li {
+  display: flex; gap: 12px; align-items: center; font-weight: 800; font-size: 17px; color: var(--tinta);
+  background: var(--papel); border: 2px solid var(--linea); border-left: 7px solid var(--c);
+  border-radius: var(--radio); padding: 12px 14px; box-shadow: var(--sombra);
+}
+.portada__emoji { flex: none; width: 46px; height: 46px; display: grid; place-items: center; font-size: 24px; background: var(--c-claro); border-radius: 12px; }
+.portada__botones { margin-top: auto; display: grid; gap: 10px; padding-top: 14px; }
+
+/* ---------- Oficio propio ---------- */
+.rubro--otro { border-style: dashed; }
+.rubro--otro .rubro__nombre { display: grid; gap: 2px; }
+.rubro--otro small { font-size: 14px; font-weight: 600; color: var(--tinta-3); }
+.emoji-opcion {
+  width: 56px; height: 56px; font-size: 26px; border-radius: 14px; border: 2px solid var(--linea);
+  background: var(--papel); display: grid; place-items: center;
+}
+.emoji-opcion--activo { border-color: var(--marca); background: var(--acento-claro); box-shadow: 0 0 0 3px var(--acento-claro); }

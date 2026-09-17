@@ -121,3 +121,58 @@ export const RUBROS = {
 }
 
 export const LISTA_RUBROS = Object.values(RUBROS)
+
+// Para oficios que no están en la lista: sugerencias generales, sin nombres de un rubro concreto.
+export const GENERICO = {
+  arranque: [
+    { nombre: 'Herramientas de trabajo', precio: 300 },
+    { nombre: 'Máquina o equipo', precio: 800 },
+    { nombre: 'Mesa o mueble de trabajo', precio: 250 },
+    { nombre: 'Materiales para empezar', precio: 400, ayuda: 'Lo que compras la primera vez para tener con qué trabajar.' },
+    { nombre: 'Utensilios pequeños', precio: 100 },
+    { nombre: 'Letrero o publicidad para empezar', precio: 80 },
+  ],
+  fijos: [
+    { nombre: 'Alquiler del local', precio: 350, ayuda: 'Si trabajas en tu casa y no pagas alquiler, no lo marques.' },
+    { nombre: 'Luz', precio: 60 },
+    { nombre: 'Agua', precio: 30 },
+    { nombre: 'Celular e internet', precio: 50 },
+    { nombre: 'Movilidad y pasajes', precio: 60 },
+    { nombre: 'Mantenimiento de herramientas', precio: 20 },
+  ],
+  variables: [
+    { nombre: 'Material principal', precio: 10, ayuda: 'Lo que más usas para hacer uno.' },
+    { nombre: 'Otros materiales', precio: 3 },
+    { nombre: 'Empaque o bolsa', precio: 1 },
+    { nombre: 'Transporte de la entrega', precio: 2 },
+  ],
+}
+
+export const EMOJIS_RUBRO = ['🧰', '🪵', '🍰', '🍽️', '🚚', '💻', '🌻', '🧹', '💄', '🐔', '👟', '🎨', '📸', '🔌']
+
+// Arma un rubro con lo que la persona escribió. el campo genero decide si se dice "un" o "una".
+export function crearRubro({ nombre, unidad, unidades, genero = 'm', emoji = '🧰' }) {
+  const femenino = genero === 'f'
+  const sing = unidad.trim().toLowerCase()
+  const plural = (unidades || '').trim().toLowerCase() || (/[aeiouáéíóú]$/.test(sing) ? `${sing}s` : `${sing}es`)
+  return {
+    id: 'otro',
+    propio: true,
+    nombre: nombre.trim(),
+    emoji,
+    genero,
+    unidad: sing,
+    unidades: plural,
+    un: femenino ? 'una' : 'un',
+    cuantas: femenino ? 'Cuántas' : 'Cuántos',
+    las: femenino ? 'las' : 'los',
+    ejemploUnidad: `${femenino ? 'una' : 'un'} ${sing}`,
+    ejemploCantidad: 40,
+    ejemploCalculo: `si haces 2 ${plural} al día y trabajas 20 días, son 40 ${plural} al mes.`,
+    ejemploGananciaMes: 1200,
+    ...GENERICO,
+  }
+}
+
+// El rubro de una persona: uno de los tres, o el que ella misma creó.
+export const rubroDe = (perfil) => RUBROS[perfil?.rubro] ?? perfil?.datos?.rubroPersonalizado ?? RUBROS.costura

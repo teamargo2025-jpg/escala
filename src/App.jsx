@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { RUBROS } from './data/rubros.js'
+import { rubroDe } from './data/rubros.js'
 import { almacen, MENSAJES_ERROR } from './almacen.js'
 import { destinoDisponible, estadoApartados } from './lib/apartados.js'
 import { validarApodo, validarEmprendimiento } from './lib/cuenta.js'
@@ -113,8 +113,8 @@ function ConCuenta({ usuario, ruta, onSalir }) {
         esRegistro
         nombre={usuario.nickname}
         anterior={anterior}
-        onElegir={(id, datos) => {
-          neg.crearNegocio(id, datos)
+        onElegir={(id, datos, rubroPropio) => {
+          neg.crearNegocio(id, datos, rubroPropio)
           if (datos) olvidarVersionAnterior()
           irAlInicio()
         }}
@@ -122,7 +122,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     )
   }
 
-  const r = RUBROS[perfil.rubro]
+  const r = rubroDe(perfil)
   const comunes = { datos: perfil.datos, despachar, terminar, guardado, perfil, r, n }
   const [seccion, sub] = ruta
 
@@ -175,9 +175,23 @@ function ConCuenta({ usuario, ruta, onSalir }) {
       return (
         <ElegirRubro
           rubroActual={perfil.rubro}
+          rubroPropioActual={perfil.datos.rubroPersonalizado}
           onAtras={() => volver('/perfil')}
-          onElegir={(id) => {
-            neg.cambiarPerfil((p) => ({ ...p, rubro: id, datos: datosIniciales(id) }))
+          onElegir={(id, _datos, rubroPropio) => {
+            // Cambiar de rubro reinicia el plan, pero no lo que no depende del oficio:
+            // inventario, fichas de costo, valor de la hora y lecciones aprendidas.
+            neg.cambiarPerfil((p) => ({
+              ...p,
+              rubro: id,
+              datos: {
+                ...datosIniciales(id, rubroPropio),
+                inventario: p.datos.inventario,
+                productos: p.datos.productos,
+                valorHora: p.datos.valorHora,
+                educacion: p.datos.educacion,
+                hechos: p.datos.hechos?.educacion ? { educacion: true } : {},
+              },
+            }))
             irAlInicio()
           }}
         />

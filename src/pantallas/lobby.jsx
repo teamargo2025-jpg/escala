@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RUBROS } from '../data/rubros.js'
+import { rubroDe } from '../data/rubros.js'
 import { MESES_FLUJO } from '../config.js'
 import { APARTADO, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
 import { LECCIONES } from '../data/educacion.js'
@@ -92,7 +92,7 @@ export function compartirTexto(texto) {
 }
 
 export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAviso }) {
-  const r = RUBROS[perfil.rubro]
+  const r = rubroDe(perfil)
   const { lista, siguiente, planCompleto } = estadoApartados(perfil.datos.hechos)
   const hechos = perfil.datos.hechos
   const caja = resumenMes(movimientos, mesDe(hoy()))
@@ -208,7 +208,7 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
 }
 
 export function Perfil({ perfil, cambiarPerfil, onSalir }) {
-  const r = RUBROS[perfil.rubro]
+  const r = rubroDe(perfil)
   const [nombre, setNombre] = useState(perfil.emprendimiento)
   const [salirSeguro, setSalirSeguro] = useState(false)
   const error = validarEmprendimiento(nombre)

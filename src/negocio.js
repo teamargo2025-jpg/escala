@@ -12,9 +12,10 @@ import { LECCIONES } from './data/educacion.js'
 const desdeSugerencias = (lista) =>
   lista.map((s) => ({ id: nuevoId(), nombre: s.nombre, sugerido: s.precio, ayuda: s.ayuda, precio: '', marcado: false }))
 
-export function datosIniciales(rubroId) {
-  const r = RUBROS[rubroId]
+export function datosIniciales(rubroId, rubroPropio) {
+  const r = RUBROS[rubroId] ?? rubroPropio
   return {
+    ...(rubroPropio ? { rubroPersonalizado: rubroPropio } : {}),
     arranque: desdeSugerencias(r.arranque),
     fijos: desdeSugerencias(r.fijos),
     variables: desdeSugerencias(r.variables),
@@ -294,12 +295,12 @@ export function useNegocio(usuario) {
   )
 
   const crearNegocio = useCallback(
-    (rubro, datos) =>
+    (rubro, datos, rubroPropio) =>
       cambiarPerfil((p) => ({
         nickname: p?.nickname ?? usuario.nickname,
         emprendimiento: p?.emprendimiento ?? usuario.emprendimiento,
         rubro,
-        datos: datos ?? datosIniciales(rubro),
+        datos: datos ?? datosIniciales(rubro, rubroPropio),
       })),
     [cambiarPerfil, usuario.nickname, usuario.emprendimiento],
   )
