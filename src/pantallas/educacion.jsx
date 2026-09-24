@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react'
 import { LECCION } from '../data/educacion.js'
 import { APARTADO } from '../lib/apartados.js'
 import { estadoLecciones } from '../lib/educacion.js'
-import { ir, volver } from '../negocio.js'
+import { ir, irAlInicio, volver } from '../negocio.js'
 import { BotonSiguiente, Marco, Redirigir } from '../componentes.jsx'
 
 // "**negrita**" → <strong>
@@ -121,8 +121,8 @@ export function Leccion({ id, datos, despachar, guardado, r, n }) {
             {paso === tarjetas.length - 1 ? 'Ir a la pregunta' : 'Siguiente'}
           </BotonSiguiente>
         ) : acerto ? (
-          <BotonSiguiente onClick={() => (siguienteTrasEsta ? ir(`/educacion/${siguienteTrasEsta.id}`) : volver('/educacion'))}>
-            {siguienteTrasEsta ? 'Siguiente lección →' : 'Terminar ✓'}
+          <BotonSiguiente onClick={() => (siguienteTrasEsta ? ir(`/educacion/${siguienteTrasEsta.id}`) : irAlInicio())}>
+            {siguienteTrasEsta ? 'Siguiente lección →' : 'Terminar e ir al inicio ✓'}
           </BotonSiguiente>
         ) : null
       }

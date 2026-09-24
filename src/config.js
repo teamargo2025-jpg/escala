@@ -6,7 +6,7 @@
 export const METODO_PRECIO = 'sobre_costo'
 
 // Cuántos meses muestra el flujo de caja.
-export const MESES_FLUJO = 3
+export const MESES_FLUJO = 5
 
 // El precio sugerido se redondea hacia arriba a este múltiplo (en soles). 0 = sin redondeo.
 export const REDONDEO_PRECIO = 0.5

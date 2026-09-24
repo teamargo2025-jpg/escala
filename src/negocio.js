@@ -77,11 +77,14 @@ export function reducirDatos(d, accion) {
     case 'campo':
       return { ...d, [accion.campo]: accion.valor }
     case 'prepararFlujo': {
-      if (d.flujo && d.flujo.length === MESES_FLUJO) return d
+      const previo = d.flujo ?? []
+      if (previo.length === MESES_FLUJO) return d
       // Idea inicial: se empieza vendiendo poco y se crece hacia lo que puedes hacer.
+      // Si ya había meses escritos, se respetan y solo se agregan los que faltan.
       const c = Math.floor(num(d.cantidad))
-      const flujo = Array.from({ length: MESES_FLUJO }, (_, i) =>
-        String(Math.round(c * Math.min(1, 0.5 + (0.5 * i) / Math.max(1, MESES_FLUJO - 1)))),
+      const flujo = Array.from(
+        { length: MESES_FLUJO },
+        (_, i) => previo[i] ?? String(Math.round(c * Math.min(1, 0.5 + (0.5 * i) / Math.max(1, MESES_FLUJO - 1)))),
       )
       return { ...d, flujo }
     }

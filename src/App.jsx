@@ -2,14 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { rubroDe } from './data/rubros.js'
 import { TEMA_POR_DEFECTO, aplicarTema } from './data/temas.js'
 import { almacen, MENSAJES_ERROR } from './almacen.js'
-import { destinoDisponible, estadoApartados } from './lib/apartados.js'
+import { destinoDisponible, estadoApartados, pestanaDe } from './lib/apartados.js'
 import { validarApodo, validarEmprendimiento } from './lib/cuenta.js'
 import {
   datosIniciales, datosVersionAnterior, irAlInicio, olvidarVersionAnterior, reemplazar, useNegocio, useRuta, volver,
 } from './negocio.js'
-import { Logo, Redirigir } from './componentes.jsx'
+import { BarraInferior, Logo, Redirigir } from './componentes.jsx'
 import { Bienvenida, Crear, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
-import { Lobby, Perfil } from './pantallas/lobby.jsx'
+import { GrupoApartados, Lobby, Perfil } from './pantallas/lobby.jsx'
 import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.jsx'
 import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
 import { Inventario, Material, MovimientoInventario } from './pantallas/inventario.jsx'
@@ -139,8 +139,24 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   const comunes = { datos: perfil.datos, despachar, terminar, guardado, perfil, r, n }
   const [seccion, sub] = ruta
 
+  // La barra de abajo solo en las pantallas principales: en los formularios estorbaría.
+  const conBarra = (contenido, activa) => (
+    <>
+      <div className="con-barra">{contenido}</div>
+      <BarraInferior activa={activa} />
+    </>
+  )
+
+  if (seccion === 'plan' || seccion === 'negocio') {
+    const p = seccion === 'plan' ? { grupo: 'plan', titulo: 'Tu plan' } : { grupo: 'dia', titulo: 'Tu negocio día a día' }
+    return conBarra(
+      <GrupoApartados perfil={perfil} n={n} movimientos={neg.movimientos} guardado={guardado} {...p} />,
+      seccion,
+    )
+  }
+
   if (!seccion) {
-    return (
+    return conBarra(
       <Lobby
         perfil={perfil}
         n={n}
@@ -148,7 +164,8 @@ function ConCuenta({ usuario, ruta, onSalir }) {
         guardado={guardado}
         ultimoHecho={ultimoHecho}
         cerrarAviso={() => setUltimoHecho(null)}
-      />
+      />,
+      'inicio',
     )
   }
 
@@ -179,12 +196,12 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   }
 
   if (seccion === 'educacion') {
-    if (!sub) return <Educacion {...comunes} />
+    if (!sub) return conBarra(<Educacion {...comunes} />, 'educacion')
     return <Leccion key={sub} id={sub} {...comunes} />
   }
 
   if (seccion === 'marca') {
-    if (!sub) return <Marca {...comunes} />
+    if (!sub) return conBarra(<Marca {...comunes} />, 'marca')
     if (sub === 'identidad') return <IdentidadMarca {...comunes} />
     if (sub === 'calendario') return <CalendarioMarca {...comunes} />
     if (sub === 'contenido') return <ContenidoMarca {...comunes} />

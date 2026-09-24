@@ -49,7 +49,7 @@ Las siguientes veces entra con nombre + DNI, o directo si la sesión sigue abier
 | 2 | Costos del mes | Fijos, variables y cuántas unidades puede hacer al mes | — |
 | 3 | Precio de venta | Costo por unidad + % de ganancia | 2 |
 | 4 | Meta de ventas | Punto de equilibrio y unidades para su ganancia deseada | 3 |
-| 5 | Flujo de caja (plan) | Proyección a 3 meses | 1 y 3 |
+| 5 | Flujo de caja (plan) | Proyección a 5 meses | 1 y 3 |
 | 6 | Control de caja | Registro real: "Entró dinero" / "Salió dinero", saldo, resumen del mes, ventas contra punto de equilibrio. Al vender un producto con ficha, usa su precio y descuenta sus materiales | — |
 | 7 | Inventario | Materiales con medida, cantidad, costo por medida (promedio al comprar) y mínimo con alerta. "Compré" (se puede anotar en caja), "Usé" (un material o lo que llevan N productos) y "Conté" | — |
 | 8 | Costo por producto | Ficha por producto o servicio: materiales que usa × su costo + horas × valor de la hora + parte de los pagos del mes → costo, precio sugerido y comparación con el precio actual. Ejemplos por oficio | — |
@@ -136,7 +136,7 @@ En una sesión real, **al menos 8 de cada 10 participantes llegan a la pantalla 
 - **Costo por producto = materiales + mano de obra + parte de los pagos del mes.** El valor de la hora lo pone la persona; los pagos del mes salen de "Costos del mes" si ya lo completó.
 - **Tres rubros con ejemplos propios.** La sugerencia concreta del oficio es lo que quita la hoja en blanco.
 - **Precio por costo + % sobre el costo** (método "tradicional"; pendiente de confirmar).
-- **Flujo de caja corto: 3 meses** (pendiente de confirmar el plazo exacto).
+- **Flujo de caja a 5 meses** (empezó en 3; se amplió porque recuperar la inversión en 3 meses era poco realista).
 - **Nombre provisional:** ESCALA.
 
 ## Preguntas abiertas

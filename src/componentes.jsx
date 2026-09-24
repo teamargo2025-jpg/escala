@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { num, soles, totalMarcado } from './lib/calc.js'
-import { reemplazar } from './negocio.js'
+import { ir, reemplazar } from './negocio.js'
+import { PESTANAS } from './lib/apartados.js'
 
 export function Redirigir({ a }) {
   useEffect(() => {
@@ -273,5 +274,24 @@ export function Cifra({ etiqueta, valor, nota, tono }) {
       <strong className="cifra__valor">{valor}</strong>
       {nota && <span className="cifra__nota">{nota}</span>}
     </div>
+  )
+}
+
+// Barra de abajo: cambia de pantalla sin tener que bajar hasta el final de la lista.
+export function BarraInferior({ activa }) {
+  return (
+    <nav className="barra-abajo" aria-label="Secciones">
+      {PESTANAS.map((p) => (
+        <button
+          key={p.id}
+          className={`pestana${p.id === activa ? ' pestana--activa' : ''}`}
+          aria-current={p.id === activa ? 'page' : undefined}
+          onClick={() => ir(p.ruta)}
+        >
+          <span className="pestana__icono" aria-hidden="true">{p.icono}</span>
+          <span className="pestana__nombre">{p.nombre}</span>
+        </button>
+      ))}
+    </nav>
   )
 }

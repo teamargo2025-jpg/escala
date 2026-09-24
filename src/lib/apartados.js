@@ -6,7 +6,28 @@ export const GRUPOS = [
   { id: 'plan', nombre: 'Tu plan', color: 'var(--marca)' },
   { id: 'dia', nombre: 'Tu negocio día a día', color: '#1f8a5b' },
   { id: 'aprende', nombre: 'Aprende', color: '#c2366f' },
+  { id: 'marca', nombre: 'Tu marca', color: '#c2366f' },
 ]
+
+// Barra de abajo: cada pestaña abre una ruta. 'lista' arma la pantalla con los apartados del grupo.
+export const PESTANAS = [
+  { id: 'inicio', ruta: '/', nombre: 'Inicio', icono: '🏠' },
+  { id: 'plan', ruta: '/plan', nombre: 'Mi plan', icono: '📋', grupo: 'plan', titulo: 'Tu plan' },
+  { id: 'negocio', ruta: '/negocio', nombre: 'Negocio', icono: '📒', grupo: 'dia', titulo: 'Tu negocio día a día' },
+  { id: 'marca', ruta: '/marca', nombre: 'Marca', icono: '✨' },
+  { id: 'educacion', ruta: '/educacion', nombre: 'Aprender', icono: '🎓' },
+]
+
+// Qué pestaña se pinta activa según dónde está la persona.
+export function pestanaDe(seccion) {
+  if (!seccion) return 'inicio'
+  if (seccion === 'marca') return 'marca'
+  if (seccion === 'educacion') return 'educacion'
+  if (seccion === 'plan') return 'plan'
+  if (seccion === 'negocio') return 'negocio'
+  const g = APARTADO[seccion]?.grupo
+  return g === 'plan' ? 'plan' : g === 'dia' ? 'negocio' : g === 'aprende' ? 'educacion' : g === 'marca' ? 'marca' : null
+}
 
 export const APARTADOS = [
   { id: 'presupuesto', grupo: 'plan', numero: 1, nombre: 'Presupuesto de arranque', emoji: '💰', color: '#b7730c', claro: '#fff1d6', requiere: [] },
@@ -17,7 +38,7 @@ export const APARTADOS = [
   { id: 'caja', grupo: 'dia', nombre: 'Control de caja', emoji: '📒', color: '#1f8a5b', claro: '#dff3e8', requiere: [] },
   { id: 'inventario', grupo: 'dia', nombre: 'Inventario', emoji: '📦', color: '#9a6417', claro: '#f7ecd9', requiere: [] },
   { id: 'costeo', grupo: 'dia', nombre: 'Costo por producto', emoji: '🧮', color: '#5b4bd6', claro: '#e8e5fc', requiere: [] },
-  { id: 'marca', grupo: 'dia', nombre: 'Mi marca', emoji: '✨', color: '#c2366f', claro: '#fde2ed', requiere: [] },
+  { id: 'marca', grupo: 'marca', nombre: 'Mi marca', emoji: '✨', color: '#c2366f', claro: '#fde2ed', requiere: [] },
   { id: 'educacion', grupo: 'aprende', nombre: 'Educación financiera', emoji: '🎓', color: '#9b34c9', claro: '#f3e4fb', requiere: [] },
 ]
 
