@@ -147,11 +147,10 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     </>
   )
 
-  if (seccion === 'plan' || seccion === 'negocio') {
-    const p = seccion === 'plan' ? { grupo: 'plan', titulo: 'Tu plan' } : { grupo: 'dia', titulo: 'Tu negocio día a día' }
+  if (seccion === 'negocio') {
     return conBarra(
-      <GrupoApartados perfil={perfil} n={n} movimientos={neg.movimientos} guardado={guardado} {...p} />,
-      seccion,
+      <GrupoApartados perfil={perfil} n={n} movimientos={neg.movimientos} guardado={guardado} grupo="dia" titulo="Tu negocio día a día" />,
+      'negocio',
     )
   }
 
@@ -196,7 +195,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   }
 
   if (seccion === 'educacion') {
-    if (!sub) return conBarra(<Educacion {...comunes} />, 'educacion')
+    if (!sub) return conBarra(<Educacion {...comunes} />, 'inicio')
     return <Leccion key={sub} id={sub} {...comunes} />
   }
 

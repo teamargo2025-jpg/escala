@@ -9,24 +9,25 @@ export const GRUPOS = [
   { id: 'marca', nombre: 'Tu marca', color: '#c2366f' },
 ]
 
-// Barra de abajo: cada pestaña abre una ruta. 'lista' arma la pantalla con los apartados del grupo.
+// Barra de abajo. En Inicio van el plan y las lecciones; las demás pestañas son apartados aparte.
+// Para agregar una pestaña nueva (por ejemplo la revista o prácticas ecológicas):
+// 1) agrega aquí { id, ruta, nombre, icono }, 2) crea su pantalla y su ruta en App.jsx,
+// 3) si además es un apartado del lobby, agrégalo a APARTADOS con su grupo.
 export const PESTANAS = [
   { id: 'inicio', ruta: '/', nombre: 'Inicio', icono: '🏠' },
-  { id: 'plan', ruta: '/plan', nombre: 'Mi plan', icono: '📋', grupo: 'plan', titulo: 'Tu plan' },
   { id: 'negocio', ruta: '/negocio', nombre: 'Negocio', icono: '📒', grupo: 'dia', titulo: 'Tu negocio día a día' },
   { id: 'marca', ruta: '/marca', nombre: 'Marca', icono: '✨' },
-  { id: 'educacion', ruta: '/educacion', nombre: 'Aprender', icono: '🎓' },
 ]
 
 // Qué pestaña se pinta activa según dónde está la persona.
 export function pestanaDe(seccion) {
   if (!seccion) return 'inicio'
   if (seccion === 'marca') return 'marca'
-  if (seccion === 'educacion') return 'educacion'
-  if (seccion === 'plan') return 'plan'
+  if (seccion === 'educacion') return 'inicio'
   if (seccion === 'negocio') return 'negocio'
   const g = APARTADO[seccion]?.grupo
-  return g === 'plan' ? 'plan' : g === 'dia' ? 'negocio' : g === 'aprende' ? 'educacion' : g === 'marca' ? 'marca' : null
+  // El plan y las lecciones se ven desde Inicio.
+  return g === 'dia' ? 'negocio' : g === 'marca' ? 'marca' : g === 'plan' || g === 'aprende' ? 'inicio' : null
 }
 
 export const APARTADOS = [

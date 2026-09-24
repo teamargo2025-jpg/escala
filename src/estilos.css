@@ -633,7 +633,7 @@ h1, h2, p { margin: 0; }
 .barra-abajo {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom));
   z-index: 20; width: min(500px, calc(100% - 20px));
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px;
   background: var(--papel); border: 2px solid var(--linea); border-radius: 99px; padding: 6px;
   box-shadow: 0 6px 20px rgba(20, 10, 40, 0.14);
 }
@@ -642,7 +642,7 @@ h1, h2, p { margin: 0; }
   padding: 8px 2px; color: var(--tinta-3); font-weight: 800; min-height: 56px;
 }
 .pestana__icono { font-size: 20px; line-height: 1; }
-.pestana__nombre { font-size: 11px; }
+.pestana__nombre { font-size: 12px; }
 .pestana--activa { background: var(--marca); color: #fff; }
 .pestana--activa .pestana__nombre { font-weight: 900; }
 

@@ -199,6 +199,23 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
           </button>
         )}
 
+        {GRUPOS.filter((g) => g.id === 'plan' || g.id === 'aprende').map((g) => (
+          <section key={g.id} className="apartados">
+            <h2 className="grupo__titulo" style={{ '--c': g.color }}>{g.nombre}</h2>
+            {lista
+              .filter((a) => a.grupo === g.id)
+              .map((a) => (
+                <TarjetaApartado
+                  key={a.id}
+                  apartado={a}
+                  esSiguiente={a.id === siguiente}
+                  detalle={a.estado === 'hecho' || a.grupo !== 'plan' ? detalleApartado(a.id, n, r, movimientos, perfil.datos) : ''}
+                  onAbrir={() => ir(`/${destinoDisponible(lista, a.id)}`)}
+                />
+              ))}
+          </section>
+        ))}
+
         {hayAlgo && (
           <button className="btn btn--whatsapp" onClick={() => compartirTexto(textoResumen(perfil, r, n, movimientos))}>
             Enviar mi resumen por WhatsApp
@@ -385,11 +402,34 @@ function ResumenNegocio({ perfil, n, movimientos, r }) {
   )
 }
 
-// Las tarjetas de un grupo de apartados: es lo que muestran las pestañas "Mi plan" y "Negocio".
+// Una tarjeta de apartado: misma pinta en el inicio y en la pestaña Negocio.
+function TarjetaApartado({ apartado: a, esSiguiente, detalle, onAbrir }) {
+  return (
+    <button
+      className={`apartado apartado--${a.estado}${esSiguiente ? ' apartado--siguiente' : ''}`}
+      style={{ '--c': a.color, '--c-claro': a.claro }}
+      onClick={onAbrir}
+    >
+      <span className="apartado__icono">{a.estado === 'hecho' ? '✓' : a.estado === 'bloqueado' ? '🔒' : a.emoji}</span>
+      <span className="apartado__texto">
+        <span className="apartado__nombre">
+          {a.numero && <span className="apartado__num">{a.numero}.</span>} {a.nombre}
+        </span>
+        <span className="apartado__detalle">
+          {a.estado === 'bloqueado'
+            ? `Primero: ${a.faltan.map((f) => f.nombre.toLowerCase()).join(' y ')}`
+            : detalle || QUE_ES[a.id]}
+        </span>
+      </span>
+      {esSiguiente ? <span className="apartado__chip">Sigue aquí</span> : <span className="apartado__flecha">→</span>}
+    </button>
+  )
+}
+
+// Los apartados de un grupo: es lo que muestra la pestaña "Negocio".
 export function GrupoApartados({ perfil, n, movimientos, guardado, grupo, titulo }) {
   const r = rubroDe(perfil)
   const { lista, siguiente } = estadoApartados(perfil.datos.hechos)
-  const delGrupo = lista.filter((a) => a.grupo === grupo)
   return (
     <div className="pantalla-grupo">
       <header className="lobby__cabeza lobby__cabeza--corta">
@@ -400,33 +440,17 @@ export function GrupoApartados({ perfil, n, movimientos, guardado, grupo, titulo
       </header>
       <main className="contenido">
         <section className="apartados">
-          {delGrupo.map((a) => {
-            const esSiguiente = a.id === siguiente
-            const detalle = a.estado === 'hecho' || a.grupo !== 'plan' ? detalleApartado(a.id, n, r, movimientos, perfil.datos) : ''
-            return (
-              <button
+          {lista
+            .filter((a) => a.grupo === grupo)
+            .map((a) => (
+              <TarjetaApartado
                 key={a.id}
-                className={`apartado apartado--${a.estado}${esSiguiente ? ' apartado--siguiente' : ''}`}
-                style={{ '--c': a.color, '--c-claro': a.claro }}
-                onClick={() => ir(`/${destinoDisponible(lista, a.id)}`)}
-              >
-                <span className="apartado__icono">
-                  {a.estado === 'hecho' ? '✓' : a.estado === 'bloqueado' ? '🔒' : a.emoji}
-                </span>
-                <span className="apartado__texto">
-                  <span className="apartado__nombre">
-                    {a.numero && <span className="apartado__num">{a.numero}.</span>} {a.nombre}
-                  </span>
-                  <span className="apartado__detalle">
-                    {a.estado === 'bloqueado'
-                      ? `Primero: ${a.faltan.map((f) => f.nombre.toLowerCase()).join(' y ')}`
-                      : detalle || QUE_ES[a.id]}
-                  </span>
-                </span>
-                {esSiguiente ? <span className="apartado__chip">Sigue aquí</span> : <span className="apartado__flecha">→</span>}
-              </button>
-            )
-          })}
+                apartado={a}
+                esSiguiente={a.id === siguiente}
+                detalle={a.estado === 'hecho' || a.grupo !== 'plan' ? detalleApartado(a.id, n, r, movimientos, perfil.datos) : ''}
+                onAbrir={() => ir(`/${destinoDisponible(lista, a.id)}`)}
+              />
+            ))}
         </section>
       </main>
     </div>
