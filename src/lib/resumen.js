@@ -123,5 +123,13 @@ export function seccionesResumen({ datos, n, movimientos = [], r, meses }) {
 
   return secciones
     .filter((s) => !s.falta && s.filas.length > 0)
-    .map((s) => ({ ...s, nombre: APARTADO[s.id].nombre, emoji: APARTADO[s.id].emoji, color: APARTADO[s.id].color, claro: APARTADO[s.id].claro }))
+    .map((s) => ({
+      ...s,
+      nombre: APARTADO[s.id].nombre,
+      emoji: APARTADO[s.id].emoji,
+      color: APARTADO[s.id].color,
+      claro: APARTADO[s.id].claro,
+      // Vista corta: lo importante primero, hasta tres datos por tarjeta.
+      clave: [...s.filas].sort((a, b) => (b.fuerte ? 1 : 0) - (a.fuerte ? 1 : 0)).slice(0, 3),
+    }))
 }

@@ -556,7 +556,7 @@ h1, h2, p { margin: 0; }
 .tema--elegido { border-color: var(--muestra); box-shadow: 0 0 0 3px var(--acento-claro); }
 
 /* ---------- Resumen completo del lobby ---------- */
-.resumen-todo { display: grid; gap: 10px; background: var(--papel); border: 2px solid var(--linea); border-radius: 20px; padding: 12px; box-shadow: var(--sombra); }
+.resumen-todo { display: grid; gap: 10px; background: var(--papel); border: 2px solid var(--linea); border-radius: 20px; padding: 12px; box-shadow: var(--sombra); overflow: hidden; }
 .resumen-todo__cabeza { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 4px 4px 0; }
 .resumen-todo__cabeza span { display: grid; }
 .resumen-todo__cabeza strong { font-size: 19px; font-weight: 900; }
@@ -582,3 +582,48 @@ h1, h2, p { margin: 0; }
 .leccion-tarjeta--bloqueada .apartado__icono { background: var(--pista); }
 .leccion-tarjeta--siguiente { border-color: var(--c); box-shadow: 0 4px 0 var(--c); }
 .leccion-tarjeta--siguiente .apartado__chip { background: var(--c); color: #fff; }
+
+/* ---------- Resumen deslizable ---------- */
+.carrusel {
+  display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory;
+  margin: 0 -12px; padding: 2px 12px 4px; scrollbar-width: none;
+}
+.carrusel::-webkit-scrollbar { display: none; }
+.carrusel > .resumen-bloque { flex: 0 0 88%; scroll-snap-align: center; }
+.resumen-bloque__mas { font-size: 13px; font-weight: 800; color: var(--c); }
+.carrusel__puntos { display: flex; justify-content: center; gap: 8px; }
+.carrusel__punto { width: 10px; height: 10px; padding: 0; border: 0; border-radius: 50%; background: var(--linea); }
+.carrusel__punto--activo { background: var(--c); transform: scale(1.3); }
+
+/* ---------- Mi marca ---------- */
+.foto-marca { display: grid; place-items: center; border-radius: 20px; object-fit: cover; background: var(--acento-claro); color: var(--marca); font-weight: 900; }
+.foto-marca--grande { width: 110px; height: 110px; font-size: 44px; }
+.foto-marca--chica { width: 54px; height: 54px; border-radius: 14px; font-size: 24px; flex: none; }
+.foto-marca--vacia { border: 2px dashed var(--linea); }
+.marca-tarjeta { display: grid; justify-items: center; gap: 10px; text-align: center; background: var(--papel); border: 2px solid var(--linea); border-radius: 20px; padding: 18px; box-shadow: var(--sombra); }
+.marca-tarjeta h1 { font-size: 24px; font-weight: 900; }
+.marca-eslogan { font-size: 18px; color: var(--tinta-2); font-style: italic; }
+.marca-palabras { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.chip--mini { min-height: 0; padding: 4px 10px; font-size: 14px; border-radius: 99px; background: var(--acento-claro); border: 0; font-weight: 800; }
+.marca-tarjeta .btn { width: 100%; }
+.marca-foto { display: flex; align-items: center; gap: 14px; }
+.marca-foto__botones { flex: 1; display: grid; gap: 6px; }
+
+.fecha-clave { display: flex; align-items: center; gap: 12px; background: var(--papel); border: 2px solid var(--linea); border-radius: 14px; padding: 10px 12px; }
+.fecha-clave__emoji { flex: none; width: 44px; height: 44px; display: grid; place-items: center; font-size: 22px; background: var(--acento-claro); border-radius: 12px; }
+.fecha-clave__texto { display: grid; min-width: 0; }
+.fecha-clave__texto strong { font-size: 17px; font-weight: 900; }
+.fecha-clave__texto small { font-size: 14px; color: var(--tinta-2); }
+.fecha-tarjeta { display: grid; gap: 10px; background: var(--papel); border: 2px solid var(--linea); border-radius: var(--radio); padding: 14px; box-shadow: var(--sombra); }
+.fecha-tarjeta__cabeza { display: flex; align-items: center; gap: 12px; }
+.fecha-tarjeta__idea { font-size: 16px; color: var(--tinta-2); }
+.fecha-tarjeta__listo { font-size: 15px; font-weight: 800; color: var(--verde); }
+
+.contenido { display: grid; gap: 8px; background: var(--papel); border: 2px solid var(--linea); border-left: 6px solid var(--c); border-radius: 14px; padding: 12px; }
+.contenido__cabeza { display: flex; align-items: flex-start; gap: 8px; }
+.contenido__texto { flex: 1; display: grid; min-width: 0; }
+.contenido__texto strong { font-size: 17px; font-weight: 900; }
+.contenido__texto small { font-size: 14px; color: var(--tinta-2); }
+.contenido__nota { font-size: 15px; color: var(--tinta-2); }
+.chips--tres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.chips--tres .chip { min-height: 44px; font-size: 13px; padding: 4px; }

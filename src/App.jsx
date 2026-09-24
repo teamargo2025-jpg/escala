@@ -16,6 +16,7 @@ import { Inventario, Material, MovimientoInventario } from './pantallas/inventar
 import { Costeo, FichaProducto } from './pantallas/costeo.jsx'
 import { Educacion, Leccion } from './pantallas/educacion.jsx'
 import { Asesores } from './pantallas/asesores.jsx'
+import { CalendarioMarca, ContenidoMarca, IdentidadMarca, Marca } from './pantallas/marca.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
@@ -180,6 +181,13 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   if (seccion === 'educacion') {
     if (!sub) return <Educacion {...comunes} />
     return <Leccion key={sub} id={sub} {...comunes} />
+  }
+
+  if (seccion === 'marca') {
+    if (!sub) return <Marca {...comunes} />
+    if (sub === 'identidad') return <IdentidadMarca {...comunes} />
+    if (sub === 'calendario') return <CalendarioMarca {...comunes} />
+    if (sub === 'contenido') return <ContenidoMarca {...comunes} />
   }
 
   if (seccion === 'asesores') return <Asesores perfil={perfil} guardado={guardado} />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { rubroDe } from '../data/rubros.js'
 import { MESES_FLUJO } from '../config.js'
 import { APARTADO, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
@@ -11,6 +11,7 @@ import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
 import { ir, volver } from '../negocio.js'
 import { TEMAS, TEMA_POR_DEFECTO } from '../data/temas.js'
 import { CampoTexto, EstadoGuardado, Logo, Marco, MensajeError } from '../componentes.jsx'
+import { FotoMarca, marcaDe } from './marca.jsx'
 
 export const plural = (n, r) => `${n.toLocaleString('es-PE')} ${n === 1 ? r.unidad : r.unidades}`
 
@@ -44,6 +45,13 @@ function detalleApartado(id, n, r, movimientos, datos) {
       }).length
       return `${productos.length} ${productos.length === 1 ? 'producto' : 'productos'}${pierden ? ` · ⚠️ ${pierden} con pérdida` : ''}`
     }
+    case 'marca': {
+      const m = datos.marca
+      if (!m) return ''
+      const pendientes = (m.contenidos ?? []).filter((c) => c.estado !== 'publicado').length
+      const partes = [m.eslogan ? 'Marca lista' : null, pendientes ? `${pendientes} por grabar` : null].filter(Boolean)
+      return partes.join(' · ')
+    }
     case 'educacion': {
       const hechas = LECCIONES.filter((l) => datos.educacion?.[l.id]).length
       return hechas ? `${hechas} de ${LECCIONES.length} lecciones` : ''
@@ -62,6 +70,7 @@ const QUE_ES = {
   caja: 'Anota el dinero que entra y sale',
   inventario: 'Cuánto material tienes y cuándo comprar',
   costeo: 'Cuánto te cuesta de verdad cada producto',
+  marca: 'Tu identidad y tu calendario de contenido',
   educacion: '8 lecciones cortas para cuidar tu dinero',
 }
 
@@ -130,7 +139,11 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
         </div>
         <p className="lobby__hola">Hola, {perfil.nickname} 👋</p>
         <div className="lobby__negocio">
-          <span className="lobby__emoji">{r.emoji}</span>
+          {marcaDe(perfil.datos).foto ? (
+            <FotoMarca foto={marcaDe(perfil.datos).foto} nombre={perfil.emprendimiento} tamano="chica" />
+          ) : (
+            <span className="lobby__emoji">{r.emoji}</span>
+          )}
           <div>
             <h1>{perfil.emprendimiento}</h1>
             <span>{r.nombre}</span>
@@ -304,37 +317,90 @@ export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
   )
 }
 
-// Todos los números juntos: quien quiere ver su negocio completo no tiene que entrar apartado por apartado.
+// Resumen en tarjetas que se deslizan: lo esencial de cada apartado, y el detalle completo si lo pide.
 function ResumenNegocio({ perfil, n, movimientos, r }) {
-  const [abierto, setAbierto] = useState(true)
+  const [verTodo, setVerTodo] = useState(false)
+  const [activa, setActiva] = useState(0)
+  const carrusel = useRef(null)
   const secciones = seccionesResumen({ datos: perfil.datos, n, movimientos, r, meses: MESES_FLUJO })
   if (!secciones.length) return null
+
+  // Qué tarjeta se está viendo, para pintar los puntitos.
+  useEffect(() => {
+    const el = carrusel.current
+    if (!el) return
+    const alDeslizar = () => {
+      // Posición dentro del carrusel: offsetLeft es de la página, hay que restar el del contenedor.
+      const centro = el.scrollLeft + el.clientWidth / 2
+      const tarjetas = [...el.children]
+      const i = tarjetas.findIndex((t) => {
+        const inicio = t.offsetLeft - el.offsetLeft
+        return inicio <= centro && inicio + t.offsetWidth > centro
+      })
+      if (i >= 0) setActiva(i)
+    }
+    el.addEventListener('scroll', alDeslizar, { passive: true })
+    return () => el.removeEventListener('scroll', alDeslizar)
+  }, [secciones.length])
+  const irATarjeta = (i) => {
+    const el = carrusel.current
+    const tarjeta = el?.children[i]
+    if (!tarjeta) return
+    const destino = tarjeta.offsetLeft - el.offsetLeft
+    el.scrollTo({ left: destino, behavior: 'smooth' })
+    // Si el navegador ignora el desplazamiento suave, se salta igual.
+    setTimeout(() => {
+      if (Math.abs(el.scrollLeft - destino) > 4) el.scrollLeft = destino
+    }, 500)
+  }
+
   return (
     <section className="resumen-todo">
-      <button className="resumen-todo__cabeza" onClick={() => setAbierto(!abierto)} aria-expanded={abierto}>
+      <div className="resumen-todo__cabeza">
         <span>
           <strong>Resumen de tu negocio</strong>
-          <small>Todos tus números, sin entrar a cada apartado</small>
+          <small>Desliza para ver cada parte →</small>
         </span>
-        <span className="resumen-todo__flecha">{abierto ? '▲' : '▼'}</span>
-      </button>
+      </div>
 
-      {abierto &&
-        secciones.map((s) => (
-          <div key={s.id} className="resumen-bloque" style={{ '--c': s.color, '--c-claro': s.claro }}>
+      <div className="carrusel" ref={carrusel}>
+        {secciones.map((s) => (
+          <article key={s.id} className="resumen-bloque" style={{ '--c': s.color, '--c-claro': s.claro }}>
             <button className="resumen-bloque__titulo" onClick={() => ir(`/${s.id}`)}>
               <span aria-hidden="true">{s.emoji}</span> {s.nombre} <span className="resumen-bloque__ir">Abrir →</span>
             </button>
             <dl className="resumen-bloque__filas">
-              {s.filas.map((f) => (
+              {(verTodo ? s.filas : s.clave).map((f) => (
                 <div key={f.etiqueta} className={f.fuerte ? 'resumen-fila resumen-fila--fuerte' : 'resumen-fila'}>
                   <dt>{f.etiqueta}</dt>
                   <dd className={f.tono ?? ''}>{f.valor}</dd>
                 </div>
               ))}
             </dl>
-          </div>
+            {!verTodo && s.filas.length > s.clave.length && (
+              <span className="resumen-bloque__mas">+{s.filas.length - s.clave.length} datos más</span>
+            )}
+          </article>
         ))}
+      </div>
+
+      <div className="carrusel__puntos" role="tablist" aria-label="Partes del resumen">
+        {secciones.map((s, i) => (
+          <button
+            key={s.id}
+            className={`carrusel__punto${i === activa ? ' carrusel__punto--activo' : ''}`}
+            style={{ '--c': s.color }}
+            aria-label={s.nombre}
+            aria-selected={i === activa}
+            role="tab"
+            onClick={() => irATarjeta(i)}
+          />
+        ))}
+      </div>
+
+      <button className="btn btn--texto" onClick={() => setVerTodo(!verTodo)}>
+        {verTodo ? 'Ver solo lo importante' : 'Ver todos los números'}
+      </button>
     </section>
   )
 }

@@ -17,6 +17,7 @@ export const APARTADOS = [
   { id: 'caja', grupo: 'dia', nombre: 'Control de caja', emoji: '📒', color: '#1f8a5b', claro: '#dff3e8', requiere: [] },
   { id: 'inventario', grupo: 'dia', nombre: 'Inventario', emoji: '📦', color: '#9a6417', claro: '#f7ecd9', requiere: [] },
   { id: 'costeo', grupo: 'dia', nombre: 'Costo por producto', emoji: '🧮', color: '#5b4bd6', claro: '#e8e5fc', requiere: [] },
+  { id: 'marca', grupo: 'dia', nombre: 'Mi marca', emoji: '✨', color: '#c2366f', claro: '#fde2ed', requiere: [] },
   { id: 'educacion', grupo: 'aprende', nombre: 'Educación financiera', emoji: '🎓', color: '#9b34c9', claro: '#f3e4fb', requiere: [] },
 ]
 

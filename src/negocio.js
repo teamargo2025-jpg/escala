@@ -140,6 +140,26 @@ export function reducirDatos(d, accion) {
       return { ...d, inventario: usarProducto(inventarioDe(d), producto, accion.cantidad, { fecha: accion.fecha ?? hoy(), nuevoId }) }
     }
 
+    // ---------- Marca y contenido ----------
+    case 'marca:campo':
+      return { ...d, marca: { ...(d.marca ?? {}), [accion.campo]: accion.valor } }
+    case 'contenido:agregar': {
+      const marca = d.marca ?? {}
+      const contenido = { id: nuevoId(), estado: 'pendiente', ...accion.contenido }
+      return { ...d, marca: { ...marca, contenidos: [...(marca.contenidos ?? []), contenido] } }
+    }
+    case 'contenido:estado': {
+      const marca = d.marca ?? {}
+      return {
+        ...d,
+        marca: { ...marca, contenidos: (marca.contenidos ?? []).map((c) => (c.id === accion.id ? { ...c, estado: accion.estado } : c)) },
+      }
+    }
+    case 'contenido:quitar': {
+      const marca = d.marca ?? {}
+      return { ...d, marca: { ...marca, contenidos: (marca.contenidos ?? []).filter((c) => c.id !== accion.id) } }
+    }
+
     // ---------- Costo por producto ----------
     case 'producto:guardar': {
       const productos = d.productos ?? []
