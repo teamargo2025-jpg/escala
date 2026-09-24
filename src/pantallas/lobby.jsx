@@ -4,6 +4,7 @@ import { MESES_FLUJO } from '../config.js'
 import { APARTADO, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
 import { LECCIONES } from '../data/educacion.js'
 import { costoProducto, porAcabarse } from '../lib/inventario.js'
+import { seccionesResumen } from '../lib/resumen.js'
 import { hoy, mesDe, resumenMes, saldo } from '../lib/caja.js'
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
@@ -172,6 +173,8 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
           )}
         </section>
 
+        <ResumenNegocio perfil={perfil} n={n} movimientos={movimientos} r={r} />
+
         {GRUPOS.map((g) => (
         <section key={g.id} className="apartados">
           <h2 className="grupo__titulo" style={{ '--c': g.color }}>{g.nombre}</h2>
@@ -298,5 +301,40 @@ export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
         </button>
       )}
     </Marco>
+  )
+}
+
+// Todos los números juntos: quien quiere ver su negocio completo no tiene que entrar apartado por apartado.
+function ResumenNegocio({ perfil, n, movimientos, r }) {
+  const [abierto, setAbierto] = useState(true)
+  const secciones = seccionesResumen({ datos: perfil.datos, n, movimientos, r, meses: MESES_FLUJO })
+  if (!secciones.length) return null
+  return (
+    <section className="resumen-todo">
+      <button className="resumen-todo__cabeza" onClick={() => setAbierto(!abierto)} aria-expanded={abierto}>
+        <span>
+          <strong>Resumen de tu negocio</strong>
+          <small>Todos tus números, sin entrar a cada apartado</small>
+        </span>
+        <span className="resumen-todo__flecha">{abierto ? '▲' : '▼'}</span>
+      </button>
+
+      {abierto &&
+        secciones.map((s) => (
+          <div key={s.id} className="resumen-bloque" style={{ '--c': s.color, '--c-claro': s.claro }}>
+            <button className="resumen-bloque__titulo" onClick={() => ir(`/${s.id}`)}>
+              <span aria-hidden="true">{s.emoji}</span> {s.nombre} <span className="resumen-bloque__ir">Abrir →</span>
+            </button>
+            <dl className="resumen-bloque__filas">
+              {s.filas.map((f) => (
+                <div key={f.etiqueta} className={f.fuerte ? 'resumen-fila resumen-fila--fuerte' : 'resumen-fila'}>
+                  <dt>{f.etiqueta}</dt>
+                  <dd className={f.tono ?? ''}>{f.valor}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+    </section>
   )
 }
