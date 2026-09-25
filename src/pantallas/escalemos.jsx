@@ -29,153 +29,150 @@ function useDatos(cargar, dependencias = []) {
 
 const Cargando = () => <p className="nota-suave">Cargando…</p>
 
-// ---------- Portada ----------
+// ---------- Revista ESCALA: todo en una sola pantalla ----------
 export function Escalemos({ perfil, guardado }) {
-  const [{ cargando, datos }] = useDatos(async () => ({
+  const [{ cargando, datos }, recargar] = useDatos(async () => ({
     oportunidades: await almacen.oportunidades(),
+    mios: await almacen.misIntereses(),
     postulacion: await almacen.miPostulacion(),
     entregas: await almacen.misEntregas(),
     canjes: await almacen.misCanjes(),
+    jornadas: await almacen.jornadas(),
   }))
-  // Lo que puede canjear ahora: lo juntado menos lo ya pedido.
-  const puntos = puntosTotales(datos?.entregas ?? []) - (datos?.canjes ?? []).reduce((s, x) => s + x.puntos, 0)
-  const proxima = datos?.oportunidades?.[0]
+  const puntos =
+    puntosTotales(datos?.entregas ?? []) - (datos?.canjes ?? []).reduce((s, x) => s + x.puntos, 0)
+  const jornada = datos?.jornadas?.[0]
 
   return (
-    <Marco {...marco({ guardado })}>
-      <Pregunta sub="La red de ESCALA: aquí se entera de lo que pasa, aprovecha lo que a otros les sobra y se postula a la revista.">
-        Hola, {perfil.nickname} 🤝
+    <Marco {...marco({ titulo: 'Revista ESCALA', emoji: '📰', guardado })}>
+      <Pregunta sub="Lo que pasa en la red: convocatorias, ferias y la revista donde mostramos emprendimientos.">
+        Revista ESCALA
       </Pregunta>
 
-      {cargando ? (
-        <Cargando />
-      ) : (
-        <>
-          <button className="escalemos-tarjeta" style={{ '--c': '#5b4bd6', '--c-claro': '#e8e5fc' }} onClick={() => ir('/escalemos/oportunidades')}>
-            <span className="escalemos-tarjeta__icono">📣</span>
-            <span className="escalemos-tarjeta__texto">
-              <strong>Oportunidades</strong>
-              <small>
-                {proxima
-                  ? `${proxima.emoji ?? '📣'} ${proxima.titulo}${proxima.fecha_limite ? ` · en ${diasHasta(proxima.fecha_limite)} días` : ''}`
-                  : 'Ferias, pedidos grandes, talleres y convocatorias'}
-              </small>
-            </span>
-            <span className="apartado__flecha">→</span>
-          </button>
+      {cargando && <Cargando />}
 
-          <button className="escalemos-tarjeta" style={{ '--c': '#1f8a5b', '--c-claro': '#dff3e8' }} onClick={() => ir('/escalemos/sobrantes')}>
-            <span className="escalemos-tarjeta__icono">♻️</span>
-            <span className="escalemos-tarjeta__texto">
-              <strong>Lo que me sobra, a otro le sirve</strong>
-              <small>Da lo que no usas y consigue material gratis</small>
-            </span>
-            <span className="apartado__flecha">→</span>
-          </button>
+      {/* Oportunidades: son parte de la revista */}
+      <section className="ficha__seccion">
+        <h2 className="subtitulo">📣 Convocatorias y oportunidades</h2>
+        {!cargando && !datos?.oportunidades?.length && (
+          <div className="explica">Todavía no hay convocatorias abiertas. Cuando haya una feria o un pedido grande, aparece aquí.</div>
+        )}
+        {datos?.oportunidades?.map((o) => (
+          <TarjetaOportunidad key={o.id} o={o} apuntado={datos.mios.includes(o.id)} perfil={perfil} alCambiar={recargar} />
+        ))}
+      </section>
 
-          <button className="escalemos-tarjeta" style={{ '--c': '#0e8a8a', '--c-claro': '#daf3f2' }} onClick={() => ir('/escalemos/revista')}>
-            <span className="escalemos-tarjeta__icono">📰</span>
-            <span className="escalemos-tarjeta__texto">
-              <strong>Revista ESCALA</strong>
-              <small>{datos?.postulacion ? `Tu postulación: ${ESTADOS[datos.postulacion.estado].nombre}` : 'Postula tu emprendimiento'}</small>
-            </span>
-            <span className="apartado__flecha">→</span>
-          </button>
+      {/* Postulación */}
+      <section className="ficha__seccion">
+        <h2 className="subtitulo">✍️ Sal en la revista</h2>
+        <button className="escalemos-tarjeta" style={{ '--c': '#0e8a8a', '--c-claro': '#daf3f2' }} onClick={() => ir('/escalemos/revista')}>
+          <span className="escalemos-tarjeta__icono">📰</span>
+          <span className="escalemos-tarjeta__texto">
+            <strong>{datos?.postulacion ? 'Tu postulación' : 'Postula tu emprendimiento'}</strong>
+            <small>
+              {datos?.postulacion
+                ? ESTADOS[datos.postulacion.estado].nombre
+                : 'Mostramos emprendimientos de la red en cada edición'}
+            </small>
+          </span>
+          <span className="apartado__flecha">→</span>
+        </button>
+      </section>
 
-          <button className="escalemos-tarjeta" style={{ '--c': '#b7730c', '--c-claro': '#fff1d6' }} onClick={() => ir('/escalemos/eco')}>
-            <span className="escalemos-tarjeta__icono">🌱</span>
-            <span className="escalemos-tarjeta__texto">
-              <strong>EcoEscala</strong>
-              <small>{puntos > 0 ? `Tienes ${puntos} puntos para canjear` : 'Recicla y gana asesorías y talleres'}</small>
-            </span>
-            <span className="apartado__flecha">→</span>
-          </button>
-        </>
-      )}
-
-      <Ayuda etiqueta="¿Qué es Escalemos?">
-        Es la parte de ESCALA donde estás con los demás: te enteras de ferias y convocatorias, consigues material que a
-        otro le sobra y postulas a la revista. Lo que publiques aquí lo ven los demás emprendedores; tus números siguen
-        siendo solo tuyos.
-      </Ayuda>
+      {/* EcoEscala: sección propia, debajo de la revista */}
+      <section className="ficha__seccion seccion-eco">
+        <h2 className="subtitulo">🌱 EcoEscala</h2>
+        <p className="nota-suave nota-suave--izq">
+          La sección verde de la revista: aprovechar lo que sobra y reciclar lo que no.
+        </p>
+        <button className="escalemos-tarjeta" style={{ '--c': '#1f8a5b', '--c-claro': '#dff3e8' }} onClick={() => ir('/escalemos/eco')}>
+          <span className="escalemos-tarjeta__icono">♻️</span>
+          <span className="escalemos-tarjeta__texto">
+            <strong>Entrar a EcoEscala</strong>
+            <small>
+              {puntos > 0 ? `Tienes ${puntos} puntos` : 'Recicla y gana asesorías'}
+              {jornada ? ` · jornada el ${fechaBonita(jornada.fecha)}` : ''}
+            </small>
+          </span>
+          <span className="apartado__flecha">→</span>
+        </button>
+        <button className="escalemos-tarjeta" style={{ '--c': '#9a6417', '--c-claro': '#f7ecd9' }} onClick={() => ir('/escalemos/sobrantes')}>
+          <span className="escalemos-tarjeta__icono">🎁</span>
+          <span className="escalemos-tarjeta__texto">
+            <strong>Doy y busco material</strong>
+            <small>Lo que a ti te sobra, a otro le sirve</small>
+          </span>
+          <span className="apartado__flecha">→</span>
+        </button>
+      </section>
     </Marco>
   )
 }
 
-// ---------- Oportunidades ----------
-export function Oportunidades({ perfil }) {
-  const [{ cargando, datos }, recargar] = useDatos(async () => ({
-    lista: await almacen.oportunidades(),
-    mios: await almacen.misIntereses(),
-  }))
-  const [ocupado, setOcupado] = useState(null)
+// Una convocatoria con su botón de "Me interesa"; se usa en la revista y en la lista completa.
+function TarjetaOportunidad({ o, apuntado, perfil, alCambiar }) {
+  const [ocupado, setOcupado] = useState(false)
+  const tipo = TIPOS_OPORTUNIDAD[o.tipo] ?? TIPOS_OPORTUNIDAD.convocatoria
+  const dias = o.fecha_limite ? diasHasta(o.fecha_limite) : null
 
-  const alternar = async (o, apuntado) => {
-    setOcupado(o.id)
+  const alternar = async () => {
+    setOcupado(true)
     try {
       if (apuntado) await almacen.quitarInteres(o.id)
       else {
         await almacen.apuntarme(o.id, perfil)
         registrar('oportunidad_interes', perfil.rubro)
       }
-      recargar()
+      alCambiar()
     } finally {
-      setOcupado(null)
+      setOcupado(false)
     }
   }
 
   return (
-    <Marco {...marco({ titulo: 'Oportunidades', emoji: '📣', onAtras: () => volver('/escalemos') })}>
-      <Pregunta sub="Lo que organiza ESCALA para la red. Si te interesa algo, avísanos y te escribimos.">
-        ¿Qué se viene?
-      </Pregunta>
+    <article className="oportunidad" style={{ '--c': tipo.color }}>
+      <div className="oportunidad__cabeza">
+        <span className="fecha-clave__emoji">{o.emoji ?? tipo.emoji}</span>
+        <span className="fecha-clave__texto">
+          <strong>{o.titulo}</strong>
+          <small>
+            {tipo.nombre}
+            {o.lugar ? ` · ${o.lugar}` : ''}
+            {dias != null ? ` · ${dias <= 0 ? 'último día' : `quedan ${dias} días`}` : ''}
+          </small>
+        </span>
+      </div>
+      <p className="oportunidad__detalle">{o.detalle}</p>
+      {o.enlace && (
+        <a className="enlace" href={o.enlace} target="_blank" rel="noopener noreferrer">
+          Ver más información →
+        </a>
+      )}
+      <button className={`btn ${apuntado ? 'btn--suave' : 'btn--principal'}`} disabled={ocupado} onClick={alternar}>
+        {ocupado ? 'Un momento…' : apuntado ? '✓ Te vamos a escribir · quitar' : 'Me interesa'}
+      </button>
+      {apuntado && <small className="texto-suave">El equipo de ESCALA ya vio que te apuntaste y te escribirá por WhatsApp.</small>}
+    </article>
+  )
+}
 
+// ---------- Todas las convocatorias ----------
+export function Oportunidades({ perfil }) {
+  const [{ cargando, datos }, recargar] = useDatos(async () => ({
+    lista: await almacen.oportunidades(),
+    mios: await almacen.misIntereses(),
+  }))
+
+  return (
+    <Marco {...marco({ titulo: 'Convocatorias', emoji: '📣', onAtras: () => volver('/escalemos') })}>
+      <Pregunta sub="Lo que organiza ESCALA para la red. Si te interesa algo, avísanos y te escribimos.">¿Qué se viene?</Pregunta>
       {cargando && <Cargando />}
       {!cargando && !datos?.lista?.length && (
-        <div className="explica">
-          Todavía no hay oportunidades publicadas. Cuando haya una feria, un pedido grande o una convocatoria, la vas a
-          ver aquí.
-        </div>
+        <div className="explica">Todavía no hay convocatorias publicadas.</div>
       )}
-
-      {datos?.lista?.map((o) => {
-        const tipo = TIPOS_OPORTUNIDAD[o.tipo] ?? TIPOS_OPORTUNIDAD.convocatoria
-        const apuntado = datos.mios.includes(o.id)
-        const dias = o.fecha_limite ? diasHasta(o.fecha_limite) : null
-        return (
-          <article key={o.id} className="oportunidad" style={{ '--c': tipo.color }}>
-            <div className="oportunidad__cabeza">
-              <span className="fecha-clave__emoji">{o.emoji ?? tipo.emoji}</span>
-              <span className="fecha-clave__texto">
-                <strong>{o.titulo}</strong>
-                <small>
-                  {tipo.nombre}
-                  {o.lugar ? ` · ${o.lugar}` : ''}
-                  {dias != null ? ` · ${dias <= 0 ? 'último día' : `quedan ${dias} días`}` : ''}
-                </small>
-              </span>
-            </div>
-            <p className="oportunidad__detalle">{o.detalle}</p>
-            {o.enlace && (
-              <a className="enlace" href={o.enlace} target="_blank" rel="noopener noreferrer">
-                Ver más información →
-              </a>
-            )}
-            <button
-              className={`btn ${apuntado ? 'btn--suave' : 'btn--principal'}`}
-              disabled={ocupado === o.id}
-              onClick={() => alternar(o, apuntado)}
-            >
-              {ocupado === o.id ? 'Un momento…' : apuntado ? '✓ Te vamos a escribir · quitar' : 'Me interesa'}
-            </button>
-          </article>
-        )
-      })}
-
-      <Ayuda etiqueta={`¿Qué pasa si toco "Me interesa"?`}>
-        El equipo de ESCALA ve que te apuntaste, con tu nombre y el de tu emprendimiento, y te escribe por WhatsApp con
-        los detalles. No te compromete a nada y lo puedes quitar cuando quieras.
-      </Ayuda>
+      {datos?.lista?.map((o) => (
+        <TarjetaOportunidad key={o.id} o={o} apuntado={datos.mios.includes(o.id)} perfil={perfil} alCambiar={recargar} />
+      ))}
     </Marco>
   )
 }
@@ -524,6 +521,15 @@ export function EcoEscala({ perfil }) {
       </div>
 
       {cargando && <Cargando />}
+
+      <button className="escalemos-tarjeta" style={{ '--c': '#9a6417', '--c-claro': '#f7ecd9' }} onClick={() => ir('/escalemos/sobrantes')}>
+        <span className="escalemos-tarjeta__icono">🎁</span>
+        <span className="escalemos-tarjeta__texto">
+          <strong>Doy y busco material</strong>
+          <small>Antes de reciclarlo, mira si a otro le sirve</small>
+        </span>
+        <span className="apartado__flecha">→</span>
+      </button>
 
       <section className="ficha__seccion">
         <h2 className="subtitulo">📅 Próxima jornada de acopio</h2>

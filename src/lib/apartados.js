@@ -17,7 +17,7 @@ export const PESTANAS = [
   { id: 'inicio', ruta: '/', nombre: 'Inicio', icono: '🏠' },
   { id: 'negocio', ruta: '/negocio', nombre: 'Negocio', icono: '📒', grupo: 'dia', titulo: 'Tu negocio día a día' },
   { id: 'marca', ruta: '/marca', nombre: 'Marca', icono: '✨' },
-  { id: 'escalemos', ruta: '/escalemos', nombre: 'Escalemos', icono: '🤝' },
+  { id: 'escalemos', ruta: '/escalemos', nombre: 'Revista', icono: '📰' },
 ]
 
 // Qué pestaña se pinta activa según dónde está la persona.

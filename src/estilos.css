@@ -709,3 +709,6 @@ h1, h2, p { margin: 0; }
 .premio .btn { width: auto; white-space: nowrap; }
 .premio--lejos { opacity: 0.65; }
 .premio__pedido { font-weight: 900; color: var(--verde); font-size: 15px; }
+
+.seccion-eco { border-top: 2px dashed var(--linea); padding-top: 14px; }
+.oportunidad .texto-suave { font-size: 14px; }
