@@ -295,6 +295,11 @@ export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
         <span className="apartado__flecha">Cambiar →</span>
       </button>
 
+      <p className="legal__enlaces">
+        <button className="enlace" onClick={() => ir('/legal/privacidad')}>Política de privacidad</button> ·{' '}
+        <button className="enlace" onClick={() => ir('/legal/terminos')}>Términos y condiciones</button>
+      </p>
+
       {salirSeguro ? (
         <div className="confirmar">
           <p>Para volver a entrar vas a necesitar tu nombre (<strong>{perfil.nickname}</strong>) y tu DNI.</p>

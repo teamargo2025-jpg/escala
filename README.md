@@ -23,7 +23,11 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
    - En tu computadora: copiar `.env.example` como `.env.local` y pegarlas.
    - En Vercel: Project → Settings → Environment Variables → agregar `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` (Production y Preview) → Deployments → Redeploy.
 
+6. **Opcional, conteo anónimo de uso:** SQL Editor → pegar [supabase/002_eventos.sql](supabase/002_eventos.sql) → Run. Sin esta tabla la app funciona igual; con ella puedes ver cuántos crean cuenta y cuántos terminan cada apartado (las consultas están al final del archivo).
+
 **Comprobar que todo quedó bien:** `npm run probar:supabase` crea dos cuentas de prueba y revisa registro, entrada, guardado y que ninguna cuenta vea datos ajenos. Luego bórralas en Authentication → Users (empiezan con `pruebaescala`).
+
+**Pendiente antes del piloto:** completar en `src/data/legal.js` el nombre de la institución responsable y su correo de contacto (aparecen entre corchetes).
 
 **Antes de cada clase:** el plan gratuito de Supabase pausa el proyecto tras 7 días sin uso. Entra al panel y, si dice *Paused*, pulsa *Restore*.
 
@@ -43,3 +47,6 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 | Guardado en el celular, sincronización y navegación | `src/negocio.js` |
 | Pantallas | `src/pantallas/` (entrada, lobby, apartados, caja, inventario, costeo, educacion) |
 | Colores y tamaños | `src/estilos.css` |
+| Política de privacidad y términos (y los datos de la institución) | `src/data/legal.js` |
+| Fechas de marketing e ideas de contenido | `src/lib/marketing.js`, `src/data/marca.js` |
+| Íconos de la app | `public/icono.svg` y `node scripts/generar-iconos.mjs` |

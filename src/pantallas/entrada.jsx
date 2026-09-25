@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { EMOJIS_RUBRO, LISTA_RUBROS, RUBROS, crearRubro } from '../data/rubros.js'
 import { almacen, MENSAJES_ERROR, MODO_PRUEBA } from '../almacen.js'
+import { registrar } from '../lib/analitica.js'
 import { ir, reemplazar, volver } from '../negocio.js'
 import {
   limpiarDocumento, limpiarTexto, validarApodo, validarDocumento, validarEmprendimiento,
@@ -41,6 +42,10 @@ export function Bienvenida() {
           <button className="btn btn--suave" onClick={() => ir('/entrar')}>
             Ya tengo cuenta
           </button>
+          <p className="legal__enlaces">
+            <button className="enlace" onClick={() => ir('/legal/privacidad')}>Política de privacidad</button> ·{' '}
+            <button className="enlace" onClick={() => ir('/legal/terminos')}>Términos y condiciones</button>
+          </p>
         </div>
       </main>
     </div>
@@ -143,6 +148,7 @@ export function Crear({ paso, form, setForm, alEntrar }) {
         documento: form.documento,
         emprendimiento: form.emprendimiento,
       })
+      registrar(usuario.yaExistia ? 'sesion_iniciada' : 'cuenta_creada')
       alEntrar(usuario)
     } catch (e) {
       setError(e.codigo === 'apodo_usado' ? 'apodo_usado' : e.codigo || 'otro')
@@ -174,6 +180,11 @@ export function Crear({ paso, form, setForm, alEntrar }) {
       <Casilla marcada={form.acepto} onCambio={(v) => setForm({ ...form, acepto: v })}>
         Acepto que ESCALA guarde mi nombre, el de mi emprendimiento y mis números para mostrármelos cuando vuelva.
       </Casilla>
+      <p className="legal__enlaces">
+        Antes de aceptar puedes leer la{' '}
+        <button className="enlace" onClick={() => ir('/legal/privacidad')}>política de privacidad</button> y los{' '}
+        <button className="enlace" onClick={() => ir('/legal/terminos')}>términos y condiciones</button>.
+      </p>
       <MensajeError>{error && MENSAJES_ERROR[error]}</MensajeError>
       {error === 'apodo_usado' && (
         <button
@@ -196,7 +207,9 @@ export function Entrar({ form, setForm, alEntrar }) {
     setError(null)
     setEnviando(true)
     try {
-      alEntrar(await almacen.ingresar({ apodo: form.apodo, documento: form.documento }))
+      const usuario = await almacen.ingresar({ apodo: form.apodo, documento: form.documento })
+      registrar('sesion_iniciada')
+      alEntrar(usuario)
     } catch (e) {
       setError(e.codigo || 'otro')
       setEnviando(false)

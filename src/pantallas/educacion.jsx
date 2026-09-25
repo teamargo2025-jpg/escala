@@ -3,6 +3,7 @@ import { LECCION } from '../data/educacion.js'
 import { APARTADO } from '../lib/apartados.js'
 import { estadoLecciones } from '../lib/educacion.js'
 import { ir, irAlInicio, volver } from '../negocio.js'
+import { registrar } from '../lib/analitica.js'
 import { BotonSiguiente, Marco, Redirigir } from '../componentes.jsx'
 
 // "**negrita**" → <strong>
@@ -150,7 +151,10 @@ export function Leccion({ id, datos, despachar, guardado, r, n }) {
                   onClick={() => {
                     setElegida(i)
                     // Se marca hecha al acertar: eso abre la siguiente lección.
-                    if (i === pregunta.correcta && !yaHecha) despachar({ tipo: 'leccion', id })
+                    if (i === pregunta.correcta && !yaHecha) {
+                      registrar(`leccion:${id}`)
+                      despachar({ tipo: 'leccion', id })
+                    }
                   }}
                 >
                   {o}

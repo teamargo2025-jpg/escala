@@ -660,3 +660,11 @@ h1, h2, p { margin: 0; }
 .siguiente-paso small { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: var(--marca); }
 .siguiente-paso strong { font-size: 19px; font-weight: 900; }
 .siguiente-paso__icono { flex: none; width: 46px; height: 46px; display: grid; place-items: center; font-size: 24px; background: #fff; border-radius: 12px; }
+
+/* ---------- Textos legales ---------- */
+.legal__resumen { font-size: 17px; color: var(--tinta-2); }
+.legal__seccion { display: grid; gap: 8px; background: var(--papel); border: 2px solid var(--linea); border-radius: var(--radio); padding: 14px 16px; }
+.legal__seccion h2 { font-size: 19px; font-weight: 900; }
+.legal__seccion p { font-size: 16px; line-height: 1.5; color: var(--tinta-2); }
+.legal__enlaces { font-size: 14px; color: var(--tinta-3); text-align: center; line-height: 1.6; }
+.portada__botones .legal__enlaces { margin-top: 4px; }

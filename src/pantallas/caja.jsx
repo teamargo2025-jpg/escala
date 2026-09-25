@@ -4,6 +4,7 @@ import { CONCEPTO_INICIAL, hoy, mesDe, moverMes, nombreDia, nombreMes, porDia, r
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto } from '../lib/cuenta.js'
 import { ir, volver } from '../negocio.js'
+import { registrar } from '../lib/analitica.js'
 import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, Pregunta } from '../componentes.jsx'
 import { plural } from './lobby.jsx'
 
@@ -183,6 +184,7 @@ export function NuevoMovimiento({ tipo, agregarMovimiento, despachar, perfil, r,
       unidades: esVenta ? u : null,
       monto: Math.round(num(montoFinal) * 100) / 100,
     })
+    registrar(esEntrada ? 'caja_entrada' : 'caja_salida')
     if (esVenta && producto && hayMateriales && descontar) {
       despachar({ tipo: 'inventario:usarProducto', productoId: producto.id, cantidad: u, fecha })
     }

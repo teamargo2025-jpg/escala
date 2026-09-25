@@ -128,6 +128,15 @@ function crearSupabase() {
     async borrarMovimiento(userId, id) {
       ok(await sb.from('movimientos').delete().eq('id', id))
     },
+
+    // Conteo anónimo de uso. Si la tabla no existe o falla, se ignora: nunca debe molestar a la persona.
+    async registrarEvento(fila) {
+      try {
+        await sb.from('eventos').insert(fila)
+      } catch {
+        // sin conexión: se pierde el dato
+      }
+    },
   }
 }
 
@@ -194,6 +203,9 @@ function crearLocal() {
     },
     async borrarMovimiento(userId, id) {
       escribir(`escala:prueba:caja:${userId}`, leer(`escala:prueba:caja:${userId}`, []).filter((x) => x.id !== id))
+    },
+    async registrarEvento() {
+      // En modo prueba no se cuenta nada.
     },
   }
 }

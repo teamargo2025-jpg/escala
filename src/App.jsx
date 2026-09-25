@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { rubroDe } from './data/rubros.js'
 import { TEMA_POR_DEFECTO, aplicarTema } from './data/temas.js'
+import { registrar } from './lib/analitica.js'
+import { tituloDe } from './lib/titulos.js'
 import { almacen, MENSAJES_ERROR } from './almacen.js'
 import { destinoDisponible, estadoApartados, pestanaDe } from './lib/apartados.js'
 import { validarApodo, validarEmprendimiento } from './lib/cuenta.js'
@@ -16,6 +18,7 @@ import { Inventario, Material, MovimientoInventario } from './pantallas/inventar
 import { Costeo, FichaProducto } from './pantallas/costeo.jsx'
 import { Educacion, Leccion } from './pantallas/educacion.jsx'
 import { Asesores } from './pantallas/asesores.jsx'
+import { Legal } from './pantallas/legal.jsx'
 import { CalendarioMarca, ContenidoMarca, IdentidadMarca, Marca } from './pantallas/marca.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
@@ -47,7 +50,9 @@ export default function App() {
   const clave = ruta.join('/')
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [clave])
+    // Título propio por pantalla: se ve en las pestañas y en el historial del navegador.
+    document.title = tituloDe(ruta)
+  }, [clave, ruta])
 
   const alEntrar = useCallback((u) => {
     setForm(FORM_VACIO)
@@ -64,6 +69,7 @@ export default function App() {
   if (usuario === undefined) return <Cargando />
 
   if (!usuario) {
+    if (ruta[0] === 'legal') return <Legal documento={ruta[1]} alVolver="/" />
     if (ruta[0] === 'entrar') return <Entrar form={form} setForm={setForm} alEntrar={alEntrar} />
     if (ruta[0] === 'crear') {
       const paso = ruta[1]
@@ -98,6 +104,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
 
   const terminar = useCallback(
     (apartado) => {
+      registrar(`apartado:${apartado}`, perfil?.rubro)
       despachar({ tipo: 'hecho', apartado })
       setUltimoHecho(apartado)
       irAlInicio()
@@ -205,6 +212,8 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     if (sub === 'calendario') return <CalendarioMarca {...comunes} />
     if (sub === 'contenido') return <ContenidoMarca {...comunes} />
   }
+
+  if (seccion === 'legal') return <Legal documento={sub} guardado={guardado} alVolver="/perfil" />
 
   if (seccion === 'asesores') return <Asesores perfil={perfil} guardado={guardado} />
 
