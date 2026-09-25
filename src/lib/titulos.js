@@ -9,6 +9,7 @@ const SUELTOS = {
   asesores: 'Hablar con un asesor',
   negocio: 'Tu negocio día a día',
   legal: 'Información legal',
+  escalemos: 'Escalemos',
 }
 
 export function tituloDe(ruta) {

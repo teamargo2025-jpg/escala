@@ -129,6 +129,80 @@ function crearSupabase() {
       ok(await sb.from('movimientos').delete().eq('id', id))
     },
 
+
+    // ---------- Escalemos ----------
+    // Si las tablas todavía no existen, se devuelve vacío en vez de romper la pantalla.
+    async oportunidades() {
+      const { data, error } = await sb
+        .from('oportunidades')
+        .select('id, titulo, detalle, tipo, emoji, lugar, fecha_limite, enlace')
+        .eq('activa', true)
+        .order('fecha_limite', { ascending: true, nullsFirst: false })
+      if (error) return []
+      return data ?? []
+    },
+    async misIntereses() {
+      const { data, error } = await sb.from('interesados').select('oportunidad_id')
+      if (error) return []
+      return (data ?? []).map((x) => x.oportunidad_id)
+    },
+    async apuntarme(oportunidadId, perfil) {
+      const { error } = await sb
+        .from('interesados')
+        .insert({ oportunidad_id: oportunidadId, nombre: perfil?.nickname, emprendimiento: perfil?.emprendimiento })
+      if (error && error.code !== '23505') throw traducir(error)
+    },
+    async quitarInteres(oportunidadId) {
+      ok(await sb.from('interesados').delete().eq('oportunidad_id', oportunidadId))
+    },
+
+    async sobrantes() {
+      const { data, error } = await sb
+        .from('sobrantes')
+        .select('id, user_id, tipo, titulo, detalle, cantidad, zona, contacto, foto, estado, creado_at')
+        .order('creado_at', { ascending: false })
+        .limit(200)
+      if (error) return []
+      return data ?? []
+    },
+    async publicarSobrante(fila) {
+      ok(await sb.from('sobrantes').insert(fila))
+    },
+    async cambiarSobrante(id, cambio) {
+      ok(await sb.from('sobrantes').update(cambio).eq('id', id))
+    },
+    async borrarSobrante(id) {
+      ok(await sb.from('sobrantes').delete().eq('id', id))
+    },
+
+    async miPostulacion() {
+      const { data, error } = await sb.from('postulaciones').select('*').maybeSingle()
+      if (error) return null
+      return data
+    },
+    async postular(fila) {
+      ok(await sb.from('postulaciones').upsert(fila, { onConflict: 'user_id' }))
+    },
+
+    async jornadas() {
+      const { data, error } = await sb.from('eco_jornadas').select('*').eq('activa', true).order('fecha')
+      if (error) return []
+      return data ?? []
+    },
+    async misEntregas() {
+      const { data, error } = await sb.from('eco_entregas').select('*').order('creado_at', { ascending: false })
+      if (error) return []
+      return data ?? []
+    },
+    async misCanjes() {
+      const { data, error } = await sb.from('eco_canjes').select('*').order('creado_at', { ascending: false })
+      if (error) return []
+      return data ?? []
+    },
+    async canjear(premio, puntos) {
+      ok(await sb.from('eco_canjes').insert({ premio, puntos }))
+    },
+
     // Conteo anónimo de uso. Si la tabla no existe o falla, se ignora: nunca debe molestar a la persona.
     async registrarEvento(fila) {
       try {
@@ -204,6 +278,116 @@ function crearLocal() {
     async borrarMovimiento(userId, id) {
       escribir(`escala:prueba:caja:${userId}`, leer(`escala:prueba:caja:${userId}`, []).filter((x) => x.id !== id))
     },
+
+    // ---------- Escalemos en modo prueba ----------
+    async oportunidades() {
+      return leer('escala:prueba:oportunidades', [
+        {
+          id: 'op1',
+          titulo: 'Feria de emprendedores',
+          detalle: 'Tendremos un espacio con mesas para quienes quieran vender. Cupos limitados: apúntate y te escribimos.',
+          tipo: 'feria',
+          emoji: '🎪',
+          lugar: 'Plaza principal',
+          fecha_limite: new Date(Date.now() + 18 * 86400000).toISOString().slice(0, 10),
+        },
+        {
+          id: 'op2',
+          titulo: 'Convocatoria para la revista ESCALA',
+          detalle: 'Buscamos 5 emprendimientos para la próxima edición. Necesitas fotos de tus productos y ganas de contar tu historia.',
+          tipo: 'revista',
+          emoji: '📰',
+          fecha_limite: new Date(Date.now() + 9 * 86400000).toISOString().slice(0, 10),
+        },
+      ])
+    },
+    async misIntereses() {
+      return leer('escala:prueba:intereses', [])
+    },
+    async apuntarme(oportunidadId) {
+      const actuales = leer('escala:prueba:intereses', [])
+      if (!actuales.includes(oportunidadId)) escribir('escala:prueba:intereses', [...actuales, oportunidadId])
+    },
+    async quitarInteres(oportunidadId) {
+      escribir('escala:prueba:intereses', leer('escala:prueba:intereses', []).filter((x) => x !== oportunidadId))
+    },
+
+    async sobrantes() {
+      return leer('escala:prueba:sobrantes', [
+        {
+          id: 's1',
+          user_id: 'otra',
+          tipo: 'doy',
+          titulo: 'Retazos de tela de algodón',
+          detalle: 'Me quedaron de la producción del mes. Sirven para manualidades o trapo.',
+          cantidad: 'Media bolsa',
+          zona: 'Cerro Colorado',
+          contacto: '916468701',
+          estado: 'disponible',
+          creado_at: new Date().toISOString(),
+        },
+        {
+          id: 's2',
+          user_id: 'otra',
+          tipo: 'busco',
+          titulo: 'Busco cajas de cartón medianas',
+          detalle: 'Para empacar pedidos. Recojo yo.',
+          zona: 'Cayma',
+          contacto: '916468701',
+          estado: 'disponible',
+          creado_at: new Date().toISOString(),
+        },
+      ])
+    },
+    async publicarSobrante(fila) {
+      const actuales = await this.sobrantes()
+      const sesion = leer(K.sesion, null)
+      escribir('escala:prueba:sobrantes', [
+        { estado: 'disponible', ...fila, id: nuevoId(), user_id: sesion?.userId, creado_at: new Date().toISOString() },
+        ...actuales,
+      ])
+    },
+    async cambiarSobrante(id, cambio) {
+      const actuales = await this.sobrantes()
+      escribir('escala:prueba:sobrantes', actuales.map((s) => (s.id === id ? { ...s, ...cambio } : s)))
+    },
+    async borrarSobrante(id) {
+      const actuales = await this.sobrantes()
+      escribir('escala:prueba:sobrantes', actuales.filter((s) => s.id !== id))
+    },
+
+    async miPostulacion() {
+      return leer('escala:prueba:postulacion', null)
+    },
+    async postular(fila) {
+      escribir('escala:prueba:postulacion', { ...fila, estado: 'enviada', creado_at: new Date().toISOString() })
+    },
+
+    async jornadas() {
+      return [
+        {
+          id: 'j1',
+          fecha: new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 10),
+          hora: '9:00 a 13:00',
+          lugar: 'Sede de la capacitación',
+          detalle: 'Trae tu material limpio y separado: plástico, cartón, vidrio o metal. Lo pesamos y sumas puntos.',
+        },
+      ]
+    },
+    async misEntregas() {
+      return leer('escala:prueba:entregas', [
+        { id: 'e1', material: 'plastico', kilos: 6, creado_at: new Date().toISOString() },
+        { id: 'e2', material: 'carton', kilos: 4, creado_at: new Date().toISOString() },
+      ])
+    },
+    async misCanjes() {
+      return leer('escala:prueba:canjes', [])
+    },
+    async canjear(premio, puntos) {
+      const actuales = leer('escala:prueba:canjes', [])
+      escribir('escala:prueba:canjes', [{ id: nuevoId(), premio, puntos, estado: 'pedido', creado_at: new Date().toISOString() }, ...actuales])
+    },
+
     async registrarEvento() {
       // En modo prueba no se cuenta nada.
     },

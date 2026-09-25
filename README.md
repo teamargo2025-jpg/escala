@@ -25,6 +25,8 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 
 6. **Opcional, conteo anónimo de uso:** SQL Editor → pegar [supabase/002_eventos.sql](supabase/002_eventos.sql) → Run. Sin esta tabla la app funciona igual; con ella puedes ver cuántos crean cuenta y cuántos terminan cada apartado (las consultas están al final del archivo).
 
+7. **Escalemos y EcoEscala:** SQL Editor → pegar [supabase/003_escalemos.sql](supabase/003_escalemos.sql) → Run. Trae dos oportunidades y una jornada de ejemplo para que no se vea vacío; bórralas o edítalas desde Table Editor.
+
 **Comprobar que todo quedó bien:** `npm run probar:supabase` crea dos cuentas de prueba y revisa registro, entrada, guardado y que ninguna cuenta vea datos ajenos. Luego bórralas en Authentication → Users (empiezan con `pruebaescala`).
 
 **Pendiente antes del piloto:** completar en `src/data/legal.js` el nombre de la institución responsable y su correo de contacto (aparecen entre corchetes).
@@ -50,3 +52,5 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 | Política de privacidad y términos (y los datos de la institución) | `src/data/legal.js` |
 | Fechas de marketing e ideas de contenido | `src/lib/marketing.js`, `src/data/marca.js` |
 | Íconos de la app | `public/icono.svg` y `node scripts/generar-iconos.mjs` |
+| Puntos por material, premios e ideas de EcoEscala | `src/data/eco.js` |
+| Oportunidades, jornadas y postulaciones (día a día) | panel de Supabase → Table Editor |

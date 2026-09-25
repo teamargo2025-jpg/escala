@@ -8,8 +8,9 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "test": "node --test src/lib/calc.test.js src/lib/nuevo.test.js src/lib/inventario.test.js src/lib/resumen.test.js src/lib/marketing.test.js",
-    "probar:supabase": "node scripts/probar-supabase.mjs"
+    "test": "node --test src/lib/calc.test.js src/lib/nuevo.test.js src/lib/inventario.test.js src/lib/resumen.test.js src/lib/marketing.test.js src/lib/eco.test.js",
+    "probar:supabase": "node scripts/probar-supabase.mjs",
+    "dev:prueba": "vite --host --mode prueba"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

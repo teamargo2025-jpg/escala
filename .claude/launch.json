@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5173", "--strictPort"],
       "port": 5173
+    },
+    {
+      "name": "escala-prueba",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:prueba", "--", "--port", "5174", "--strictPort"],
+      "port": 5174
     }
   ]
 }

@@ -18,7 +18,7 @@ const marco = (guardado, extra) => ({
 export const marcaDe = (datos) => datos.marca ?? { contenidos: [], palabras: [] }
 
 // La foto se achica en el celular antes de guardarla: entra al negocio como texto.
-function leerFotoAchicada(archivo) {
+export function leerFotoAchicada(archivo) {
   return new Promise((resolve, reject) => {
     const lector = new FileReader()
     lector.onerror = () => reject(new Error('No se pudo leer la imagen'))

@@ -20,6 +20,7 @@ import { Educacion, Leccion } from './pantallas/educacion.jsx'
 import { Asesores } from './pantallas/asesores.jsx'
 import { Legal } from './pantallas/legal.jsx'
 import { CalendarioMarca, ContenidoMarca, IdentidadMarca, Marca } from './pantallas/marca.jsx'
+import { EcoEscala, Escalemos, Oportunidades, PublicarSobrante, Revista, Sobrantes } from './pantallas/escalemos.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
@@ -204,6 +205,15 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   if (seccion === 'educacion') {
     if (!sub) return conBarra(<Educacion {...comunes} />, 'inicio')
     return <Leccion key={sub} id={sub} {...comunes} />
+  }
+
+  if (seccion === 'escalemos') {
+    if (!sub) return conBarra(<Escalemos {...comunes} />, 'escalemos')
+    if (sub === 'oportunidades') return <Oportunidades {...comunes} />
+    if (sub === 'sobrantes') return <Sobrantes {...comunes} usuario={usuario} />
+    if (sub === 'publicar') return <PublicarSobrante {...comunes} />
+    if (sub === 'revista') return <Revista {...comunes} />
+    if (sub === 'eco') return <EcoEscala {...comunes} />
   }
 
   if (seccion === 'marca') {

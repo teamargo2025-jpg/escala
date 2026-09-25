@@ -17,12 +17,14 @@ export const PESTANAS = [
   { id: 'inicio', ruta: '/', nombre: 'Inicio', icono: '🏠' },
   { id: 'negocio', ruta: '/negocio', nombre: 'Negocio', icono: '📒', grupo: 'dia', titulo: 'Tu negocio día a día' },
   { id: 'marca', ruta: '/marca', nombre: 'Marca', icono: '✨' },
+  { id: 'escalemos', ruta: '/escalemos', nombre: 'Escalemos', icono: '🤝' },
 ]
 
 // Qué pestaña se pinta activa según dónde está la persona.
 export function pestanaDe(seccion) {
   if (!seccion) return 'inicio'
   if (seccion === 'marca') return 'marca'
+  if (seccion === 'escalemos') return 'escalemos'
   if (seccion === 'educacion') return 'inicio'
   if (seccion === 'negocio') return 'negocio'
   const g = APARTADO[seccion]?.grupo
