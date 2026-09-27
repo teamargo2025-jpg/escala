@@ -6,7 +6,7 @@ import { ir, reemplazar, volver } from '../negocio.js'
 import {
   limpiarDocumento, limpiarTexto, validarApodo, validarDocumento, validarEmprendimiento,
 } from '../lib/cuenta.js'
-import { Ayuda, BotonSiguiente, CampoTexto, Casilla, Logo, Marco, MensajeError, Pregunta } from '../componentes.jsx'
+import { Ayuda, BotonSiguiente, CampoTexto, Casilla, Marco, MensajeError, Pregunta } from '../componentes.jsx'
 
 const LO_QUE_SABRAS = [
   { emoji: '💰', texto: 'cuánto dinero necesitas para empezar', color: '#b7730c', claro: '#fff1d6' },
@@ -19,7 +19,7 @@ export function Bienvenida() {
   return (
     <div className="portada">
       <header className="portada__alto">
-        <Logo grande />
+        <img className="portada__logo" src="/icono-192.png" width="192" height="192" alt="ESCALA, red de apoyo a emprendimientos" />
         <h1>Saca las cuentas de tu negocio</h1>
         <p>Paso a paso, con ejemplos de tu oficio.</p>
       </header>

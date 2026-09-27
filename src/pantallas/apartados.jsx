@@ -2,8 +2,9 @@
 import { useEffect } from 'react'
 import { GANANCIAS_RAPIDAS, METODO_PRECIO, MESES_FLUJO } from '../config.js'
 import { APARTADO } from '../lib/apartados.js'
-import { soles } from '../lib/calc.js'
-import { ir, volver } from '../negocio.js'
+import { num, soles } from '../lib/calc.js'
+import { elQueMasDeja, equilibrioMezcla, lineasDeProductos } from '../lib/equilibrio.js'
+import { inventarioDe, ir, volver } from '../negocio.js'
 import { Aprende, Ayuda, BotonSiguiente, CampoNumero, Cifra, ListaItems, Marco, Pregunta } from '../componentes.jsx'
 import { plural } from './lobby.jsx'
 
@@ -159,6 +160,122 @@ export function Precio({ datos, despachar, terminar, guardado, r, n }) {
   )
 }
 
+
+// Punto de equilibrio cuando hay más de un producto: se cuenta en soles de venta,
+// no en unidades, porque una torta y un alfajor no se pueden sumar como "dos".
+function EquilibrioVarios({ datos, despachar, n, r }) {
+  const inv = inventarioDe(datos)
+  const lineas = lineasDeProductos(datos.productos ?? [], inv.materiales, { valorHora: num(datos.valorHora) })
+  if (lineas.length < 2) return null
+
+  const eq = equilibrioMezcla(lineas, n.fijos, n.metaGanancia)
+  const estrella = eq && elQueMasDeja(lineas)
+
+  return (
+    <section className="varios">
+      <h2 className="subtitulo">Tienes {lineas.length} productos</h2>
+      <p className="nota-suave nota-suave--izq">
+        Con varios productos el equilibrio no se cuenta en {r.unidades}: se cuenta en <strong>soles vendidos</strong>. Dinos cuánto vendes de
+        cada uno en un mes normal.
+      </p>
+
+      <div className="mezcla">
+        {lineas.map((l) => (
+          <div key={l.id} className="mezcla__item">
+            <div className="mezcla__texto">
+              <strong>{l.nombre || 'Sin nombre'}</strong>
+              {l.precio > 0 ? (
+                <small>
+                  A {soles(l.precio)} · te deja {soles(l.aporta, { decimales: 2 })} cada uno
+                </small>
+              ) : (
+                <small className="neg">Le falta precio de venta</small>
+              )}
+            </div>
+            {l.precio > 0 ? (
+              <span className="mezcla__campo">
+                <CampoNumero
+                  entero
+                  prefijo={null}
+                  valor={l.ventasMes ? String(l.ventasMes) : ''}
+                  placeholder="0"
+                  onCambio={(v) => despachar({ tipo: 'producto:campo', id: l.id, cambio: { ventasMes: v } })}
+                />
+              </span>
+            ) : (
+              <button className="btn btn--chico btn--suave" onClick={() => ir(`/costeo/${l.id}`)}>
+                Completar
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {eq ? (
+        <>
+          <Cifra
+            tono="alerta"
+            etiqueta="Para no perder, vendiendo de todo"
+            valor={soles(Math.ceil(eq.soles))}
+            nota={`Al mes, sumando todos tus productos. De cada ${soles(1)} que vendes, ${soles(eq.razon, { decimales: 2 })} queda para tus pagos del mes.`}
+          />
+          <div className="mezcla__desglose">
+            <p>Con la mezcla que pusiste, eso es más o menos:</p>
+            <ul>
+              {eq.detalle.map((l) => (
+                <li key={l.id}>
+                  <strong>{l.unidades}</strong> {l.nombre} <span>({soles(Math.round(l.soles))})</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Cifra
+            tono={eq.resultadoPlan >= 0 ? 'bien' : 'mal'}
+            etiqueta="Si vendes lo que pusiste arriba"
+            valor={`${eq.resultadoPlan >= 0 ? 'Ganas' : 'Pierdes'} ${soles(Math.abs(Math.round(eq.resultadoPlan)))}`}
+            nota={
+              eq.resultadoPlan >= 0
+                ? `Ya cubres tus ${soles(n.fijos)} de pagos del mes.`
+                : `Te faltan ${soles(Math.ceil(eq.soles - eq.ventasPlan))} de venta para no perder.`
+            }
+          />
+          {eq.solesMeta != null && (
+            <Cifra
+              etiqueta={`Para ganar ${soles(n.metaGanancia)}`}
+              valor={soles(Math.ceil(eq.solesMeta))}
+              nota={
+                eq.solesMeta > eq.ventasPlan
+                  ? `Son ${soles(Math.ceil(eq.solesMeta - eq.ventasPlan))} más de lo que vendes hoy al mes.`
+                  : `Con lo que ya vendes al mes (${soles(Math.round(eq.ventasPlan))}) te alcanza.`
+              }
+            />
+          )}
+          {estrella && (
+            <p className="nota-suave nota-suave--izq">
+              💡 De cada sol que vendes, el que más te deja es <strong>{estrella.nombre}</strong> (
+              {Math.round(estrella.margen * 100)} de cada 100 soles). Empujar ese producto te acerca más rápido.
+            </p>
+          )}
+          {eq.sinDatos > 0 && (
+            <p className="nota-suave nota-suave--izq">
+              {eq.sinDatos === 1
+                ? 'Hay 1 producto que no entró al cálculo: le falta el precio o cuántos vendes al mes.'
+                : `Hay ${eq.sinDatos} productos que no entraron al cálculo: les falta el precio o cuántos vendes al mes.`}
+            </p>
+          )}
+        </>
+      ) : (
+        <p className="nota-suave nota-suave--izq">
+          Pon cuántos vendes al mes de por lo menos un producto con precio y aquí sale cuánto tienes que vender para no perder.
+        </p>
+      )}
+      <Aprende termino="mezcla de ventas">
+        Es qué parte de tus ventas es cada producto. Si vendes más del que más te deja, cubres tus pagos vendiendo menos.
+      </Aprende>
+    </section>
+  )
+}
+
 export function Meta({ datos, despachar, terminar, guardado, r, n }) {
   const alcanzable = n.unidadesMeta == null || n.unidadesMeta <= n.cantidad
   return (
@@ -206,6 +323,8 @@ export function Meta({ datos, despachar, terminar, guardado, r, n }) {
           )}
         </>
       )}
+
+      <EquilibrioVarios datos={datos} despachar={despachar} n={n} r={r} />
     </Marco>
   )
 }

@@ -301,6 +301,20 @@ export function FichaProducto({ id, datos, despachar, guardado, r, n }) {
         </div>
       )}
 
+      <CampoNumero
+        etiqueta="¿Cuántos vendes al mes?"
+        prefijo={null}
+        sufijo="al mes"
+        entero
+        valor={p.ventasMes ?? ''}
+        placeholder="0"
+        onCambio={(v) => cambiar({ ventasMes: v })}
+      />
+      <Ayuda etiqueta="¿Para qué sirve esto?">
+        Sirve para saber, con todos tus productos juntos, <strong>cuánto tienes que vender al mes para no perder</strong>. Es un cálculo, no una promesa: pon lo que
+        normalmente vendes.
+      </Ayuda>
+
       {alcanza != null && (
         <p className="nota-suave nota-suave--izq">
           📦 Con lo que tienes en tu inventario alcanza para hacer <strong>{alcanza}</strong>.

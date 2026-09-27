@@ -172,6 +172,8 @@ export function reducirDatos(d, accion) {
         productos: existe ? productos.map((p) => (p.id === accion.producto.id ? accion.producto : p)) : [...productos, accion.producto],
       }
     }
+    case 'producto:campo':
+      return { ...d, productos: (d.productos ?? []).map((p) => (p.id === accion.id ? { ...p, ...accion.cambio } : p)) }
     case 'producto:quitar':
       return { ...d, productos: (d.productos ?? []).filter((p) => p.id !== accion.id) }
     case 'producto:ejemplo': {
