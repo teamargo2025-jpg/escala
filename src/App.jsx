@@ -207,6 +207,12 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     return <Leccion key={sub} id={sub} {...comunes} />
   }
 
+  if (seccion === 'eco') {
+    if (!sub) return conBarra(<EcoEscala {...comunes} />, 'eco')
+    if (sub === 'sobrantes') return <Sobrantes {...comunes} usuario={usuario} />
+    if (sub === 'publicar') return <PublicarSobrante {...comunes} />
+  }
+
   if (seccion === 'escalemos') {
     if (!sub) return conBarra(<Escalemos {...comunes} />, 'escalemos')
     if (sub === 'oportunidades') return <Oportunidades {...comunes} />

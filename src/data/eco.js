@@ -2,11 +2,11 @@
 // Los puntos se calculan aquí, no en la base: así se ajustan sin tocar los datos ya registrados.
 
 export const MATERIALES = {
-  plastico: { nombre: 'Plástico', emoji: '🧴', puntosPorKilo: 10, color: '#2f6fdb' },
-  carton: { nombre: 'Cartón y papel', emoji: '📦', puntosPorKilo: 5, color: '#9a6417' },
-  vidrio: { nombre: 'Vidrio', emoji: '🫙', puntosPorKilo: 4, color: '#0e8a8a' },
-  metal: { nombre: 'Metal', emoji: '🔩', puntosPorKilo: 12, color: '#5b4bd6' },
-  tela: { nombre: 'Tela y retazos', emoji: '🧵', puntosPorKilo: 8, color: '#c2366f' },
+  plastico: { nombre: 'Plástico', emoji: '🧴', puntosPorKilo: 25, color: '#2f6fdb' },
+  carton: { nombre: 'Cartón y papel', emoji: '📦', puntosPorKilo: 15, color: '#9a6417' },
+  vidrio: { nombre: 'Vidrio', emoji: '🫙', puntosPorKilo: 12, color: '#0e8a8a' },
+  metal: { nombre: 'Metal', emoji: '🔩', puntosPorKilo: 30, color: '#5b4bd6' },
+  tela: { nombre: 'Tela y retazos', emoji: '🧵', puntosPorKilo: 20, color: '#c2366f' },
 }
 
 export const puntosDe = (material, kilos) => Math.round((MATERIALES[material]?.puntosPorKilo ?? 0) * Number(kilos || 0))
@@ -14,12 +14,14 @@ export const puntosDe = (material, kilos) => Math.round((MATERIALES[material]?.p
 export const puntosTotales = (entregas = []) => entregas.reduce((s, e) => s + puntosDe(e.material, e.kilos), 0)
 
 // Premios: cosas que ESCALA ya produce, así que entregarlas casi no cuesta.
+// Los primeros premios se alcanzan con 2 o 3 kilos: la idea es que la primera jornada ya sirva de algo.
 export const PREMIOS = [
-  { id: 'asesoria', nombre: 'Asesoría de 30 minutos', detalle: 'Una sesión para revisar tus números o tu negocio con un asesor.', puntos: 100, emoji: '🧑‍🏫' },
-  { id: 'diseno', nombre: 'Diseño para tus redes', detalle: 'Tres publicaciones diseñadas con tu marca, listas para publicar.', puntos: 150, emoji: '🎨' },
-  { id: 'taller', nombre: 'Taller de transformación', detalle: 'Cupo en el taller "qué hacer con tus retazos y sobrantes".', puntos: 200, emoji: '♻️' },
-  { id: 'mencion', nombre: 'Mención en la revista', detalle: 'Tu emprendimiento nombrado en la próxima edición.', puntos: 300, emoji: '📰' },
-  { id: 'destacado', nombre: 'Destacado en Escalemos', detalle: 'Tu publicación aparece primera durante un mes.', puntos: 400, emoji: '⭐' },
+  { id: 'plantillas', nombre: 'Plantillas para tus redes', detalle: 'Tres plantillas listas para que publiques con tu marca.', puntos: 40, emoji: '🖼️' },
+  { id: 'asesoria', nombre: 'Asesoría de 30 minutos', detalle: 'Una sesión para revisar tus números o tu negocio con un asesor.', puntos: 75, emoji: '🧑‍🏫' },
+  { id: 'diseno', nombre: 'Diseño hecho para ti', detalle: 'Tres publicaciones diseñadas a medida con tu marca.', puntos: 120, emoji: '🎨' },
+  { id: 'taller', nombre: 'Taller de transformación', detalle: 'Cupo en el taller "qué hacer con tus retazos y sobrantes".', puntos: 150, emoji: '♻️' },
+  { id: 'mencion', nombre: 'Mención en la revista', detalle: 'Tu emprendimiento nombrado en la próxima edición.', puntos: 220, emoji: '📰' },
+  { id: 'destacado', nombre: 'Destacado en la revista', detalle: 'Tu publicación aparece primera durante un mes.', puntos: 300, emoji: '⭐' },
 ]
 
 // "El residuo de uno es el material gratis de otro": ideas para el tablero de sobrantes.

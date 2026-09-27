@@ -10,6 +10,7 @@ const SUELTOS = {
   negocio: 'Tu negocio día a día',
   legal: 'Información legal',
   escalemos: 'Revista ESCALA',
+  eco: 'EcoEscala',
 }
 
 export function tituloDe(ruta) {

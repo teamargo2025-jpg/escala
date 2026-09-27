@@ -3,8 +3,8 @@ import assert from 'node:assert/strict'
 import { MATERIALES, PREMIOS, puntosDe, puntosTotales } from '../data/eco.js'
 
 test('los puntos salen de los kilos y del material', () => {
-  assert.equal(puntosDe('plastico', 2), 20)
-  assert.equal(puntosDe('carton', 3.4), 17)
+  assert.equal(puntosDe('plastico', 2), 50)
+  assert.equal(puntosDe('carton', 3.4), 51)
   assert.equal(puntosDe('inventado', 5), 0)
   assert.equal(puntosDe('metal', 0), 0)
   assert.equal(
@@ -13,7 +13,7 @@ test('los puntos salen de los kilos y del material', () => {
       { material: 'tela', kilos: 2 },
       { material: 'carton', kilos: 4 },
     ]),
-    15 + 16 + 20,
+    38 + 40 + 60,
   )
   assert.equal(puntosTotales([]), 0)
 })

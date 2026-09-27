@@ -18,6 +18,7 @@ export const PESTANAS = [
   { id: 'negocio', ruta: '/negocio', nombre: 'Negocio', icono: '📒', grupo: 'dia', titulo: 'Tu negocio día a día' },
   { id: 'marca', ruta: '/marca', nombre: 'Marca', icono: '✨' },
   { id: 'escalemos', ruta: '/escalemos', nombre: 'Revista', icono: '📰' },
+  { id: 'eco', ruta: '/eco', nombre: 'EcoEscala', icono: '🌱' },
 ]
 
 // Qué pestaña se pinta activa según dónde está la persona.
@@ -25,6 +26,7 @@ export function pestanaDe(seccion) {
   if (!seccion) return 'inicio'
   if (seccion === 'marca') return 'marca'
   if (seccion === 'escalemos') return 'escalemos'
+  if (seccion === 'eco') return 'eco'
   if (seccion === 'educacion') return 'inicio'
   if (seccion === 'negocio') return 'negocio'
   const g = APARTADO[seccion]?.grupo

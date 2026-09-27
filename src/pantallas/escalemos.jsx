@@ -35,13 +35,7 @@ export function Escalemos({ perfil, guardado }) {
     oportunidades: await almacen.oportunidades(),
     mios: await almacen.misIntereses(),
     postulacion: await almacen.miPostulacion(),
-    entregas: await almacen.misEntregas(),
-    canjes: await almacen.misCanjes(),
-    jornadas: await almacen.jornadas(),
   }))
-  const puntos =
-    puntosTotales(datos?.entregas ?? []) - (datos?.canjes ?? []).reduce((s, x) => s + x.puntos, 0)
-  const jornada = datos?.jornadas?.[0]
 
   return (
     <Marco {...marco({ titulo: 'Revista ESCALA', emoji: '📰', guardado })}>
@@ -79,32 +73,6 @@ export function Escalemos({ perfil, guardado }) {
         </button>
       </section>
 
-      {/* EcoEscala: sección propia, debajo de la revista */}
-      <section className="ficha__seccion seccion-eco">
-        <h2 className="subtitulo">🌱 EcoEscala</h2>
-        <p className="nota-suave nota-suave--izq">
-          La sección verde de la revista: aprovechar lo que sobra y reciclar lo que no.
-        </p>
-        <button className="escalemos-tarjeta" style={{ '--c': '#1f8a5b', '--c-claro': '#dff3e8' }} onClick={() => ir('/escalemos/eco')}>
-          <span className="escalemos-tarjeta__icono">♻️</span>
-          <span className="escalemos-tarjeta__texto">
-            <strong>Entrar a EcoEscala</strong>
-            <small>
-              {puntos > 0 ? `Tienes ${puntos} puntos` : 'Recicla y gana asesorías'}
-              {jornada ? ` · jornada el ${fechaBonita(jornada.fecha)}` : ''}
-            </small>
-          </span>
-          <span className="apartado__flecha">→</span>
-        </button>
-        <button className="escalemos-tarjeta" style={{ '--c': '#9a6417', '--c-claro': '#f7ecd9' }} onClick={() => ir('/escalemos/sobrantes')}>
-          <span className="escalemos-tarjeta__icono">🎁</span>
-          <span className="escalemos-tarjeta__texto">
-            <strong>Doy y busco material</strong>
-            <small>Lo que a ti te sobra, a otro le sirve</small>
-          </span>
-          <span className="apartado__flecha">→</span>
-        </button>
-      </section>
     </Marco>
   )
 }
@@ -194,7 +162,7 @@ export function Sobrantes({ perfil, usuario }) {
   }
 
   return (
-    <Marco {...marco({ titulo: 'Doy y busco', emoji: '♻️', onAtras: () => volver('/escalemos') })}>
+    <Marco {...marco({ titulo: 'Doy y busco', emoji: '♻️', onAtras: () => volver('/eco') })}>
       <Pregunta sub="Lo que a ti te sobra, a otro emprendedor le sirve. Y al revés.">Material entre nosotros</Pregunta>
 
       <div className="chips chips--dos">
@@ -206,7 +174,7 @@ export function Sobrantes({ perfil, usuario }) {
         </button>
       </div>
 
-      <button className="btn btn--principal" onClick={() => ir('/escalemos/publicar')}>
+      <button className="btn btn--principal" onClick={() => ir('/eco/publicar')}>
         + Publicar algo
       </button>
 
@@ -307,7 +275,7 @@ export function PublicarSobrante({ perfil }) {
         foto: f.foto,
       })
       registrar(`sobrante_${f.tipo}`, perfil.rubro)
-      volver('/escalemos/sobrantes')
+      volver('/eco/sobrantes')
     } catch {
       setError('No se pudo publicar. Revisa tu internet y vuelve a intentar.')
       setEnviando(false)
@@ -316,7 +284,7 @@ export function PublicarSobrante({ perfil }) {
 
   return (
     <Marco
-      {...marco({ titulo: 'Publicar', emoji: '♻️', onAtras: () => volver('/escalemos/sobrantes') })}
+      {...marco({ titulo: 'Publicar', emoji: '♻️', onAtras: () => volver('/eco/sobrantes') })}
       pie={
         <BotonSiguiente onClick={publicar} disabled={!valido} aviso="Escribe qué es y marca la casilla.">
           {enviando ? 'Publicando…' : 'Publicar'}
@@ -513,7 +481,7 @@ export function EcoEscala({ perfil }) {
   }
 
   return (
-    <Marco {...marco({ titulo: 'EcoEscala', emoji: '🌱', onAtras: () => volver('/escalemos') })}>
+    <Marco {...marco({ titulo: 'EcoEscala', emoji: '🌱', onAtras: () => volver('/') })}>
       <div className="saldo">
         <span>Tus puntos</span>
         <strong>{disponibles}</strong>
@@ -522,7 +490,7 @@ export function EcoEscala({ perfil }) {
 
       {cargando && <Cargando />}
 
-      <button className="escalemos-tarjeta" style={{ '--c': '#9a6417', '--c-claro': '#f7ecd9' }} onClick={() => ir('/escalemos/sobrantes')}>
+      <button className="escalemos-tarjeta" style={{ '--c': '#9a6417', '--c-claro': '#f7ecd9' }} onClick={() => ir('/eco/sobrantes')}>
         <span className="escalemos-tarjeta__icono">🎁</span>
         <span className="escalemos-tarjeta__texto">
           <strong>Doy y busco material</strong>
