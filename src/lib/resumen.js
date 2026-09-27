@@ -3,6 +3,7 @@ import { APARTADO } from './apartados.js'
 import { hoy, mesDe, resumenMes, saldo } from './caja.js'
 import { num, soles } from './calc.js'
 import { costoProducto, porAcabarse, valorInventario } from './inventario.js'
+import { equilibrioMezcla, lineasDeProductos } from './equilibrio.js'
 import { estadoLecciones } from './educacion.js'
 
 const plural = (cantidad, r) => `${cantidad.toLocaleString('es-PE')} ${cantidad === 1 ? r.unidad : r.unidades}`
@@ -14,6 +15,8 @@ export function seccionesResumen({ datos, n, movimientos = [], r, meses }) {
   const productos = datos.productos ?? []
   const caja = resumenMes(movimientos, mesDe(hoy()))
   const edu = estadoLecciones(datos.educacion)
+  // Con varios productos el equilibrio va en soles: es el número que más se busca.
+  const mezcla = equilibrioMezcla(lineasDeProductos(productos, inv.materiales, { valorHora: num(datos.valorHora) }), n.fijos, n.metaGanancia)
 
   const secciones = [
     {
@@ -45,7 +48,9 @@ export function seccionesResumen({ datos, n, movimientos = [], r, meses }) {
       id: 'meta',
       falta: !hechos.meta,
       filas: [
-        { etiqueta: 'Para no perder, vende al mes', valor: n.equilibrio == null ? '—' : plural(n.equilibrio, r), fuerte: true },
+        ...(mezcla
+          ? [{ etiqueta: 'Para no perder, vendiendo de todo', valor: soles(Math.ceil(mezcla.soles)), fuerte: true }]
+          : [{ etiqueta: 'Para no perder, vende al mes', valor: n.equilibrio == null ? '—' : plural(n.equilibrio, r), fuerte: true }]),
         ...(n.unidadesMeta != null
           ? [
               { etiqueta: `Para ganar ${soles(n.metaGanancia)}`, valor: plural(n.unidadesMeta, r) },
@@ -99,7 +104,19 @@ export function seccionesResumen({ datos, n, movimientos = [], r, meses }) {
     {
       id: 'costeo',
       falta: productos.length === 0,
-      filas: productos.slice(0, 6).map((p) => {
+      filas: [
+        ...(mezcla
+          ? [
+              { etiqueta: 'Para no perder, vendiendo de todo', valor: soles(Math.ceil(mezcla.soles)), fuerte: true },
+              {
+                etiqueta: 'Con lo que vendes hoy',
+                valor: `${mezcla.resultadoPlan >= 0 ? 'ganas ' : 'pierdes '}${soles(Math.abs(Math.round(mezcla.resultadoPlan)))} al mes`,
+                tono: mezcla.resultadoPlan >= 0 ? 'pos' : 'neg',
+                fuerte: true,
+              },
+            ]
+          : []),
+        ...productos.slice(0, 6).map((p) => {
         const c = costoProducto(p, inv.materiales, {
           valorHora: num(datos.valorHora),
           fijoPorUnidad: hechos.costos ? n.fijoPorUnidad : 0,
@@ -112,7 +129,8 @@ export function seccionesResumen({ datos, n, movimientos = [], r, meses }) {
             : `cuesta ${soles(c.total, { decimales: 2 })}`,
           tono: precio ? (precio >= c.total ? 'pos' : 'neg') : undefined,
         }
-      }),
+        }),
+      ],
     },
     {
       id: 'educacion',
