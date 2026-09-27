@@ -5,8 +5,9 @@
 -- Quién es del equipo se decide aquí, no en la app: se agrega una fila a `admins`.
 -- Un admin ve los interesados, las postulaciones y puede registrar los kilos de EcoEscala.
 -- Lo que NUNCA ve: los números privados del negocio de cada persona.
+-- Se puede volver a ejecutar sin miedo: lo que ya existe se deja como está.
 
-create table public.admins (
+create table if not exists public.admins (
   user_id uuid primary key references auth.users (id) on delete cascade,
   nombre text,
   creado_at timestamptz not null default now()
@@ -25,6 +26,7 @@ as $$
 $$;
 grant execute on function public.es_admin() to authenticated;
 
+drop policy if exists "ver si soy del equipo" on public.admins;
 create policy "ver si soy del equipo" on public.admins for select to authenticated using ((select auth.uid()) = user_id);
 
 -- Solo nombre, emprendimiento y rubro: los números del negocio no se exponen nunca.
@@ -43,23 +45,36 @@ $$;
 grant execute on function public.personas_del_equipo() to authenticated;
 
 -- ---------- Lo que puede hacer el equipo ----------
+drop policy if exists "equipo ve interesados" on public.interesados;
 create policy "equipo ve interesados" on public.interesados for select to authenticated using (public.es_admin());
+drop policy if exists "equipo ve postulaciones" on public.postulaciones;
 create policy "equipo ve postulaciones" on public.postulaciones for select to authenticated using (public.es_admin());
+drop policy if exists "equipo responde postulaciones" on public.postulaciones;
 create policy "equipo responde postulaciones" on public.postulaciones for update to authenticated using (public.es_admin()) with check (public.es_admin());
 
+drop policy if exists "equipo publica oportunidades" on public.oportunidades;
 create policy "equipo publica oportunidades" on public.oportunidades for insert to authenticated with check (public.es_admin());
+drop policy if exists "equipo edita oportunidades" on public.oportunidades;
 create policy "equipo edita oportunidades" on public.oportunidades for update to authenticated using (public.es_admin()) with check (public.es_admin());
+drop policy if exists "equipo ve todas las oportunidades" on public.oportunidades;
 create policy "equipo ve todas las oportunidades" on public.oportunidades for select to authenticated using (public.es_admin());
 
+drop policy if exists "equipo publica jornadas" on public.eco_jornadas;
 create policy "equipo publica jornadas" on public.eco_jornadas for insert to authenticated with check (public.es_admin());
+drop policy if exists "equipo edita jornadas" on public.eco_jornadas;
 create policy "equipo edita jornadas" on public.eco_jornadas for update to authenticated using (public.es_admin()) with check (public.es_admin());
 
+drop policy if exists "equipo registra entregas" on public.eco_entregas;
 create policy "equipo registra entregas" on public.eco_entregas for insert to authenticated with check (public.es_admin());
+drop policy if exists "equipo ve entregas" on public.eco_entregas;
 create policy "equipo ve entregas" on public.eco_entregas for select to authenticated using (public.es_admin());
 
+drop policy if exists "equipo ve canjes" on public.eco_canjes;
 create policy "equipo ve canjes" on public.eco_canjes for select to authenticated using (public.es_admin());
+drop policy if exists "equipo entrega canjes" on public.eco_canjes;
 create policy "equipo entrega canjes" on public.eco_canjes for update to authenticated using (public.es_admin()) with check (public.es_admin());
 
+drop policy if exists "equipo modera sobrantes" on public.sobrantes;
 create policy "equipo modera sobrantes" on public.sobrantes for delete to authenticated using (public.es_admin());
 
 grant insert, update on public.oportunidades to authenticated;

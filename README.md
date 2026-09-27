@@ -29,6 +29,8 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 
 8. **Cuentas de equipo (marketing):** SQL Editor → pegar [supabase/004_equipo.sql](supabase/004_equipo.sql) → Run. Después, cada persona del equipo crea su cuenta normal en la app, copias su UID desde Authentication → Users y la agregas a la tabla `admins`. Con eso le aparece la pestaña 🛠️ Equipo.
 
+> Los scripts 002, 003 y 004 se pueden volver a ejecutar sin romper nada: lo que ya existe se respeta y las políticas se vuelven a crear. Para ver qué hay en tu base, corre [supabase/000_revisar.sql](supabase/000_revisar.sql).
+
 **Comprobar que todo quedó bien:** `npm run probar:supabase` crea dos cuentas de prueba y revisa registro, entrada, guardado y que ninguna cuenta vea datos ajenos. Luego bórralas en Authentication → Users (empiezan con `pruebaescala`).
 
 **Pendiente antes del piloto:** completar en `src/data/legal.js` el nombre de la institución responsable y su correo de contacto (aparecen entre corchetes).
