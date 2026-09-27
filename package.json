@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "build": "vite build && node scripts/generar-sw.mjs",
     "preview": "vite preview --host",
     "test": "node --test src/lib/calc.test.js src/lib/nuevo.test.js src/lib/inventario.test.js src/lib/resumen.test.js src/lib/marketing.test.js src/lib/eco.test.js src/lib/equilibrio.test.js src/lib/ventas.test.js",
     "probar:supabase": "node scripts/probar-supabase.mjs",
