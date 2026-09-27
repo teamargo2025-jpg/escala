@@ -217,46 +217,126 @@ export function reducirDatos(d, accion) {
 export const inventarioDe = (d) => d.inventario ?? inventarioVacio()
 
 // ---------- Guardado local + sincronización ----------
-const claveCache = (userId) => `escala:u:${userId}`
+// La cache es por emprendimiento: cada uno tiene sus números y su caja.
+const claveCache = (negocioId) => `escala:u:${negocioId}`
+const claveActivo = (userId) => `escala:activo:${userId}`
 const SIN_PENDIENTES = { negocio: 0, altas: [], bajas: [] }
+const CACHE_VACIA = { perfil: null, movimientos: [], pend: SIN_PENDIENTES }
 
-function leerCache(userId) {
+function leerCache(negocioId) {
+  if (!negocioId) return CACHE_VACIA
   try {
-    const c = JSON.parse(localStorage.getItem(claveCache(userId)))
+    const c = JSON.parse(localStorage.getItem(claveCache(negocioId)))
     if (c) return { perfil: c.perfil ?? null, movimientos: c.movimientos ?? [], pend: { ...SIN_PENDIENTES, ...c.pend } }
   } catch {
     // cache dañada: se vuelve a bajar del servidor
   }
-  return { perfil: null, movimientos: [], pend: SIN_PENDIENTES }
+  return CACHE_VACIA
 }
+
+const guardarLocal = (clave, valor) => {
+  try {
+    localStorage.setItem(clave, JSON.stringify(valor))
+  } catch {
+    // sin almacenamiento: queda en memoria
+  }
+}
+
+function leerActivo(userId) {
+  try {
+    return localStorage.getItem(claveActivo(userId))
+  } catch {
+    return null
+  }
+}
+
+// Solo lo necesario para pintar el selector antes de que baje el servidor.
+function leerLista(userId) {
+  try {
+    return JSON.parse(localStorage.getItem(`escala:negocios:${userId}`)) ?? []
+  } catch {
+    return []
+  }
+}
+
+// Antes de los dos emprendimientos la cache se guardaba con el id de la cuenta.
+// Si quedó algo sin subir ahí, se pasa al emprendimiento que corresponde en vez de perderlo.
+function adoptarCacheVieja(userId, negocioId) {
+  try {
+    const claveVieja = `escala:u:${userId}`
+    const vieja = localStorage.getItem(claveVieja)
+    if (!vieja || userId === negocioId || localStorage.getItem(claveCache(negocioId))) return null
+    const c = JSON.parse(vieja)
+    localStorage.removeItem(claveVieja)
+    if (!c?.perfil) return null
+    const rescatada = {
+      perfil: { ...c.perfil, id: negocioId },
+      movimientos: c.movimientos ?? [],
+      pend: { ...SIN_PENDIENTES, ...c.pend },
+    }
+    guardarLocal(claveCache(negocioId), rescatada)
+    return rescatada
+  } catch {
+    return null
+  }
+}
+
+const resumirLista = (negocios) =>
+  negocios.map((x) => ({
+    id: x.id,
+    emprendimiento: x.emprendimiento,
+    rubro: x.rubro,
+    rubroPersonalizado: x.datos?.rubroPersonalizado ?? null,
+  }))
 
 const hayPendientes = (p) => p.negocio > 0 || p.altas.length > 0 || p.bajas.length > 0
 
 export function useNegocio(usuario) {
   const userId = usuario.userId
-  const [c, setC] = useState(() => leerCache(userId))
+  // Cuál de los emprendimientos se está mirando ahora.
+  const [negocioId, setNegocioId] = useState(() => leerActivo(userId))
+  const [lista, setLista] = useState(() => leerLista(userId))
+  const [c, setC] = useState(() => leerCache(negocioId))
   const [cargado, setCargado] = useState(false)
   const [errorCarga, setErrorCarga] = useState(null)
   const [fallo, setFallo] = useState(false)
   const ref = useRef(c)
   ref.current = c
+  const idRef = useRef(negocioId)
+  idRef.current = negocioId
 
   useEffect(() => {
-    try {
-      localStorage.setItem(claveCache(userId), JSON.stringify(c))
-    } catch {
-      // sin almacenamiento: queda en memoria
-    }
-  }, [c, userId])
+    if (negocioId) guardarLocal(claveCache(negocioId), c)
+  }, [c, negocioId])
+
+  useEffect(() => {
+    guardarLocal(`escala:negocios:${userId}`, lista)
+  }, [lista, userId])
+
+  useEffect(() => {
+    if (negocioId) guardarLocal(claveActivo(userId), negocioId)
+  }, [negocioId, userId])
 
   // Carga desde el servidor y mezcla con lo que haya quedado sin subir.
   useEffect(() => {
     let vivo = true
     ;(async () => {
       try {
-        const [perfil, movs] = await Promise.all([almacen.cargarNegocio(userId), almacen.listarMovimientos(userId)])
+        const negocios = await almacen.listarNegocios(userId)
         if (!vivo) return
-        setC((act) => {
+        setLista(resumirLista(negocios))
+        // Si el activo ya no existe (o es la primera vez), se abre el primero.
+        const activo = negocios.find((x) => x.id === idRef.current) ?? negocios[0] ?? null
+        if (activo && activo.id !== idRef.current) {
+          idRef.current = activo.id
+          setNegocioId(activo.id)
+        }
+        const perfil = activo ?? null
+        const rescatada = activo ? adoptarCacheVieja(userId, activo.id) : null
+        const movs = await almacen.listarMovimientos(activo?.id)
+        if (!vivo) return
+        setC((previo) => {
+          const act = rescatada && !previo.perfil ? rescatada : previo
           const { pend } = act
           const bajas = new Set(pend.bajas)
           const delServidor = movs.filter((m) => !bajas.has(m.id))
@@ -287,15 +367,16 @@ export function useNegocio(usuario) {
       if (pend.negocio > 0 && perfil) {
         const version = pend.negocio
         await almacen.guardarNegocio(userId, perfil)
+        setLista((l) => (l.some((x) => x.id === perfil.id) ? l.map((x) => (x.id === perfil.id ? resumirLista([perfil])[0] : x)) : [...l, resumirLista([perfil])[0]]))
         setC((a) => ({ ...a, pend: { ...a.pend, negocio: a.pend.negocio === version ? 0 : a.pend.negocio } }))
       }
       for (const id of pend.altas) {
         const m = movimientos.find((x) => x.id === id)
-        if (m) await almacen.agregarMovimiento(userId, m)
+        if (m) await almacen.agregarMovimiento(idRef.current, m)
         setC((a) => ({ ...a, pend: { ...a.pend, altas: a.pend.altas.filter((x) => x !== id) } }))
       }
       for (const id of pend.bajas) {
-        await almacen.borrarMovimiento(userId, id)
+        await almacen.borrarMovimiento(idRef.current, id)
         setC((a) => ({ ...a, pend: { ...a.pend, bajas: a.pend.bajas.filter((x) => x !== id) } }))
       }
       setFallo(false)
@@ -328,14 +409,56 @@ export function useNegocio(usuario) {
   )
 
   const crearNegocio = useCallback(
-    (rubro, datos, rubroPropio) =>
+    (rubro, datos, rubroPropio) => {
+      const id = idRef.current ?? nuevoId()
+      idRef.current = id
+      setNegocioId(id)
       cambiarPerfil((p) => ({
+        id,
         nickname: p?.nickname ?? usuario.nickname,
         emprendimiento: p?.emprendimiento ?? usuario.emprendimiento,
         rubro,
         datos: datos ?? datosIniciales(rubro, rubroPropio),
-      })),
+      }))
+    },
     [cambiarPerfil, usuario.nickname, usuario.emprendimiento],
+  )
+
+  // Un segundo emprendimiento: empieza en blanco, con su propia caja y sus propios números.
+  const agregarNegocio = useCallback(
+    ({ emprendimiento, rubro, rubroPropio }) => {
+      const id = nuevoId()
+      const perfil = { id, nickname: usuario.nickname, emprendimiento, rubro, datos: datosIniciales(rubro, rubroPropio) }
+      idRef.current = id
+      setNegocioId(id)
+      setLista((l) => [...l, resumirLista([perfil])[0]])
+      setC({ perfil, movimientos: [], pend: { ...SIN_PENDIENTES, negocio: 1 } })
+    },
+    [usuario.nickname],
+  )
+
+  // Cambiar de emprendimiento: se guarda lo pendiente del que estaba abierto y se abre el otro.
+  const cambiarNegocio = useCallback(
+    async (id) => {
+      if (id === idRef.current) return
+      await sincronizar()
+      idRef.current = id
+      setNegocioId(id)
+      setC(leerCache(id))
+      setCargado(false)
+      try {
+        const negocios = await almacen.listarNegocios(userId)
+        const perfil = negocios.find((x) => x.id === id) ?? null
+        const movs = await almacen.listarMovimientos(id)
+        setLista(resumirLista(negocios))
+        setC((act) => (act.pend.negocio > 0 ? { ...act, movimientos: movs } : { perfil, movimientos: movs, pend: act.pend }))
+      } catch (e) {
+        setErrorCarga(e)
+      } finally {
+        setCargado(true)
+      }
+    },
+    [sincronizar, userId],
   )
 
   const agregarMovimiento = useCallback((m) => {
@@ -369,6 +492,10 @@ export function useNegocio(usuario) {
     despachar,
     cambiarPerfil,
     crearNegocio,
+    negocios: lista,
+    negocioId,
+    agregarNegocio,
+    cambiarNegocio,
     agregarMovimiento,
     borrarMovimiento,
     guardado: pendientes ? (fallo || navigator.onLine === false ? 'pendiente' : 'guardando') : 'ok',

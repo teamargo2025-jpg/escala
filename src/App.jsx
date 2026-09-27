@@ -11,7 +11,7 @@ import {
 } from './negocio.js'
 import { BarraInferior, Logo, Redirigir } from './componentes.jsx'
 import { Bienvenida, Crear, ElegirEtapa, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
-import { GrupoApartados, Lobby, Perfil } from './pantallas/lobby.jsx'
+import { GrupoApartados, Lobby, MisNegocios, NuevoNegocio, Perfil } from './pantallas/lobby.jsx'
 import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.jsx'
 import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
 import { Inventario, Material, MovimientoInventario } from './pantallas/inventario.jsx'
@@ -184,6 +184,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
         guardado={guardado}
         ultimoHecho={ultimoHecho}
         cerrarAviso={() => setUltimoHecho(null)}
+        negocios={neg.negocios}
       />,
       'inicio',
     )
@@ -245,6 +246,36 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     if (sub === 'identidad') return <IdentidadMarca {...comunes} />
     if (sub === 'calendario') return <CalendarioMarca {...comunes} />
     if (sub === 'contenido') return <ContenidoMarca {...comunes} />
+  }
+
+  if (seccion === 'negocios') {
+    if (!sub) {
+      return (
+        <MisNegocios
+          negocios={neg.negocios}
+          negocioId={neg.negocioId}
+          cambiarNegocio={neg.cambiarNegocio}
+          guardado={guardado}
+        />
+      )
+    }
+    if (sub === 'nuevo') {
+      return <NuevoNegocio onAtras={() => volver('/negocios')} onListo={(nombre) => reemplazar(`/negocios/rubro/${encodeURIComponent(nombre)}`)} />
+    }
+    if (sub === 'rubro') {
+      const nombre = decodeURIComponent(ruta[2] ?? '')
+      if (!nombre) return <Redirigir a="/negocios/nuevo" />
+      return (
+        <ElegirRubro
+          nombre={nombre}
+          onAtras={() => reemplazar('/negocios/nuevo')}
+          onElegir={(id, _datos, rubroPropio) => {
+            neg.agregarNegocio({ emprendimiento: nombre, rubro: id, rubroPropio })
+            irAlInicio()
+          }}
+        />
+      )
+    }
   }
 
   if (seccion === 'legal') return <Legal documento={sub} guardado={guardado} alVolver="/perfil" />

@@ -28,6 +28,7 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 7. **Escalemos y EcoEscala:** SQL Editor → pegar [supabase/003_escalemos.sql](supabase/003_escalemos.sql) → Run. Trae dos oportunidades y una jornada de ejemplo para que no se vea vacío; bórralas o edítalas desde Table Editor.
 
 8. **Cuentas de equipo (marketing):** SQL Editor → pegar [supabase/004_equipo.sql](supabase/004_equipo.sql) → Run. Después, cada persona del equipo crea su cuenta normal en la app, y la agregas a la tabla `admins` corriendo [supabase/005_hacer_admin.sql](supabase/005_hacer_admin.sql) con su apodo. Con eso le aparece la pestaña 🛠️ Equipo.
+9. **Dos emprendimientos por cuenta:** SQL Editor → pegar [supabase/006_dos_negocios.sql](supabase/006_dos_negocios.sql) → Run. Le da su propio id a cada negocio y ata cada movimiento de caja al suyo. Los datos que ya existen no se tocan. **Sin este paso la app no carga**, porque ya pide la lista de negocios.
 
 > Los scripts 002, 003 y 004 se pueden volver a ejecutar sin romper nada: lo que ya existe se respeta y las políticas se vuelven a crear. Para ver qué hay en tu base, corre [supabase/000_revisar.sql](supabase/000_revisar.sql).
 

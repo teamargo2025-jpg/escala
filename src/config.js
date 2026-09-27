@@ -20,3 +20,7 @@ export const CLAVE_GUARDADO = 'escala:v1'
 // Dominio interno para convertir el apodo en "correo" de Supabase Auth. Nunca se envían correos;
 // .invalid es un dominio reservado que no existe, así nadie recibe nada por error.
 export const DOMINIO_CUENTAS = 'cuentas.escala.invalid'
+
+// Cuántos emprendimientos puede llevar una misma cuenta. Con más de dos, los
+// números de cada uno se mezclan en la cabeza de la persona y deja de ayudar.
+export const MAX_NEGOCIOS = 2

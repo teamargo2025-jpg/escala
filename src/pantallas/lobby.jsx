@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { rubroDe } from '../data/rubros.js'
-import { MESES_FLUJO } from '../config.js'
+import { MAX_NEGOCIOS, MESES_FLUJO } from '../config.js'
 import { APARTADO, ETAPAS, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
 import { LECCIONES } from '../data/educacion.js'
 import { costoProducto, porAcabarse } from '../lib/inventario.js'
@@ -8,9 +8,10 @@ import { seccionesResumen } from '../lib/resumen.js'
 import { hoy, mesDe, resumenMes, saldo } from '../lib/caja.js'
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
-import { ir, volver } from '../negocio.js'
+import { almacen } from '../almacen.js'
+import { ir, irAlInicio, volver } from '../negocio.js'
 import { TEMAS, TEMA_POR_DEFECTO } from '../data/temas.js'
-import { CampoTexto, EstadoGuardado, Logo, Marco, MensajeError } from '../componentes.jsx'
+import { Ayuda, BotonSiguiente, CampoTexto, EstadoGuardado, Logo, Marco, MensajeError, Pregunta } from '../componentes.jsx'
 import { FotoMarca, marcaDe } from './marca.jsx'
 
 export const plural = (n, r) => `${n.toLocaleString('es-PE')} ${n === 1 ? r.unidad : r.unidades}`
@@ -102,7 +103,8 @@ export function compartirTexto(texto) {
   }
 }
 
-export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAviso }) {
+export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAviso, negocios = [] }) {
+  const varios = negocios.length > 1
   const r = rubroDe(perfil)
   const { lista, siguiente, planCompleto } = estadoApartados(perfil.datos.hechos, perfil.datos.etapa)
   const hechos = perfil.datos.hechos
@@ -138,7 +140,11 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
           </div>
         </div>
         <p className="lobby__hola">Hola, {perfil.nickname} 👋</p>
-        <div className="lobby__negocio">
+        <button
+          className={`lobby__negocio${varios ? ' lobby__negocio--cambiable' : ''}`}
+          onClick={() => ir('/negocios')}
+          aria-label={varios ? 'Cambiar de emprendimiento' : 'Mis emprendimientos'}
+        >
           {marcaDe(perfil.datos).foto ? (
             <FotoMarca foto={marcaDe(perfil.datos).foto} nombre={perfil.emprendimiento} tamano="chica" />
           ) : (
@@ -148,7 +154,8 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
             <h1>{perfil.emprendimiento}</h1>
             <span>{r.nombre}</span>
           </div>
-        </div>
+          {varios && <span className="lobby__cambiar" aria-hidden="true">⇅</span>}
+        </button>
         <EstadoGuardado estado={guardado} />
       </header>
 
@@ -243,6 +250,97 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
   )
 }
 
+
+// El rubro de un emprendimiento de la lista (puede ser uno propio, escrito por la persona).
+const rubroDeFila = (x) => rubroDe({ rubro: x.rubro, datos: { rubroPersonalizado: x.rubroPersonalizado } })
+
+// ---------- Mis emprendimientos: cambiar de uno a otro, o abrir el segundo ----------
+export function MisNegocios({ negocios, negocioId, cambiarNegocio, guardado }) {
+  const [cambiando, setCambiando] = useState(null)
+  const lleno = negocios.length >= MAX_NEGOCIOS || !(almacen.puedeVariosNegocios?.() ?? true)
+
+  const abrir = async (id) => {
+    if (id === negocioId) return volver('/')
+    setCambiando(id)
+    await cambiarNegocio(id)
+    irAlInicio()
+  }
+
+  return (
+    <Marco titulo="Mis emprendimientos" emoji="🏪" guardado={guardado} onAtras={() => volver('/')}>
+      <Pregunta sub="Cada uno lleva sus propios números y su propia caja. Nada se mezcla.">
+        {negocios.length > 1 ? '¿En cuál quieres trabajar?' : 'Tu emprendimiento'}
+      </Pregunta>
+
+      <div className="rubros">
+        {negocios.map((x) => {
+          const suyo = rubroDeFila(x)
+          const activo = x.id === negocioId
+          return (
+            <button
+              key={x.id}
+              className={`rubro${activo ? ' rubro--elegido' : ''}`}
+              disabled={!!cambiando}
+              onClick={() => abrir(x.id)}
+            >
+              <span className="rubro__emoji">{suyo.emoji}</span>
+              <span className="rubro__nombre">
+                {x.emprendimiento}
+                <small>{activo ? 'Es el que estás viendo' : suyo.nombre}</small>
+              </span>
+              <span className="rubro__flecha">{cambiando === x.id ? '…' : activo ? '✓' : '→'}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {lleno ? (
+        <p className="nota-suave nota-suave--izq">
+          Una cuenta lleva hasta {MAX_NEGOCIOS} emprendimientos. Con más, los números de uno y otro se terminan mezclando.
+        </p>
+      ) : (
+        <>
+          <button className="btn btn--principal" onClick={() => ir('/negocios/nuevo')}>
+            + Agregar otro emprendimiento
+          </button>
+          <p className="nota-suave nota-suave--izq">
+            Si vendes dos cosas distintas (por ejemplo costura y comida), conviene llevarlas por separado: así sabes cuál de las dos te
+            está dejando ganancia.
+          </p>
+        </>
+      )}
+    </Marco>
+  )
+}
+
+// ---------- El segundo emprendimiento: solo su nombre; el rubro se elige después ----------
+export function NuevoNegocio({ onListo, onAtras }) {
+  const [nombre, setNombre] = useState('')
+  const error = validarEmprendimiento(nombre)
+  return (
+    <Marco
+      titulo="Otro emprendimiento"
+      emoji="🏪"
+      onAtras={onAtras}
+      pie={
+        <BotonSiguiente onClick={() => !error && onListo(limpiarTexto(nombre))} disabled={!!error} aviso="Escribe cómo se llama.">
+          Siguiente
+        </BotonSiguiente>
+      }
+    >
+      <Pregunta sub="Va a empezar de cero: sus propios costos, su precio y su caja aparte.">
+        ¿Cómo se llama tu otro emprendimiento?
+      </Pregunta>
+      <CampoTexto autoFocus valor={nombre} placeholder="Ej. Dulces de la casa" maxLength={60} onCambio={setNombre} />
+      <MensajeError>{nombre.length > 0 && error}</MensajeError>
+      <Ayuda>
+        Lo que ya tienes cargado <strong>no se toca</strong>. Vas a poder pasar de uno a otro cuando quieras, tocando el nombre de tu
+        negocio en el inicio.
+      </Ayuda>
+    </Marco>
+  )
+}
+
 export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
   const r = rubroDe(perfil)
   const [nombre, setNombre] = useState(perfil.emprendimiento)
@@ -321,6 +419,15 @@ export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
           })}
         </div>
       </div>
+
+      <button className="fila-opcion" onClick={() => ir('/negocios')}>
+        <span className="rubro__emoji">🏪</span>
+        <span>
+          <small>Mis emprendimientos</small>
+          <strong>{perfil.emprendimiento}</strong>
+        </span>
+        <span className="apartado__flecha">→</span>
+      </button>
 
       <button className="fila-opcion" onClick={() => ir('/perfil/rubro')}>
         <span className="rubro__emoji">{r.emoji}</span>

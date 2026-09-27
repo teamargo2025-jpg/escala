@@ -44,6 +44,11 @@ const usuarioDe = (user) => ({
 
 const CAMPOS_MOVIMIENTO = 'id, fecha, tipo, concepto, unidades, monto, created_at'
 
+// Queda en true si la base todavía no tiene las columnas de 006_dos_negocios.sql.
+// Así la app sigue funcionando (con un solo emprendimiento) hasta que se ejecute.
+let baseVieja = false
+const faltaColumna = (error) => error?.code === '42703' || /column .* does not exist/i.test(error?.message ?? '')
+
 function crearSupabase() {
   const sb = createClient(URL_SUPABASE, CLAVE_PUBLICA, {
     auth: { persistSession: true, autoRefreshToken: true, storageKey: 'escala:sesion' },
@@ -90,42 +95,62 @@ function crearSupabase() {
       await sb.auth.signOut({ scope: 'local' })
     },
 
-    async cargarNegocio(userId) {
+    // Falso mientras la base no tenga lo de 006_dos_negocios.sql: sin eso, un segundo
+    // emprendimiento pisaría al primero, así que no se ofrece.
+    puedeVariosNegocios: () => !baseVieja,
+
+    // Una persona puede tener más de un emprendimiento: siempre se trabaja con la lista.
+    //
+    // Compatibilidad: si todavía no se ejecutó 006_dos_negocios.sql, la tabla no tiene
+    // las columnas nuevas. En ese caso se trabaja como antes (un negocio, con el id de
+    // la cuenta) en vez de dejar la app inservible. Al correr el SQL, se usa lo nuevo solo.
+    async listarNegocios(userId) {
+      if (!baseVieja) {
+        const { data, error } = await sb
+          .from('negocios')
+          .select('id, nickname, emprendimiento, rubro, datos')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: true })
+        if (!error) return data ?? []
+        if (!faltaColumna(error)) throw traducir(error)
+        baseVieja = true
+      }
       const data = ok(
-        await sb.from('negocios').select('nickname, emprendimiento, rubro, datos, updated_at').eq('user_id', userId).maybeSingle(),
+        await sb.from('negocios').select('nickname, emprendimiento, rubro, datos').eq('user_id', userId).maybeSingle(),
       )
-      return data && { nickname: data.nickname, emprendimiento: data.emprendimiento, rubro: data.rubro, datos: data.datos }
+      return data ? [{ id: userId, ...data }] : []
     },
 
     async guardarNegocio(userId, perfil) {
-      ok(
-        await sb.from('negocios').upsert(
-          {
-            user_id: userId,
-            nickname: perfil.nickname,
-            emprendimiento: perfil.emprendimiento,
-            rubro: perfil.rubro,
-            datos: perfil.datos,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id' },
-        ),
-      )
+      const fila = {
+        user_id: userId,
+        nickname: perfil.nickname,
+        emprendimiento: perfil.emprendimiento,
+        rubro: perfil.rubro,
+        datos: perfil.datos,
+        updated_at: new Date().toISOString(),
+      }
+      if (baseVieja) return ok(await sb.from('negocios').upsert(fila, { onConflict: 'user_id' }))
+      ok(await sb.from('negocios').upsert({ id: perfil.id, ...fila }, { onConflict: 'id' }))
     },
 
-    async listarMovimientos() {
-      return ok(await sb.from('movimientos').select(CAMPOS_MOVIMIENTO).order('fecha', { ascending: false }).limit(5000))
+    // La caja es de cada emprendimiento, no de la cuenta.
+    async listarMovimientos(negocioId) {
+      if (!negocioId) return []
+      const consulta = sb.from('movimientos').select(CAMPOS_MOVIMIENTO).order('fecha', { ascending: false }).limit(5000)
+      return ok(await (baseVieja ? consulta : consulta.eq('negocio_id', negocioId)))
     },
 
-    async agregarMovimiento(userId, m) {
+    async agregarMovimiento(negocioId, m) {
       const { error } = await sb.from('movimientos').insert({
-        id: m.id, fecha: m.fecha, tipo: m.tipo, concepto: m.concepto, unidades: m.unidades ?? null, monto: m.monto,
+        id: m.id, ...(baseVieja ? {} : { negocio_id: negocioId }), fecha: m.fecha, tipo: m.tipo, concepto: m.concepto,
+        unidades: m.unidades ?? null, monto: m.monto,
       })
       // 23505 = ya estaba guardado (reintento después de perder la conexión).
       if (error && error.code !== '23505') throw traducir(error)
     },
 
-    async borrarMovimiento(userId, id) {
+    async borrarMovimiento(negocioId, id) {
       ok(await sb.from('movimientos').delete().eq('id', id))
     },
 
@@ -309,21 +334,28 @@ function crearLocal() {
     async salir() {
       localStorage.removeItem(K.sesion)
     },
-    async cargarNegocio(userId) {
-      return leer(`escala:prueba:negocio:${userId}`, null)
+    puedeVariosNegocios: () => true,
+    async listarNegocios(userId) {
+      const lista = leer(`escala:prueba:negocios:${userId}`, null)
+      if (lista) return lista
+      // Cuentas de antes de los dos emprendimientos: se convierte lo que ya había.
+      const viejo = leer(`escala:prueba:negocio:${userId}`, null)
+      return viejo ? [{ ...viejo, id: viejo.id ?? userId }] : []
     },
     async guardarNegocio(userId, perfil) {
-      escribir(`escala:prueba:negocio:${userId}`, perfil)
+      const lista = await this.listarNegocios(userId)
+      const existe = lista.some((x) => x.id === perfil.id)
+      escribir(`escala:prueba:negocios:${userId}`, existe ? lista.map((x) => (x.id === perfil.id ? perfil : x)) : [...lista, perfil])
     },
-    async listarMovimientos(userId) {
-      return leer(`escala:prueba:caja:${userId}`, [])
+    async listarMovimientos(negocioId) {
+      return negocioId ? leer(`escala:prueba:caja:${negocioId}`, []) : []
     },
-    async agregarMovimiento(userId, m) {
-      const lista = leer(`escala:prueba:caja:${userId}`, [])
-      if (!lista.some((x) => x.id === m.id)) escribir(`escala:prueba:caja:${userId}`, [...lista, m])
+    async agregarMovimiento(negocioId, m) {
+      const lista = leer(`escala:prueba:caja:${negocioId}`, [])
+      if (!lista.some((x) => x.id === m.id)) escribir(`escala:prueba:caja:${negocioId}`, [...lista, m])
     },
-    async borrarMovimiento(userId, id) {
-      escribir(`escala:prueba:caja:${userId}`, leer(`escala:prueba:caja:${userId}`, []).filter((x) => x.id !== id))
+    async borrarMovimiento(negocioId, id) {
+      escribir(`escala:prueba:caja:${negocioId}`, leer(`escala:prueba:caja:${negocioId}`, []).filter((x) => x.id !== id))
     },
 
     // ---------- Escalemos en modo prueba ----------
