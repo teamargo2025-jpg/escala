@@ -242,11 +242,20 @@ const guardarLocal = (clave, valor) => {
   }
 }
 
+// El id del negocio activo se guarda tal cual, sin comillas: es solo un texto.
 function leerActivo(userId) {
   try {
-    return localStorage.getItem(claveActivo(userId))
+    return localStorage.getItem(claveActivo(userId)) || null
   } catch {
     return null
+  }
+}
+
+function guardarActivo(userId, negocioId) {
+  try {
+    localStorage.setItem(claveActivo(userId), negocioId)
+  } catch {
+    // sin almacenamiento: queda en memoria
   }
 }
 
@@ -314,7 +323,7 @@ export function useNegocio(usuario) {
   }, [lista, userId])
 
   useEffect(() => {
-    if (negocioId) guardarLocal(claveActivo(userId), negocioId)
+    if (negocioId) guardarActivo(userId, negocioId)
   }, [negocioId, userId])
 
   // Carga desde el servidor y mezcla con lo que haya quedado sin subir.

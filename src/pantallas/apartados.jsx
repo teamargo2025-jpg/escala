@@ -4,6 +4,8 @@ import { GANANCIAS_RAPIDAS, METODO_PRECIO, MESES_FLUJO } from '../config.js'
 import { APARTADO } from '../lib/apartados.js'
 import { num, soles } from '../lib/calc.js'
 import { elQueMasDeja, equilibrioMezcla, lineasDeProductos } from '../lib/equilibrio.js'
+import { mixDelMes } from '../lib/ventas.js'
+import { hoy, mesDe, nombreMes } from '../lib/caja.js'
 import { inventarioDe, ir, volver } from '../negocio.js'
 import { Aprende, Ayuda, BotonSiguiente, CampoNumero, Cifra, ListaItems, Marco, Pregunta } from '../componentes.jsx'
 import { plural } from './lobby.jsx'
@@ -181,13 +183,19 @@ export function Precio({ datos, despachar, terminar, guardado, r, n }) {
 
 // Punto de equilibrio cuando hay más de un producto: se cuenta en soles de venta,
 // no en unidades, porque una torta y un alfajor no se pueden sumar como "dos".
-function EquilibrioVarios({ datos, despachar, n, r }) {
+function EquilibrioVarios({ datos, despachar, n, r, movimientos = [] }) {
   const inv = inventarioDe(datos)
   const lineas = lineasDeProductos(datos.productos ?? [], inv.materiales, { valorHora: num(datos.valorHora) })
   if (lineas.length < 2) return null
 
   const eq = equilibrioMezcla(lineas, n.fijos, n.metaGanancia)
   const estrella = eq && elQueMasDeja(lineas)
+
+  // Si ya anotó ventas en la caja, no tiene por qué adivinar cuánto vende de cada uno.
+  const mes = mesDe(hoy())
+  const real = mixDelMes(movimientos, datos.productos ?? [], mes)
+  const hayReal = Object.keys(real).length > 0
+  const igualALoReal = hayReal && lineas.every((l) => (real[l.id] ?? 0) === l.ventasMes)
 
   return (
     <section className="varios">
@@ -196,6 +204,17 @@ function EquilibrioVarios({ datos, despachar, n, r }) {
         Con varios productos el equilibrio no se cuenta en {r.unidades}: se cuenta en <strong>soles vendidos</strong>. Dinos cuánto vendes de
         cada uno en un mes normal.
       </p>
+
+      {hayReal && !igualALoReal && (
+        <button
+          className="btn btn--suave"
+          onClick={() => {
+            for (const l of lineas) despachar({ tipo: 'producto:campo', id: l.id, cambio: { ventasMes: String(real[l.id] ?? 0) } })
+          }}
+        >
+          Usar lo que vendí en {nombreMes(mes).toLowerCase()}
+        </button>
+      )}
 
       <div className="mezcla">
         {lineas.map((l) => (
@@ -294,7 +313,7 @@ function EquilibrioVarios({ datos, despachar, n, r }) {
   )
 }
 
-export function Meta({ datos, despachar, terminar, guardado, r, n }) {
+export function Meta({ datos, despachar, terminar, guardado, r, n, movimientos }) {
   const alcanzable = n.unidadesMeta == null || n.unidadesMeta <= n.cantidad
   return (
     <Marco {...marcoDe('meta', guardado)} pie={<BotonSiguiente onClick={() => terminar('meta')}>Listo</BotonSiguiente>}>
@@ -342,7 +361,7 @@ export function Meta({ datos, despachar, terminar, guardado, r, n }) {
         </>
       )}
 
-      <EquilibrioVarios datos={datos} despachar={despachar} n={n} r={r} />
+      <EquilibrioVarios datos={datos} despachar={despachar} n={n} r={r} movimientos={movimientos} />
     </Marco>
   )
 }

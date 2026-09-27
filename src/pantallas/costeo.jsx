@@ -5,6 +5,8 @@ import { APARTADO } from '../lib/apartados.js'
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto } from '../lib/cuenta.js'
 import { MEDIDAS, alcanzaPara, costoProducto, resultadoPrecio } from '../lib/inventario.js'
+import { porProducto } from '../lib/ventas.js'
+import { hoy, mesDe, nombreMes } from '../lib/caja.js'
 import { nuevoId } from '../almacen.js'
 import { inventarioDe, ir, volver } from '../negocio.js'
 import { Aprende, Ayuda, BotonSiguiente, CampoNumero, CampoTexto, Casilla, Marco, Pregunta, Redirigir } from '../componentes.jsx'
@@ -20,7 +22,15 @@ const marco = (guardado, extra) => ({
 
 const opcionesCosto = (datos, n) => ({ valorHora: num(datos.valorHora), fijoPorUnidad: datos.hechos?.costos ? n.fijoPorUnidad : 0 })
 
-export function Costeo({ datos, despachar, guardado, perfil, r, n }) {
+export function Costeo({ datos, despachar, guardado, perfil, r, n, movimientos = [] }) {
+  const mes = mesDe(hoy())
+  // Lo que se vendió de verdad, según lo anotado en la caja.
+  const vendido = porProducto(movimientos, datos.productos ?? [], inventarioDe(datos).materiales, {
+    valorHora: num(datos.valorHora),
+    mes,
+  })
+  const porId = Object.fromEntries(vendido.map((v) => [v.id, v]))
+  const campeon = vendido[0]
   const inv = inventarioDe(datos)
   const productos = datos.productos ?? []
   const ejemplo = EJEMPLOS_INVENTARIO[perfil.rubro]
@@ -40,6 +50,16 @@ export function Costeo({ datos, despachar, guardado, perfil, r, n }) {
         ¿Cuánto te cuesta cada producto?
       </Pregunta>
 
+      {campeon && campeon.gana > 0 && vendido.length > 1 && (
+        <div className="cifra cifra--bien">
+          <span className="cifra__etiqueta">El que más te deja en {nombreMes(mes).toLowerCase()}</span>
+          <strong className="cifra__valor">{campeon.nombre}</strong>
+          <span className="cifra__nota">
+            Vendiste {campeon.unidades} y te dejaron {soles(Math.round(campeon.gana))} después de materiales y tu tiempo.
+          </span>
+        </div>
+      )}
+
       {productos.length > 0 && (
         <div className="materiales">
           {productos.map((p) => {
@@ -56,6 +76,11 @@ export function Costeo({ datos, despachar, guardado, perfil, r, n }) {
                     </small>
                   ) : (
                     <small>Precio sugerido: {soles(res.sugerido)}</small>
+                  )}
+                  {porId[p.id] && (
+                    <small className="producto__vendido">
+                      Este mes vendiste {porId[p.id].unidades} · te dejaron {soles(Math.round(porId[p.id].gana))}
+                    </small>
                   )}
                 </span>
                 <span className="apartado__flecha">→</span>

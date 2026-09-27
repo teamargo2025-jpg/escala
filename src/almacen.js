@@ -36,6 +36,8 @@ function traducir(error) {
   return new ErrorCuenta('otro', msj)
 }
 
+const conProducto = ({ producto_id, ...m }) => ({ ...m, productoId: producto_id ?? null })
+
 const usuarioDe = (user) => ({
   userId: user.id,
   nickname: user.user_metadata?.nickname ?? '',
@@ -43,6 +45,11 @@ const usuarioDe = (user) => ({
 })
 
 const CAMPOS_MOVIMIENTO = 'id, fecha, tipo, concepto, unidades, monto, created_at'
+const CAMPOS_CON_PRODUCTO = CAMPOS_MOVIMIENTO + ', producto_id'
+
+// Queda en true si falta 007_ventas_por_producto.sql: la venta se guarda igual,
+// solo que sin saber de qué producto fue.
+let sinProductoId = false
 
 // Queda en true si la base todavía no tiene las columnas de 006_dos_negocios.sql.
 // Así la app sigue funcionando (con un solo emprendimiento) hasta que se ejecute.
@@ -137,17 +144,31 @@ function crearSupabase() {
     // La caja es de cada emprendimiento, no de la cuenta.
     async listarMovimientos(negocioId) {
       if (!negocioId) return []
-      const consulta = sb.from('movimientos').select(CAMPOS_MOVIMIENTO).order('fecha', { ascending: false }).limit(5000)
-      return ok(await (baseVieja ? consulta : consulta.eq('negocio_id', negocioId)))
+      const traer = (campos) => {
+        const q = sb.from('movimientos').select(campos).order('fecha', { ascending: false }).limit(5000)
+        return baseVieja ? q : q.eq('negocio_id', negocioId)
+      }
+      if (!sinProductoId) {
+        const { data, error } = await traer(CAMPOS_CON_PRODUCTO)
+        if (!error) return (data ?? []).map(conProducto)
+        if (!faltaColumna(error)) throw traducir(error)
+        sinProductoId = true
+      }
+      return ok(await traer(CAMPOS_MOVIMIENTO))
     },
 
     async agregarMovimiento(negocioId, m) {
-      const { error } = await sb.from('movimientos').insert({
+      const fila = {
         id: m.id, ...(baseVieja ? {} : { negocio_id: negocioId }), fecha: m.fecha, tipo: m.tipo, concepto: m.concepto,
         unidades: m.unidades ?? null, monto: m.monto,
-      })
+      }
+      const { error } = await sb.from('movimientos').insert(sinProductoId ? fila : { ...fila, producto_id: m.productoId ?? null })
       // 23505 = ya estaba guardado (reintento después de perder la conexión).
-      if (error && error.code !== '23505') throw traducir(error)
+      if (!error || error.code === '23505') return
+      if (!faltaColumna(error)) throw traducir(error)
+      sinProductoId = true
+      const reintento = await sb.from('movimientos').insert(fila)
+      if (reintento.error && reintento.error.code !== '23505') throw traducir(reintento.error)
     },
 
     async borrarMovimiento(negocioId, id) {

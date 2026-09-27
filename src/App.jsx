@@ -157,7 +157,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     return <ElegirEtapa nombre={usuario.nickname} onElegir={(etapa) => despachar({ tipo: 'campo', campo: 'etapa', valor: etapa })} />
   }
 
-  const comunes = { datos: perfil.datos, despachar, terminar, guardado, perfil, r, n }
+  const comunes = { datos: perfil.datos, despachar, terminar, guardado, perfil, r, n, movimientos: neg.movimientos }
   const [seccion, sub] = ruta
 
   // La barra de abajo solo en las pantallas principales: en los formularios estorbaría.

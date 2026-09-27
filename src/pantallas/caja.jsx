@@ -182,6 +182,8 @@ export function NuevoMovimiento({ tipo, agregarMovimiento, despachar, perfil, r,
       tipo: esEntrada ? 'entrada' : 'salida',
       concepto: textoConcepto.slice(0, 80),
       unidades: esVenta ? u : null,
+      // Guardar de qué producto fue permite saber después cuál deja más plata.
+      productoId: esVenta && producto ? producto.id : null,
       monto: Math.round(num(montoFinal) * 100) / 100,
     })
     registrar(esEntrada ? 'caja_entrada' : 'caja_salida')
