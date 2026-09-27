@@ -9,10 +9,12 @@ import {
 } from '../lib/cuenta.js'
 import { Ayuda, BotonSiguiente, CampoTexto, Casilla, Marco, MensajeError, Pregunta } from '../componentes.jsx'
 
+// Sirve igual para quien recién arranca y para quien ya vende: por eso ninguna línea
+// habla solo de empezar. Lo de "cuánto necesito para arrancar" se ofrece adentro, a quien le toca.
 const LO_QUE_SABRAS = [
-  { emoji: '💰', texto: 'cuánto dinero necesitas para empezar', color: '#b7730c', claro: '#fff1d6' },
-  { emoji: '🏷️', texto: 'a qué precio vender', color: '#c2366f', claro: '#fde2ed' },
-  { emoji: '🎯', texto: 'cuánto tienes que vender al mes', color: '#2f6fdb', claro: '#e0ebfd' },
+  { emoji: '🧾', texto: 'cuánto te cuesta de verdad lo que vendes', color: '#d4551f', claro: '#ffe6da' },
+  { emoji: '🏷️', texto: 'a qué precio vender para ganar', color: '#c2366f', claro: '#fde2ed' },
+  { emoji: '🎯', texto: 'cuánto vender al mes para no perder', color: '#2f6fdb', claro: '#e0ebfd' },
   { emoji: '📒', texto: 'cuánto dinero entra y sale cada día', color: '#1f8a5b', claro: '#dff3e8' },
 ]
 
