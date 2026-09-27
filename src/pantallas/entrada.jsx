@@ -140,7 +140,10 @@ export function Crear({ paso, form, setForm, alEntrar }) {
 
   // paso === 'dni'
   const invalido = validarDocumento(form.documento, form.tipoDoc)
-  const puede = !invalido && form.acepto && !enviando
+  // Un dígito mal escrito acá y la persona no puede volver a entrar nunca: por eso se pide dos veces.
+  const repetido = form.documento2 ?? ''
+  const noCoincide = !invalido && repetido.length > 0 && repetido !== form.documento
+  const puede = !invalido && !noCoincide && repetido === form.documento && form.acepto && !enviando
   const crear = async () => {
     if (!puede) return
     setError(null)
@@ -165,7 +168,7 @@ export function Crear({ paso, form, setForm, alEntrar }) {
         <BotonSiguiente
           onClick={crear}
           disabled={!puede}
-          aviso={enviando ? null : !form.acepto && !invalido ? 'Marca la casilla para seguir.' : null}
+          aviso={enviando ? null : noCoincide || (!invalido && !repetido) ? 'Escribe tu número las dos veces igual.' : !form.acepto && !invalido ? 'Marca la casilla para seguir.' : null}
         >
           {enviando ? 'Creando tu cuenta…' : 'Crear mi cuenta'}
         </BotonSiguiente>
@@ -175,6 +178,17 @@ export function Crear({ paso, form, setForm, alEntrar }) {
         {form.tipoDoc === 'ce' ? 'Escribe tu carné de extranjería' : 'Escribe tu DNI'}
       </Pregunta>
       <CampoDocumento form={form} setForm={setForm} onEnter={crear} />
+      <CampoTexto
+        etiqueta="Escríbelo otra vez, para estar seguros"
+        tipo="password"
+        inputMode="numeric"
+        valor={form.documento2 ?? ''}
+        maxLength={12}
+        placeholder={form.tipoDoc === 'ce' ? 'Repite tu carné' : 'Repite tu DNI'}
+        onCambio={(v) => setForm({ ...form, documento2: v.replace(/\D/g, '') })}
+        onEnter={crear}
+      />
+      <MensajeError>{noCoincide && 'Los dos números no son iguales. Revísalos.'}</MensajeError>
       <Ayuda etiqueta="¿Qué pasa con mi DNI?">
         Se guarda <strong>cifrado</strong>: se usa solo para comprobar que eres tú y nadie puede leerlo, ni el
         facilitador. Para entrar otro día vas a escribir tu nombre (<strong>{limpiarTexto(form.apodo)}</strong>) y
@@ -243,8 +257,10 @@ export function Entrar({ form, setForm, alEntrar }) {
       </div>
       <MensajeError>{error && MENSAJES_ERROR[error]}</MensajeError>
       <Ayuda etiqueta="No puedo entrar">
-        Revisa que tu nombre esté escrito igual que cuando creaste la cuenta (por ejemplo, con o sin apellido). Si
-        igual no puedes, pide ayuda al facilitador.
+        Lo más común es que el <strong>nombre</strong> esté escrito distinto a cuando creaste la cuenta: con o sin
+        apellido, o con otro apodo. Las tildes y las mayúsculas no importan. <br />
+        Si estás seguro del nombre y aun así no entra, es el número: pide ayuda al facilitador, que puede
+        devolverte el acceso.
       </Ayuda>
       <button className="btn btn--texto" onClick={() => ir('/crear/nombre')}>
         No tengo cuenta: crear una

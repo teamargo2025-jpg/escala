@@ -11,7 +11,7 @@ import {
 } from './negocio.js'
 import { BarraInferior, Logo, Redirigir } from './componentes.jsx'
 import { Bienvenida, Crear, ElegirEtapa, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
-import { GrupoApartados, Lobby, MisNegocios, NuevoNegocio, Perfil } from './pantallas/lobby.jsx'
+import { BorrarCuenta, GrupoApartados, Lobby, MisNegocios, NuevoNegocio, Perfil } from './pantallas/lobby.jsx'
 import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.jsx'
 import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
 import { Inventario, Material, MovimientoInventario } from './pantallas/inventario.jsx'
@@ -23,7 +23,7 @@ import { CalendarioMarca, ContenidoMarca, IdentidadMarca, Marca } from './pantal
 import { EcoEscala, Escalemos, Oportunidades, PublicarSobrante, Revista, Sobrantes } from './pantallas/escalemos.jsx'
 import { Equipo } from './pantallas/equipo.jsx'
 
-const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
+const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', documento2: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
 
 function Cargando() {
@@ -283,6 +283,9 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   if (seccion === 'asesores') return <Asesores perfil={perfil} guardado={guardado} />
 
   if (seccion === 'perfil') {
+    if (sub === 'borrar') {
+      return <BorrarCuenta perfil={perfil} usuario={usuario} onSalir={onSalir} />
+    }
     if (sub === 'rubro') {
       return (
         <ElegirRubro

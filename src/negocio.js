@@ -61,6 +61,21 @@ export function olvidarVersionAnterior() {
   }
 }
 
+// Borrar la cuenta tiene que borrar también la copia que queda en el celular:
+// si no, los números siguen ahí para quien agarre el teléfono después.
+export function olvidarTodoLocal(userId) {
+  try {
+    const negocios = JSON.parse(localStorage.getItem(`escala:negocios:${userId}`)) ?? []
+    for (const n of negocios) localStorage.removeItem(`escala:u:${n.id}`)
+    localStorage.removeItem(`escala:u:${userId}`) // cuentas de antes de los dos emprendimientos
+    localStorage.removeItem(`escala:negocios:${userId}`)
+    localStorage.removeItem(`escala:activo:${userId}`)
+    localStorage.removeItem(CLAVE_GUARDADO)
+  } catch {
+    // sin almacenamiento: no hay nada que borrar
+  }
+}
+
 export function reducirDatos(d, accion) {
   switch (accion.tipo) {
     case 'item': {

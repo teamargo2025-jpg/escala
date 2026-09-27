@@ -9,7 +9,7 @@ import { hoy, mesDe, resumenMes, saldo } from '../lib/caja.js'
 import { num, soles } from '../lib/calc.js'
 import { limpiarTexto, validarEmprendimiento } from '../lib/cuenta.js'
 import { almacen } from '../almacen.js'
-import { ir, irAlInicio, volver } from '../negocio.js'
+import { ir, irAlInicio, olvidarTodoLocal, volver } from '../negocio.js'
 import { TEMAS, TEMA_POR_DEFECTO } from '../data/temas.js'
 import { Ayuda, BotonSiguiente, CampoTexto, EstadoGuardado, Logo, Marco, MensajeError, Pregunta } from '../componentes.jsx'
 import { FotoMarca, marcaDe } from './marca.jsx'
@@ -341,6 +341,66 @@ export function NuevoNegocio({ onListo, onAtras }) {
   )
 }
 
+
+// ---------- Borrar mi cuenta: lo que promete la política de privacidad ----------
+export function BorrarCuenta({ perfil, usuario, onSalir }) {
+  const [texto, setTexto] = useState('')
+  const [borrando, setBorrando] = useState(false)
+  const [error, setError] = useState(null)
+  // Escribir el nombre del emprendimiento evita el borrado por error de un toque.
+  const confirmado = limpiarTexto(texto).toLowerCase() === perfil.emprendimiento.toLowerCase()
+
+  const borrar = async () => {
+    if (!confirmado || borrando) return
+    setBorrando(true)
+    setError(null)
+    try {
+      await almacen.borrarMisDatos(usuario.userId)
+      olvidarTodoLocal(usuario.userId)
+      onSalir()
+    } catch {
+      setError('No se pudo borrar. Revisa tu internet y vuelve a intentar.')
+      setBorrando(false)
+    }
+  }
+
+  return (
+    <Marco titulo="Borrar mi cuenta" emoji="🗑️" onAtras={() => volver('/perfil')}>
+      <Pregunta sub="Esto no se puede deshacer.">¿Seguro que quieres borrar todo?</Pregunta>
+
+      <div className="aviso-borrado">
+        <p><strong>Se borra para siempre:</strong></p>
+        <ul>
+          <li>Tus emprendimientos y todos sus números: presupuesto, costos, precio, meta y flujo.</li>
+          <li>Tu control de caja completo y tu inventario.</li>
+          <li>Tus fichas de producto y lo de tu marca, incluida la foto.</li>
+          <li>Tus postulaciones a la revista y tus puntos de EcoEscala.</li>
+        </ul>
+        <p className="aviso-borrado__nota">
+          El nombre con el que entras (<strong>{usuario.nickname}</strong>) queda reservado para que nadie más lo
+          use. Si también quieres que se borre, pídelo al equipo de ESCALA.
+        </p>
+      </div>
+
+      <CampoTexto
+        etiqueta={`Para confirmar, escribe el nombre de tu emprendimiento: ${perfil.emprendimiento}`}
+        valor={texto}
+        onCambio={setTexto}
+        placeholder={perfil.emprendimiento}
+        maxLength={60}
+      />
+      <MensajeError>{error}</MensajeError>
+
+      <button className="btn btn--peligro" disabled={!confirmado || borrando} onClick={borrar}>
+        {borrando ? 'Borrando…' : 'Borrar todo para siempre'}
+      </button>
+      <button className="btn btn--suave" onClick={() => volver('/perfil')}>
+        Mejor no, volver
+      </button>
+    </Marco>
+  )
+}
+
 export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
   const r = rubroDe(perfil)
   const [nombre, setNombre] = useState(perfil.emprendimiento)
@@ -440,7 +500,8 @@ export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
 
       <p className="legal__enlaces">
         <button className="enlace" onClick={() => ir('/legal/privacidad')}>Política de privacidad</button> ·{' '}
-        <button className="enlace" onClick={() => ir('/legal/terminos')}>Términos y condiciones</button>
+        <button className="enlace" onClick={() => ir('/legal/terminos')}>Términos y condiciones</button> ·{' '}
+        <button className="enlace" onClick={() => ir('/perfil/borrar')}>Borrar mi cuenta</button>
       </p>
 
       {salirSeguro ? (

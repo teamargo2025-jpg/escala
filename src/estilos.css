@@ -832,3 +832,10 @@ h1, h2, p { margin: 0; }
   font-size: 15px; line-height: 1.5; color: var(--tinta-2); font-style: italic;
   border-left: 3px solid var(--linea); padding: 4px 0 4px 12px; margin: 10px 0;
 }
+
+.aviso-borrado {
+  background: var(--rojo-claro); border-radius: 14px; padding: 14px 16px; font-size: 15px; line-height: 1.5;
+  display: grid; gap: 8px;
+}
+.aviso-borrado ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.aviso-borrado__nota { color: var(--tinta-2); font-size: 14px; }

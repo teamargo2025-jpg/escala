@@ -102,6 +102,20 @@ function crearSupabase() {
       await sb.auth.signOut({ scope: 'local' })
     },
 
+    // Borra todo lo que esta persona tiene guardado. Las políticas de RLS hacen
+    // que solo pueda borrar lo suyo, aunque se manipule la app desde fuera.
+    async borrarMisDatos(userId) {
+      // Primero lo que cuelga de otras tablas; los movimientos y la caja se van
+      // solos con el negocio (on delete cascade).
+      for (const tabla of ['postulaciones', 'eco_canjes', 'eco_entregas', 'sobrantes', 'interesados']) {
+        const { error } = await sb.from(tabla).delete().eq('user_id', userId)
+        // Si una tabla todavía no existe en esta base, se sigue con las demás.
+        if (error && error.code !== '42P01') throw traducir(error)
+      }
+      ok(await sb.from('negocios').delete().eq('user_id', userId))
+      await sb.auth.signOut({ scope: 'local' })
+    },
+
     // Falso mientras la base no tenga lo de 006_dos_negocios.sql: sin eso, un segundo
     // emprendimiento pisaría al primero, así que no se ofrece.
     puedeVariosNegocios: () => !baseVieja,
@@ -356,6 +370,17 @@ function crearLocal() {
       localStorage.removeItem(K.sesion)
     },
     puedeVariosNegocios: () => true,
+    async borrarMisDatos(userId) {
+      for (const k of Object.keys(localStorage)) {
+        if (k.startsWith('escala:') && k.includes(userId)) localStorage.removeItem(k)
+      }
+      const cuentas = leer(K.cuentas, {})
+      for (const [clave, c] of Object.entries(cuentas)) {
+        if (c.usuario?.userId === userId) delete cuentas[clave]
+      }
+      escribir(K.cuentas, cuentas)
+      localStorage.removeItem(K.sesion)
+    },
     async listarNegocios(userId) {
       const lista = leer(`escala:prueba:negocios:${userId}`, null)
       if (lista) return lista
