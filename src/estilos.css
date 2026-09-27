@@ -751,3 +751,84 @@ h1, h2, p { margin: 0; }
 }
 
 .producto__vendido { color: var(--marca); font-weight: 700; }
+
+/* ---------- Revista ESCALA: tono editorial ---------- */
+/* Serif para los titulares: la misma familia visual del wordmark del isologo. */
+.revista-portada,
+.revista-nota,
+.revista-llamado,
+.revista-seccion { --serif: 'Playfair Display', Georgia, 'Times New Roman', serif; }
+
+.revista-portada {
+  background: var(--superficie-marca); color: #fff; border-radius: 4px;
+  padding: 26px 20px 20px; margin-bottom: 4px; text-align: center;
+}
+.revista-portada__sello {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 800;
+  color: var(--sobre-oscuro-2);
+}
+.revista-portada__nombre {
+  font-family: var(--serif); font-size: 38px; font-weight: 800; line-height: 1.05;
+  margin-top: 10px; letter-spacing: -0.01em;
+}
+.revista-portada__regla {
+  height: 0; margin: 14px auto 12px; width: 64px;
+  border-top: 3px solid rgba(255, 255, 255, 0.9); border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding-top: 3px;
+}
+.revista-portada__edicion { font-size: 13px; color: var(--sobre-oscuro); font-style: italic; }
+
+.revista-seccion { display: grid; gap: 4px; }
+.revista-seccion__titulo {
+  display: flex; align-items: center; gap: 12px; margin-top: 18px; margin-bottom: 6px;
+  font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.16em; color: var(--tinta-2);
+}
+.revista-seccion__titulo i { flex: 1; height: 1px; background: var(--tinta-3); opacity: 0.45; }
+
+.revista-lista { list-style: none; padding: 0; margin: 0; }
+.revista-nota { padding: 18px 0; border-bottom: 1px solid var(--linea); }
+.revista-nota:last-child { border-bottom: 0; }
+.revista-nota__antetitulo {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--marca);
+}
+.revista-nota__numero { font-family: var(--serif); font-size: 15px; letter-spacing: 0; color: var(--tinta-3); }
+.revista-nota__titular {
+  font-family: var(--serif); font-size: 25px; line-height: 1.15; font-weight: 700;
+  color: var(--tinta); margin: 6px 0 8px;
+}
+.revista-nota__bajada { font-size: 15px; line-height: 1.5; color: var(--tinta-2); }
+.revista-nota__plazo {
+  margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--tinta-3);
+  display: inline-block; border-left: 3px solid var(--linea); padding-left: 8px;
+}
+.revista-nota__plazo--urgente { color: var(--rojo); border-left-color: var(--rojo); }
+.revista-nota__enlace {
+  display: block; margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--marca);
+}
+.revista-nota__aviso { margin-top: 8px; font-size: 13px; color: var(--tinta-3); line-height: 1.4; }
+
+/* Botón editorial: contorno fino, mayúsculas espaciadas. Nada de píldoras de colores. */
+.btn-editorial {
+  margin-top: 14px; width: 100%; min-height: 46px; padding: 12px 18px;
+  background: none; color: var(--tinta); border: 1.5px solid var(--tinta);
+  border-radius: 2px; font-size: 13px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.14em;
+}
+.btn-editorial:disabled { opacity: 0.55; }
+.btn-editorial--hecho { border-color: var(--linea); color: var(--tinta-3); }
+.btn-editorial--claro { border-color: #fff; color: #fff; }
+
+.revista-llamado {
+  background: var(--tinta); color: #fff; border-radius: 4px; padding: 24px 20px; margin-top: 4px;
+}
+.revista-llamado__kicker {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 800; color: var(--acento);
+}
+.revista-llamado__titulo { font-family: var(--serif); font-size: 26px; line-height: 1.15; font-weight: 700; margin: 10px 0; }
+.revista-llamado__texto { font-size: 15px; line-height: 1.55; color: var(--sobre-oscuro); }
+
+.revista-vacio {
+  font-size: 15px; line-height: 1.5; color: var(--tinta-2); font-style: italic;
+  border-left: 3px solid var(--linea); padding: 4px 0 4px 12px; margin: 10px 0;
+}

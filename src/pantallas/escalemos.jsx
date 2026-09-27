@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { IDEAS_APROVECHAR, MATERIALES, PREMIOS, TIPOS_OPORTUNIDAD, puntosDe, puntosTotales } from '../data/eco.js'
 import { almacen } from '../almacen.js'
 import { diasHasta, fechaBonita } from '../lib/marketing.js'
+import { hoy } from '../lib/caja.js'
 import { limpiarTexto } from '../lib/cuenta.js'
 import { registrar } from '../lib/analitica.js'
 import { ir, volver } from '../negocio.js'
@@ -36,52 +37,95 @@ export function Escalemos({ perfil, guardado }) {
     mios: await almacen.misIntereses(),
     postulacion: await almacen.miPostulacion(),
   }))
+  const abiertas = datos?.oportunidades ?? []
 
   return (
     <Marco {...marco({ titulo: 'Revista ESCALA', emoji: '📰', guardado })}>
-      <Pregunta sub="Lo que pasa en la red: convocatorias, ferias y la revista donde mostramos emprendimientos.">
-        Revista ESCALA
-      </Pregunta>
+      <Portada edicion={edicionDe(hoy())} />
 
-      {cargando && <Cargando />}
+      <section className="revista-seccion">
+        <TituloSeccion>{abiertas.length ? `Convocatorias abiertas (${abiertas.length})` : 'Convocatorias'}</TituloSeccion>
 
-      {/* Oportunidades: son parte de la revista */}
-      <section className="ficha__seccion">
-        <h2 className="subtitulo">📣 Convocatorias y oportunidades</h2>
-        {!cargando && !datos?.oportunidades?.length && (
-          <div className="explica">Todavía no hay convocatorias abiertas. Cuando haya una feria o un pedido grande, aparece aquí.</div>
+        {cargando && <Cargando />}
+        {!cargando && !abiertas.length && (
+          <p className="revista-vacio">
+            No hay convocatorias abiertas en esta edición. Cuando se abra una feria, un pedido grande o un taller, lo vas a ver acá primero.
+          </p>
         )}
-        {datos?.oportunidades?.map((o) => (
-          <TarjetaOportunidad key={o.id} o={o} apuntado={datos.mios.includes(o.id)} perfil={perfil} alCambiar={recargar} />
-        ))}
+
+        <ol className="revista-lista">
+          {abiertas.map((o, i) => (
+            <TarjetaOportunidad
+              key={o.id}
+              o={o}
+              numero={i + 1}
+              apuntado={datos.mios.includes(o.id)}
+              perfil={perfil}
+              alCambiar={recargar}
+            />
+          ))}
+        </ol>
       </section>
 
-      {/* Postulación */}
-      <section className="ficha__seccion">
-        <h2 className="subtitulo">✍️ Sal en la revista</h2>
-        <button className="escalemos-tarjeta" style={{ '--c': '#0e8a8a', '--c-claro': '#daf3f2' }} onClick={() => ir('/escalemos/revista')}>
-          <span className="escalemos-tarjeta__icono">📰</span>
-          <span className="escalemos-tarjeta__texto">
-            <strong>{datos?.postulacion ? 'Tu postulación' : 'Postula tu emprendimiento'}</strong>
-            <small>
-              {datos?.postulacion
-                ? ESTADOS[datos.postulacion.estado].nombre
-                : 'Mostramos emprendimientos de la red en cada edición'}
-            </small>
-          </span>
-          <span className="apartado__flecha">→</span>
-        </button>
+      <section className="revista-seccion">
+        <TituloSeccion>En esta edición</TituloSeccion>
+        <article className="revista-llamado">
+          <p className="revista-llamado__kicker">Postulaciones abiertas</p>
+          <h2 className="revista-llamado__titulo">
+            {datos?.postulacion ? 'Ya postulaste tu emprendimiento' : '¿Quieres que tu emprendimiento salga en la revista?'}
+          </h2>
+          <p className="revista-llamado__texto">
+            {datos?.postulacion
+              ? ESTADOS[datos.postulacion.estado]?.detalle ?? 'El equipo está revisando tu postulación.'
+              : 'En cada edición contamos la historia de emprendimientos de la red: qué hacen, cómo empezaron y dónde encontrarlos. Postular es gratis y toma dos minutos.'}
+          </p>
+          <button className="btn-editorial btn-editorial--claro" onClick={() => ir('/escalemos/revista')}>
+            {datos?.postulacion ? 'Ver mi postulación' : 'Postular mi emprendimiento'}
+          </button>
+        </article>
       </section>
-
     </Marco>
   )
 }
 
-// Una convocatoria con su botón de "Me interesa"; se usa en la revista y en la lista completa.
-function TarjetaOportunidad({ o, apuntado, perfil, alCambiar }) {
+// La cabecera de la revista: sello, nombre en serif y el número de la edición.
+function Portada({ edicion }) {
+  return (
+    <header className="revista-portada">
+      <p className="revista-portada__sello">Red de apoyo a emprendimientos</p>
+      <h1 className="revista-portada__nombre">Revista ESCALA</h1>
+      <div className="revista-portada__regla" aria-hidden="true" />
+      <p className="revista-portada__edicion">{edicion}</p>
+    </header>
+  )
+}
+
+function TituloSeccion({ children }) {
+  return (
+    <h2 className="revista-seccion__titulo">
+      <span>{children}</span>
+      <i aria-hidden="true" />
+    </h2>
+  )
+}
+
+const MESES_EDICION = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+]
+
+// "Edición de septiembre de 2026": la revista se arma mes a mes.
+function edicionDe(fecha) {
+  const [anio, mes] = fecha.split('-').map(Number)
+  return `Edición de ${MESES_EDICION[mes - 1]} de ${anio} · Arequipa`
+}
+
+// Una convocatoria, contada como una nota de revista: antetítulo, titular y bajada.
+function TarjetaOportunidad({ o, numero, apuntado, perfil, alCambiar }) {
   const [ocupado, setOcupado] = useState(false)
   const tipo = TIPOS_OPORTUNIDAD[o.tipo] ?? TIPOS_OPORTUNIDAD.convocatoria
   const dias = o.fecha_limite ? diasHasta(o.fecha_limite) : null
+  const urgente = dias != null && dias <= 3
 
   const alternar = async () => {
     setOcupado(true)
@@ -98,29 +142,32 @@ function TarjetaOportunidad({ o, apuntado, perfil, alCambiar }) {
   }
 
   return (
-    <article className="oportunidad" style={{ '--c': tipo.color }}>
-      <div className="oportunidad__cabeza">
-        <span className="fecha-clave__emoji">{o.emoji ?? tipo.emoji}</span>
-        <span className="fecha-clave__texto">
-          <strong>{o.titulo}</strong>
-          <small>
-            {tipo.nombre}
-            {o.lugar ? ` · ${o.lugar}` : ''}
-            {dias != null ? ` · ${dias <= 0 ? 'último día' : `quedan ${dias} días`}` : ''}
-          </small>
-        </span>
-      </div>
-      <p className="oportunidad__detalle">{o.detalle}</p>
+    <li className="revista-nota">
+      <p className="revista-nota__antetitulo">
+        {numero != null && <span className="revista-nota__numero">{String(numero).padStart(2, '0')}</span>}
+        {tipo.nombre}
+        {o.lugar ? ` · ${o.lugar}` : ''}
+      </p>
+      <h3 className="revista-nota__titular">{o.titulo}</h3>
+      <p className="revista-nota__bajada">{o.detalle}</p>
+
+      {dias != null && (
+        <p className={`revista-nota__plazo${urgente ? ' revista-nota__plazo--urgente' : ''}`}>
+          {dias <= 0 ? 'Cierra hoy' : dias === 1 ? 'Cierra mañana' : `Cierra en ${dias} días`}
+        </p>
+      )}
+
       {o.enlace && (
-        <a className="enlace" href={o.enlace} target="_blank" rel="noopener noreferrer">
-          Ver más información →
+        <a className="revista-nota__enlace" href={o.enlace} target="_blank" rel="noopener noreferrer">
+          Más información
         </a>
       )}
-      <button className={`btn ${apuntado ? 'btn--suave' : 'btn--principal'}`} disabled={ocupado} onClick={alternar}>
-        {ocupado ? 'Un momento…' : apuntado ? '✓ Te vamos a escribir · quitar' : 'Me interesa'}
+
+      <button className={`btn-editorial${apuntado ? ' btn-editorial--hecho' : ''}`} disabled={ocupado} onClick={alternar}>
+        {ocupado ? 'Un momento…' : apuntado ? 'Anotado · quitar' : 'Me interesa'}
       </button>
-      {apuntado && <small className="texto-suave">El equipo de ESCALA ya vio que te apuntaste y te escribirá por WhatsApp.</small>}
-    </article>
+      {apuntado && <p className="revista-nota__aviso">El equipo de ESCALA ya vio que te apuntaste y te va a escribir por WhatsApp.</p>}
+    </li>
   )
 }
 
@@ -138,9 +185,11 @@ export function Oportunidades({ perfil }) {
       {!cargando && !datos?.lista?.length && (
         <div className="explica">Todavía no hay convocatorias publicadas.</div>
       )}
-      {datos?.lista?.map((o) => (
-        <TarjetaOportunidad key={o.id} o={o} apuntado={datos.mios.includes(o.id)} perfil={perfil} alCambiar={recargar} />
-      ))}
+      <ol className="revista-lista">
+        {datos?.lista?.map((o, i) => (
+          <TarjetaOportunidad key={o.id} o={o} numero={i + 1} apuntado={datos.mios.includes(o.id)} perfil={perfil} alCambiar={recargar} />
+        ))}
+      </ol>
     </Marco>
   )
 }
