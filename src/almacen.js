@@ -203,6 +203,53 @@ function crearSupabase() {
       ok(await sb.from('eco_canjes').insert({ premio, puntos }))
     },
 
+
+    // ---------- Panel del equipo ----------
+    async soyAdmin() {
+      const { data, error } = await sb.from('admins').select('user_id').maybeSingle()
+      return !error && !!data
+    },
+    async equipoPersonas() {
+      const { data, error } = await sb.rpc('personas_del_equipo')
+      if (error) return []
+      return data ?? []
+    },
+    async equipoInteresados() {
+      const { data, error } = await sb
+        .from('interesados')
+        .select('id, oportunidad_id, nombre, emprendimiento, creado_at')
+        .order('creado_at', { ascending: false })
+      if (error) return []
+      return data ?? []
+    },
+    async equipoPostulaciones() {
+      const { data, error } = await sb.from('postulaciones').select('*').order('creado_at', { ascending: false })
+      if (error) return []
+      return data ?? []
+    },
+    async equipoResponderPostulacion(id, cambio) {
+      ok(await sb.from('postulaciones').update(cambio).eq('id', id))
+    },
+    async equipoCrearOportunidad(fila) {
+      ok(await sb.from('oportunidades').insert(fila))
+    },
+    async equipoCerrarOportunidad(id) {
+      ok(await sb.from('oportunidades').update({ activa: false }).eq('id', id))
+    },
+    async equipoCrearJornada(fila) {
+      ok(await sb.from('eco_jornadas').insert(fila))
+    },
+    async equipoRegistrarEntrega(fila) {
+      ok(await sb.from('eco_entregas').insert(fila))
+    },
+    async equipoCanjes() {
+      const { data, error } = await sb.from('eco_canjes').select('*').order('creado_at', { ascending: false })
+      if (error) return []
+      return data ?? []
+    },
+    async equipoEntregarCanje(id) {
+      ok(await sb.from('eco_canjes').update({ estado: 'entregado' }).eq('id', id))
+    },
     // Conteo anónimo de uso. Si la tabla no existe o falla, se ignora: nunca debe molestar a la persona.
     async registrarEvento(fila) {
       try {
@@ -388,6 +435,51 @@ function crearLocal() {
       escribir('escala:prueba:canjes', [{ id: nuevoId(), premio, puntos, estado: 'pedido', creado_at: new Date().toISOString() }, ...actuales])
     },
 
+
+    // ---------- Panel del equipo en modo prueba ----------
+    // Para probarlo: localStorage.setItem('escala:prueba:admin', '1') y recargar.
+    async soyAdmin() {
+      return localStorage.getItem('escala:prueba:admin') === '1'
+    },
+    async equipoPersonas() {
+      return [
+        { user_id: 'u1', nickname: 'Rosa', emprendimiento: 'Confecciones Rosita', rubro: 'costura' },
+        { user_id: 'u2', nickname: 'José', emprendimiento: 'Taller Don José', rubro: 'soldadura' },
+      ]
+    },
+    async equipoInteresados() {
+      return [
+        { id: 'i1', oportunidad_id: 'op1', nombre: 'Rosa', emprendimiento: 'Confecciones Rosita', creado_at: new Date().toISOString() },
+        { id: 'i2', oportunidad_id: 'op1', nombre: 'José', emprendimiento: 'Taller Don José', creado_at: new Date().toISOString() },
+      ]
+    },
+    async equipoPostulaciones() {
+      const mia = leer('escala:prueba:postulacion', null)
+      return mia ? [{ id: 'p1', ...mia }] : []
+    },
+    async equipoResponderPostulacion(id, cambio) {
+      const mia = leer('escala:prueba:postulacion', null)
+      if (mia) escribir('escala:prueba:postulacion', { ...mia, ...cambio })
+    },
+    async equipoCrearOportunidad(fila) {
+      const actuales = await this.oportunidades()
+      escribir('escala:prueba:oportunidades', [{ ...fila, id: nuevoId() }, ...actuales])
+    },
+    async equipoCerrarOportunidad(id) {
+      const actuales = await this.oportunidades()
+      escribir('escala:prueba:oportunidades', actuales.filter((o) => o.id !== id))
+    },
+    async equipoCrearJornada() {},
+    async equipoRegistrarEntrega(fila) {
+      const actuales = leer('escala:prueba:entregas', [])
+      escribir('escala:prueba:entregas', [{ ...fila, id: nuevoId(), creado_at: new Date().toISOString() }, ...actuales])
+    },
+    async equipoCanjes() {
+      return leer('escala:prueba:canjes', [])
+    },
+    async equipoEntregarCanje(id) {
+      escribir('escala:prueba:canjes', leer('escala:prueba:canjes', []).map((c) => (c.id === id ? { ...c, estado: 'entregado' } : c)))
+    },
     async registrarEvento() {
       // En modo prueba no se cuenta nada.
     },

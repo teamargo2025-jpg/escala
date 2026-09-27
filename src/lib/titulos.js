@@ -11,6 +11,7 @@ const SUELTOS = {
   legal: 'Información legal',
   escalemos: 'Revista ESCALA',
   eco: 'EcoEscala',
+  equipo: 'Panel del equipo',
 }
 
 export function tituloDe(ruta) {

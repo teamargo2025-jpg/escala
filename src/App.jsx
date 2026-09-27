@@ -21,6 +21,7 @@ import { Asesores } from './pantallas/asesores.jsx'
 import { Legal } from './pantallas/legal.jsx'
 import { CalendarioMarca, ContenidoMarca, IdentidadMarca, Marca } from './pantallas/marca.jsx'
 import { EcoEscala, Escalemos, Oportunidades, PublicarSobrante, Revista, Sobrantes } from './pantallas/escalemos.jsx'
+import { Equipo } from './pantallas/equipo.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
@@ -98,6 +99,12 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     if (ruta.length) setUltimoHecho(null)
   }, [ruta.length])
 
+  // Las cuentas del equipo ven una pestaña más; el resto ni se entera.
+  const [esEquipo, setEsEquipo] = useState(false)
+  useEffect(() => {
+    almacen.soyAdmin?.().then(setEsEquipo, () => setEsEquipo(false))
+  }, [])
+
   const tema = perfil?.datos?.tema ?? TEMA_POR_DEFECTO
   useEffect(() => {
     aplicarTema(tema)
@@ -151,7 +158,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   const conBarra = (contenido, activa) => (
     <>
       <div className="con-barra">{contenido}</div>
-      <BarraInferior activa={activa} />
+      <BarraInferior activa={activa} esEquipo={esEquipo} />
     </>
   )
 
@@ -205,6 +212,11 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   if (seccion === 'educacion') {
     if (!sub) return conBarra(<Educacion {...comunes} />, 'inicio')
     return <Leccion key={sub} id={sub} {...comunes} />
+  }
+
+  if (seccion === 'equipo') {
+    if (!esEquipo) return <Redirigir a="/" />
+    return conBarra(<Equipo guardado={guardado} />, 'equipo')
   }
 
   if (seccion === 'eco') {

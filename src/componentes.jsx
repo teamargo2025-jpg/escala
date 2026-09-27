@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { num, soles, totalMarcado } from './lib/calc.js'
 import { ir, reemplazar } from './negocio.js'
-import { PESTANAS } from './lib/apartados.js'
+import { PESTANAS, PESTANA_EQUIPO } from './lib/apartados.js'
 
 export function Redirigir({ a }) {
   useEffect(() => {
@@ -278,10 +278,11 @@ export function Cifra({ etiqueta, valor, nota, tono }) {
 }
 
 // Barra de abajo: cambia de pantalla sin tener que bajar hasta el final de la lista.
-export function BarraInferior({ activa }) {
+export function BarraInferior({ activa, esEquipo }) {
+  const pestanas = esEquipo ? [...PESTANAS, PESTANA_EQUIPO] : PESTANAS
   return (
     <nav className="barra-abajo" aria-label="Secciones">
-      {PESTANAS.map((p) => (
+      {pestanas.map((p) => (
         <button
           key={p.id}
           className={`pestana${p.id === activa ? ' pestana--activa' : ''}`}

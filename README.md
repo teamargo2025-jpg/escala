@@ -27,6 +27,8 @@ Sin `.env.local` la app corre en **modo prueba**: las cuentas se guardan solo en
 
 7. **Escalemos y EcoEscala:** SQL Editor → pegar [supabase/003_escalemos.sql](supabase/003_escalemos.sql) → Run. Trae dos oportunidades y una jornada de ejemplo para que no se vea vacío; bórralas o edítalas desde Table Editor.
 
+8. **Cuentas de equipo (marketing):** SQL Editor → pegar [supabase/004_equipo.sql](supabase/004_equipo.sql) → Run. Después, cada persona del equipo crea su cuenta normal en la app, copias su UID desde Authentication → Users y la agregas a la tabla `admins`. Con eso le aparece la pestaña 🛠️ Equipo.
+
 **Comprobar que todo quedó bien:** `npm run probar:supabase` crea dos cuentas de prueba y revisa registro, entrada, guardado y que ninguna cuenta vea datos ajenos. Luego bórralas en Authentication → Users (empiezan con `pruebaescala`).
 
 **Pendiente antes del piloto:** completar en `src/data/legal.js` el nombre de la institución responsable y su correo de contacto (aparecen entre corchetes).

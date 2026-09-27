@@ -21,12 +21,16 @@ export const PESTANAS = [
   { id: 'eco', ruta: '/eco', nombre: 'EcoEscala', icono: '🌱' },
 ]
 
+// Pestaña extra, solo para las cuentas del equipo (tabla admins en Supabase).
+export const PESTANA_EQUIPO = { id: 'equipo', ruta: '/equipo', nombre: 'Equipo', icono: '🛠️' }
+
 // Qué pestaña se pinta activa según dónde está la persona.
 export function pestanaDe(seccion) {
   if (!seccion) return 'inicio'
   if (seccion === 'marca') return 'marca'
   if (seccion === 'escalemos') return 'escalemos'
   if (seccion === 'eco') return 'eco'
+  if (seccion === 'equipo') return 'equipo'
   if (seccion === 'educacion') return 'inicio'
   if (seccion === 'negocio') return 'negocio'
   const g = APARTADO[seccion]?.grupo
