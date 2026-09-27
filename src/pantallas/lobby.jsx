@@ -37,6 +37,8 @@ function detalleApartado(id, n, r, movimientos, datos) {
       const bajos = porAcabarse(mats).filter((m) => contados.has(m.id)).length
       return `${mats.length} materiales${bajos ? ` · ⚠️ ${bajos} por acabarse` : ''}`
     }
+    case 'creditos':
+      return 'Cuánto te costaría un préstamo de verdad'
     case 'costeo': {
       const productos = datos.productos ?? []
       if (!productos.length) return ''

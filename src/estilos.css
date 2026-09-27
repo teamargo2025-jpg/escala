@@ -839,3 +839,34 @@ h1, h2, p { margin: 0; }
 }
 .aviso-borrado ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
 .aviso-borrado__nota { color: var(--tinta-2); font-size: 14px; }
+
+/* ---------- Simulador de crédito ---------- */
+.creditos { display: grid; gap: 12px; }
+.credito {
+  background: var(--papel); border: 1px solid var(--linea); border-radius: 16px; padding: 14px 16px;
+  display: grid; gap: 10px;
+}
+.credito--mejor { border-color: var(--verde); border-width: 2px; }
+.credito--ejemplo { border-style: dashed; }
+.credito__cabeza { display: flex; align-items: flex-start; gap: 10px; }
+.credito__cabeza > div { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.credito__cabeza small { color: var(--tinta-3); font-size: 13px; }
+.credito__sello {
+  flex: none; background: var(--verde-claro); color: var(--verde); border-radius: 999px;
+  padding: 4px 10px; font-size: 12px; font-weight: 800;
+}
+.credito__numeros {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: baseline;
+  border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); padding: 10px 0;
+}
+.credito__numeros span { color: var(--tinta-2); font-size: 15px; }
+.credito__numeros strong { font-size: 17px; text-align: right; }
+.credito__frase { font-size: 15px; color: var(--tinta-2); }
+.credito__caro { font-size: 14px; color: var(--rojo); font-weight: 700; }
+.credito__nota { font-size: 13px; color: var(--tinta-3); line-height: 1.4; }
+.credito__esfuerzo { font-size: 15px; line-height: 1.45; border-radius: 12px; padding: 10px 12px; background: var(--pista); }
+.credito__esfuerzo--alcanza { background: var(--verde-claro); }
+.credito__esfuerzo--ajustado { background: var(--ambar-claro); }
+.credito__esfuerzo--no_alcanza { background: var(--rojo-claro); }
+.credito-nuevo { display: grid; gap: 12px; background: var(--pista); border-radius: 16px; padding: 14px; }
+.credito-nuevo__botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

@@ -16,6 +16,7 @@ import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.
 import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
 import { Inventario, Material, MovimientoInventario } from './pantallas/inventario.jsx'
 import { Costeo, FichaProducto } from './pantallas/costeo.jsx'
+import { Creditos } from './pantallas/creditos.jsx'
 import { Educacion, Leccion } from './pantallas/educacion.jsx'
 import { Asesores } from './pantallas/asesores.jsx'
 import { Legal } from './pantallas/legal.jsx'
@@ -210,6 +211,8 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     if (sub === 'material' && ruta[2]) return <Material key={ruta[2]} id={ruta[2]} {...props} />
     if (['compra', 'uso', 'conteo'].includes(sub)) return <MovimientoInventario key={sub} tipo={sub} {...props} />
   }
+
+  if (seccion === 'creditos') return <Creditos {...comunes} />
 
   if (seccion === 'costeo') {
     if (!sub) return <Costeo {...comunes} />

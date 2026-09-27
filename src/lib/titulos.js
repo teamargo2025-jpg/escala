@@ -9,6 +9,7 @@ const SUELTOS = {
   asesores: 'Hablar con un asesor',
   negocio: 'Tu negocio día a día',
   negocios: 'Mis emprendimientos',
+  creditos: 'Simulador de crédito',
   legal: 'Información legal',
   escalemos: 'Revista ESCALA',
   eco: 'EcoEscala',
