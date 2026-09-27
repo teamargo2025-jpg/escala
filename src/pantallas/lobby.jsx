@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { rubroDe } from '../data/rubros.js'
 import { MESES_FLUJO } from '../config.js'
-import { APARTADO, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
+import { APARTADO, ETAPAS, GRUPOS, destinoDisponible, estadoApartados } from '../lib/apartados.js'
 import { LECCIONES } from '../data/educacion.js'
 import { costoProducto, porAcabarse } from '../lib/inventario.js'
 import { seccionesResumen } from '../lib/resumen.js'
@@ -104,7 +104,7 @@ export function compartirTexto(texto) {
 
 export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAviso }) {
   const r = rubroDe(perfil)
-  const { lista, siguiente, planCompleto } = estadoApartados(perfil.datos.hechos)
+  const { lista, siguiente, planCompleto } = estadoApartados(perfil.datos.hechos, perfil.datos.etapa)
   const hechos = perfil.datos.hechos
   const caja = resumenMes(movimientos, mesDe(hoy()))
   const hayAlgo = Object.values(hechos).some(Boolean) || movimientos.length > 0
@@ -213,6 +213,23 @@ export function Lobby({ perfil, n, movimientos, guardado, ultimoHecho, cerrarAvi
                   onAbrir={() => ir(`/${destinoDisponible(lista, a.id)}`)}
                 />
               ))}
+            {g.id === 'plan' &&
+              lista
+                .filter((a) => a.grupo === 'opcional')
+                .map((a) => (
+                  <button key={a.id} className="apartado-extra" onClick={() => ir(`/${a.id}`)}>
+                    <span className="rubro__emoji">{a.emoji}</span>
+                    <span>
+                      <small>Si quieres</small>
+                      <strong>
+                        {a.estado === 'hecho'
+                          ? `${a.nombre}: ya lo calculaste`
+                          : 'Calcular lo que ya invertiste en tu negocio'}
+                      </strong>
+                    </span>
+                    <span className="apartado__flecha">→</span>
+                  </button>
+                ))}
           </section>
         ))}
 
@@ -285,6 +302,25 @@ export function Perfil({ perfil, cambiarPerfil, despachar, onSalir }) {
         </span>
         <span className="apartado__flecha">→</span>
       </button>
+
+      <div>
+        <span className="campo__etiqueta">¿Cómo está tu negocio?</span>
+        <div className="chips chips--dos">
+          {ETAPAS.map((e) => {
+            const elegida = (perfil.datos.etapa ?? 'nuevo') === e.id
+            return (
+              <button
+                key={e.id}
+                className={`chip${elegida ? ' chip--activo' : ''}`}
+                aria-pressed={elegida}
+                onClick={() => despachar({ tipo: 'campo', campo: 'etapa', valor: e.id })}
+              >
+                {e.emoji} {e.nombre}
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
       <button className="fila-opcion" onClick={() => ir('/perfil/rubro')}>
         <span className="rubro__emoji">{r.emoji}</span>
@@ -434,7 +470,7 @@ function TarjetaApartado({ apartado: a, esSiguiente, detalle, onAbrir }) {
 // Los apartados de un grupo: es lo que muestra la pestaña "Negocio".
 export function GrupoApartados({ perfil, n, movimientos, guardado, grupo, titulo }) {
   const r = rubroDe(perfil)
-  const { lista, siguiente } = estadoApartados(perfil.datos.hechos)
+  const { lista, siguiente } = estadoApartados(perfil.datos.hechos, perfil.datos.etapa)
   return (
     <div className="pantalla-grupo">
       <header className="lobby__cabeza lobby__cabeza--corta">

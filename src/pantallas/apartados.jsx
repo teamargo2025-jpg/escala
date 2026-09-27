@@ -17,15 +17,33 @@ const marcoDe = (id, guardado, extra) => ({
 })
 
 export function Presupuesto({ datos, despachar, terminar, guardado }) {
+  // Quien ya está vendiendo no está planeando una compra: está anotando lo que ya puso.
+  const andando = datos.etapa === 'andando'
   return (
     <Marco {...marcoDe('presupuesto', guardado)} pie={<BotonSiguiente onClick={() => terminar('presupuesto')}>Listo</BotonSiguiente>}>
-      <Pregunta sub="Marca lo que te falta comprar y pon cuánto cuesta.">¿Qué necesitas para empezar?</Pregunta>
+      <Pregunta sub={andando ? 'Marca lo que compraste y pon cuánto te costó.' : 'Marca lo que te falta comprar y pon cuánto cuesta.'}>
+        {andando ? '¿Qué compraste para tu negocio?' : '¿Qué necesitas para empezar?'}
+      </Pregunta>
       <Ayuda>
-        Piensa en lo que tienes que <strong>comprar una sola vez</strong> antes de tu primera venta: máquinas,
-        herramientas, muebles y los primeros materiales. <br />
-        Si ya tienes algo, <strong>no lo marques</strong>. Si ya tienes todo, toca "Listo" sin marcar nada.
+        {andando ? (
+          <>
+            Lo que <strong>compraste una sola vez</strong> para trabajar: máquinas, herramientas, muebles. <br />
+            Pon lo que te costó, aunque haya sido hace tiempo. Sirve para saber cuánto de eso ya recuperaste.
+          </>
+        ) : (
+          <>
+            Piensa en lo que tienes que <strong>comprar una sola vez</strong> antes de tu primera venta: máquinas,
+            herramientas, muebles y los primeros materiales. <br />
+            Si ya tienes algo, <strong>no lo marques</strong>. Si ya tienes todo, toca "Listo" sin marcar nada.
+          </>
+        )}
       </Ayuda>
-      <ListaItems items={datos.arranque} lista="arranque" despachar={despachar} textoTotal="Necesitas para arrancar" />
+      <ListaItems
+        items={datos.arranque}
+        lista="arranque"
+        despachar={despachar}
+        textoTotal={andando ? 'Tienes invertido' : 'Necesitas para arrancar'}
+      />
       <Aprende termino="inversión inicial">Es el dinero que pones al principio para que tu negocio funcione.</Aprende>
     </Marco>
   )

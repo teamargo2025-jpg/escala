@@ -12,6 +12,12 @@ import { LECCIONES } from './data/educacion.js'
 const desdeSugerencias = (lista) =>
   lista.map((s) => ({ id: nuevoId(), nombre: s.nombre, sugerido: s.precio, ayuda: s.ayuda, precio: '', marcado: false }))
 
+// Si ya hay algo cargado no tiene sentido preguntarle en qué etapa está: que siga.
+export const negocioEmpezado = (d) =>
+  Object.values(d?.hechos ?? {}).some(Boolean) ||
+  (d?.productos?.length ?? 0) > 0 ||
+  (d?.inventario?.materiales?.length ?? 0) > 0
+
 export function datosIniciales(rubroId, rubroPropio) {
   const r = RUBROS[rubroId] ?? rubroPropio
   return {

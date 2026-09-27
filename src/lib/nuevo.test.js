@@ -33,6 +33,31 @@ test('apartados: dependencias y siguiente sugerido', () => {
   assert.equal(e.planCompleto, true)
 })
 
+test('con el negocio andando el plan empieza en costos y el presupuesto queda opcional', () => {
+  const e = estadoApartados({}, 'andando')
+  assert.equal(e.siguiente, 'costos')
+  const presupuesto = e.lista.find((a) => a.id === 'presupuesto')
+  assert.equal(presupuesto.grupo, 'opcional')
+  assert.equal(presupuesto.estado, 'disponible') // se puede abrir, pero no estorba
+  // Los pasos se renumeran: costos 1, precio 2, meta 3, flujo 4.
+  assert.deepEqual(
+    e.lista.filter((a) => a.grupo === 'plan').map((a) => [a.id, a.numero]),
+    [['costos', 1], ['precio', 2], ['meta', 3], ['flujo', 4]],
+  )
+  // El flujo ya no espera al presupuesto.
+  const conPrecio = estadoApartados({ costos: true, precio: true, meta: true }, 'andando')
+  assert.equal(conPrecio.lista.find((a) => a.id === 'flujo').estado, 'disponible')
+  assert.equal(estadoApartados({ costos: true, precio: true, meta: true, flujo: true }, 'andando').planCompleto, true)
+})
+
+test('sin etapa, o recién empezando, el plan es el de siempre', () => {
+  for (const etapa of [undefined, 'nuevo']) {
+    const e = estadoApartados({}, etapa)
+    assert.equal(e.siguiente, 'presupuesto')
+    assert.equal(e.lista.find((a) => a.id === 'presupuesto').grupo, 'plan')
+  }
+})
+
 test('caja: saldo, mes y agrupado por día', () => {
   const movs = [
     { fecha: '2026-09-14', tipo: 'entrada', monto: '66', unidades: 3, created_at: '1' },

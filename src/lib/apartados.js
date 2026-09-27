@@ -53,6 +53,34 @@ export const APARTADOS = [
 
 export const APARTADO = Object.fromEntries(APARTADOS.map((a) => [a.id, a]))
 
+// Dos formas de llegar a ESCALA: con el negocio en la cabeza, o con el negocio ya vendiendo.
+export const ETAPAS = [
+  {
+    id: 'nuevo',
+    emoji: '🌱',
+    nombre: 'Recién voy a empezar',
+    detalle: 'Todavía no vendo. Quiero saber cuánto necesito y a qué precio vender.',
+  },
+  {
+    id: 'andando',
+    emoji: '🏪',
+    nombre: 'Ya estoy vendiendo',
+    detalle: 'Ya tengo mi negocio. Quiero saber si estoy ganando y ordenar mis números.',
+  },
+]
+
+// Con el negocio andando, el presupuesto de arranque no es el primer paso: ya compró sus cosas.
+// Queda disponible como apartado opcional, por si quiere calcular lo que ya invirtió.
+export function apartadosDe(etapa) {
+  if (etapa !== 'andando') return APARTADOS
+  return APARTADOS.map((a) => {
+    if (a.id === 'presupuesto') return { ...a, grupo: 'opcional', numero: null }
+    if (a.id === 'flujo') return { ...a, numero: 4, requiere: ['precio'] }
+    if (a.grupo === 'plan') return { ...a, numero: a.numero - 1 }
+    return a
+  })
+}
+
 // Si un apartado está bloqueado, el primero de sus requisitos que sí se puede hacer.
 export function destinoDisponible(lista, id) {
   const a = lista.find((x) => x.id === id)
@@ -60,8 +88,8 @@ export function destinoDisponible(lista, id) {
 }
 
 // estado: 'hecho' | 'disponible' | 'bloqueado'. `siguiente` es el apartado del plan que se sugiere hacer ahora.
-export function estadoApartados(hechos = {}) {
-  const lista = APARTADOS.map((a) => {
+export function estadoApartados(hechos = {}, etapa) {
+  const lista = apartadosDe(etapa).map((a) => {
     const faltan = a.requiere.filter((r) => !hechos[r])
     const estado = hechos[a.id] ? 'hecho' : faltan.length ? 'bloqueado' : 'disponible'
     return { ...a, estado, faltan: faltan.map((f) => APARTADO[f]) }

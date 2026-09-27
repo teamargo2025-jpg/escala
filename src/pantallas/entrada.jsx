@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { EMOJIS_RUBRO, LISTA_RUBROS, RUBROS, crearRubro } from '../data/rubros.js'
 import { almacen, MENSAJES_ERROR, MODO_PRUEBA } from '../almacen.js'
 import { registrar } from '../lib/analitica.js'
+import { ETAPAS } from '../lib/apartados.js'
 import { ir, reemplazar, volver } from '../negocio.js'
 import {
   limpiarDocumento, limpiarTexto, validarApodo, validarDocumento, validarEmprendimiento,
@@ -21,7 +22,7 @@ export function Bienvenida() {
       <header className="portada__alto">
         <img className="portada__logo" src="/icono-192.png" width="192" height="192" alt="ESCALA, red de apoyo a emprendimientos" />
         <h1>Saca las cuentas de tu negocio</h1>
-        <p>Paso a paso, con ejemplos de tu oficio.</p>
+        <p>Si recién empiezas o si ya estás vendiendo. Paso a paso, con ejemplos de tu oficio.</p>
       </header>
 
       <main className="portada__cuerpo">
@@ -246,6 +247,30 @@ export function Entrar({ form, setForm, alEntrar }) {
       <button className="btn btn--texto" onClick={() => ir('/crear/nombre')}>
         No tengo cuenta: crear una
       </button>
+    </Marco>
+  )
+}
+
+
+// ---------- ¿Tu negocio ya está andando? Se pregunta una sola vez ----------
+export function ElegirEtapa({ nombre, onElegir }) {
+  return (
+    <Marco titulo="Tu negocio">
+      <Pregunta sub="Con tu respuesta acomodamos los pasos. Lo puedes cambiar después desde Mi cuenta.">
+        {nombre ? `${nombre}, ¿cómo está tu negocio hoy?` : '¿Cómo está tu negocio hoy?'}
+      </Pregunta>
+      <div className="rubros">
+        {ETAPAS.map((e) => (
+          <button key={e.id} className="rubro rubro--etapa" onClick={() => onElegir(e.id)}>
+            <span className="rubro__emoji">{e.emoji}</span>
+            <span className="rubro__nombre">
+              {e.nombre}
+              <small>{e.detalle}</small>
+            </span>
+            <span className="rubro__flecha">→</span>
+          </button>
+        ))}
+      </div>
     </Marco>
   )
 }

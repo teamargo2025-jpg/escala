@@ -7,10 +7,10 @@ import { almacen, MENSAJES_ERROR } from './almacen.js'
 import { destinoDisponible, estadoApartados, pestanaDe } from './lib/apartados.js'
 import { validarApodo, validarEmprendimiento } from './lib/cuenta.js'
 import {
-  datosIniciales, datosVersionAnterior, irAlInicio, olvidarVersionAnterior, reemplazar, useNegocio, useRuta, volver,
+  datosIniciales, datosVersionAnterior, irAlInicio, negocioEmpezado, olvidarVersionAnterior, reemplazar, useNegocio, useRuta, volver,
 } from './negocio.js'
 import { BarraInferior, Logo, Redirigir } from './componentes.jsx'
-import { Bienvenida, Crear, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
+import { Bienvenida, Crear, ElegirEtapa, ElegirRubro, Entrar } from './pantallas/entrada.jsx'
 import { GrupoApartados, Lobby, Perfil } from './pantallas/lobby.jsx'
 import { Costos, Flujo, Meta, Precio, Presupuesto } from './pantallas/apartados.jsx'
 import { Caja, NuevoMovimiento } from './pantallas/caja.jsx'
@@ -151,6 +151,12 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   }
 
   const r = rubroDe(perfil)
+
+  // Falta saber si el negocio ya está andando. Solo se pregunta si todavía no hay nada cargado.
+  if (!perfil.datos?.etapa && !negocioEmpezado(perfil.datos)) {
+    return <ElegirEtapa nombre={usuario.nickname} onElegir={(etapa) => despachar({ tipo: 'campo', campo: 'etapa', valor: etapa })} />
+  }
+
   const comunes = { datos: perfil.datos, despachar, terminar, guardado, perfil, r, n }
   const [seccion, sub] = ruta
 
@@ -184,7 +190,7 @@ function ConCuenta({ usuario, ruta, onSalir }) {
   }
 
   if (APARTADOS_PLAN[seccion]) {
-    const destino = destinoDisponible(estadoApartados(perfil.datos.hechos).lista, seccion)
+    const destino = destinoDisponible(estadoApartados(perfil.datos.hechos, perfil.datos.etapa).lista, seccion)
     if (destino !== seccion) return <Redirigir a={`/${destino}`} />
     const Pantalla = APARTADOS_PLAN[seccion]
     return <Pantalla key={seccion + (sub ?? '')} paso={sub} {...comunes} />
