@@ -11,7 +11,7 @@ import { Marco } from '../componentes.jsx'
 // movimiento" en su celular lo ve quieto.
 const CASCOS = {
   obra: { claro: '#f2a917', oscuro: '#d98e08' },
-  eco: { claro: '#1f8a5b', oscuro: '#176b47' },
+  eco: { claro: '#3ed693', oscuro: '#1f8a5b' },
 }
 
 function Fiel({ casco = 'obra', lleva = 'martillo' }) {
@@ -148,8 +148,8 @@ export function EcoPronto({ guardado }) {
   const materiales = Object.values(MATERIALES)
   return (
     <Marco titulo="EcoEscala" emoji="🌱" guardado={guardado} onAtras={() => volver('/')}>
-      <Fiel casco="eco" lleva="reciclaje" />
-
+      {/* El texto primero y Fiel cerrando la tarjeta: se lee el mensaje y después
+          aparece quién lo dice. Al revés, el dibujo se come el titular. */}
       <div className="eco-pronto">
         <p className="eco-pronto__kicker">Muy pronto</p>
         <h1 className="eco-pronto__titulo">Empieza a juntar desde hoy</h1>
@@ -157,6 +157,7 @@ export function EcoPronto({ guardado }) {
           Lo que hoy botas del taller sirve. Separa y guarda lo que te sobre: cuando abramos EcoEscala,{' '}
           <strong>lo que hayas juntado va a valer</strong>.
         </p>
+        <Fiel casco="eco" lleva="reciclaje" />
       </div>
 
       <h2 className="subtitulo">Guarda esto</h2>

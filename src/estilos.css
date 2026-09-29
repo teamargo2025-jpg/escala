@@ -888,11 +888,16 @@ h1, h2, p { margin: 0; }
 .obras .btn { margin-top: 8px; max-width: 320px; }
 
 .eco-pronto {
-  background: var(--superficie-marca); color: #fff; border-radius: 20px; padding: 22px 20px; display: grid; gap: 8px;
+  background: linear-gradient(165deg, #22a06b 0%, #12674a 100%); color: #fff;
+  border-radius: 20px; padding: 22px 20px 4px; display: grid; gap: 8px; justify-items: center; text-align: center;
 }
-.eco-pronto__kicker { font-size: 11px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acento); }
-.eco-pronto__titulo { font-size: 27px; font-weight: 900; line-height: 1.12; }
-.eco-pronto__texto { font-size: 16px; line-height: 1.5; color: var(--sobre-oscuro); }
+.eco-pronto .obras__perro {
+  width: 142px; height: 124px; margin-top: 4px;
+  background: radial-gradient(circle at 50% 56%, rgba(255, 255, 255, 0.16) 0 47%, transparent 48%);
+}
+.eco-pronto__kicker { font-size: 11px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: #a7e8c8; }
+.eco-pronto__titulo { font-size: 25px; font-weight: 900; line-height: 1.12; max-width: 16ch; }
+.eco-pronto__texto { font-size: 16px; line-height: 1.5; color: #d8f2e5; max-width: 34ch; }
 .eco-pronto__materiales { display: flex; flex-wrap: wrap; gap: 8px; }
 .eco-pronto__material {
   display: inline-flex; align-items: center; gap: 6px; background: var(--papel);
@@ -946,6 +951,17 @@ h1, h2, p { margin: 0; }
 }
 
 /* El símbolo de reciclaje gira despacio: acompaña, no distrae. */
-.perro__reciclaje { animation: perro-reciclar 9s linear infinite; transform-origin: 0 0; }
-@keyframes perro-reciclar { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .perro__reciclaje { animation: none; } }
+.perro__reciclaje { animation: perro-reciclar 3.6s cubic-bezier(0.65, 0, 0.35, 1) infinite; transform-origin: 0 0; }
+@keyframes perro-reciclar {
+  0%, 30% { transform: rotate(0deg); }
+  45%, 63% { transform: rotate(120deg); }
+  78%, 96% { transform: rotate(240deg); }
+  100% { transform: rotate(360deg); }
+}
+/* Fiel respira, en vez de quedarse tieso. */
+.eco-pronto .perro { animation: perro-respira 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes perro-respira {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(1.2deg); }
+}
+@media (prefers-reduced-motion: reduce) { .perro__reciclaje, .eco-pronto .perro { animation: none; } }
