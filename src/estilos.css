@@ -873,8 +873,8 @@ h1, h2, p { margin: 0; }
 
 /* ---------- Pantallas de "todavía no" ---------- */
 .obras {
-  min-height: 72dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; gap: 12px; padding: 24px 24px 40px; background: var(--fondo);
+  min-height: 60dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px; padding: 20px 24px 24px; background: var(--fondo);
 }
 .obras__perro { width: 168px; height: 150px; }
 .obras__cinta {
@@ -882,8 +882,8 @@ h1, h2, p { margin: 0; }
   color: #fff; font-weight: 900; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
   padding: 7px 16px; border-radius: 999px; text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
-.obras h1 { font-size: 26px; font-weight: 900; line-height: 1.15; margin-top: 4px; }
-.obras__detalle { font-size: 16px; line-height: 1.55; color: var(--tinta-2); max-width: 34ch; }
+.obras h1 { font-size: 23px; font-weight: 900; line-height: 1.15; margin-top: 2px; }
+.obras__detalle { font-size: 15px; line-height: 1.5; color: var(--tinta-2); max-width: 32ch; }
 .obras__pronto { font-size: 15px; color: var(--tinta-3); font-weight: 700; }
 .obras .btn { margin-top: 8px; max-width: 320px; }
 
@@ -904,3 +904,43 @@ h1, h2, p { margin: 0; }
   border-radius: 16px; padding: 14px 16px; font-size: 15px; line-height: 1.5;
 }
 .eco-pronto__pista span { font-size: 22px; }
+
+/* El perrito martilla: el golpe marca el compás y el cuerpo lo acusa. */
+.obras__perro { width: 150px; height: 130px; overflow: visible; }
+.perro { animation: perro-golpe 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.perro__brazo { animation: perro-martillo 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: 42% 92%; }
+.perro__oreja { transform-box: fill-box; transform-origin: 50% 8%; animation: perro-oreja 1.1s ease-in-out infinite; }
+.perro__oreja--der { animation-name: perro-oreja-der; }
+.perro__ojos { transform-box: fill-box; transform-origin: 50% 50%; animation: perro-parpadeo 5s infinite; }
+
+@keyframes perro-golpe {
+  0%, 55%, 100% { transform: translateY(0) rotate(0deg); }
+  70% { transform: translateY(3px) rotate(-1.2deg); }
+  82% { transform: translateY(0) rotate(0deg); }
+}
+@keyframes perro-martillo {
+  0%, 30% { transform: rotate(-38deg); }
+  62% { transform: rotate(6deg); }
+  78% { transform: rotate(-6deg); }
+  100% { transform: rotate(-38deg); }
+}
+@keyframes perro-oreja {
+  0%, 55%, 100% { transform: rotate(-9deg); }
+  72% { transform: rotate(4deg); }
+}
+@keyframes perro-oreja-der {
+  0%, 55%, 100% { transform: rotate(9deg); }
+  72% { transform: rotate(-4deg); }
+}
+@keyframes perro-parpadeo {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+/* Quien pidió menos movimiento en su celular, lo ve quieto. */
+@media (prefers-reduced-motion: reduce) {
+  .perro, .perro__brazo, .perro__oreja, .perro__ojos { animation: none; }
+  .perro__oreja--izq { transform: rotate(-9deg); transform-box: fill-box; transform-origin: 50% 8%; }
+  .perro__oreja--der { transform: rotate(9deg); transform-box: fill-box; transform-origin: 50% 8%; }
+  .perro__brazo { transform: rotate(-20deg); transform-box: fill-box; transform-origin: 20% 95%; }
+}

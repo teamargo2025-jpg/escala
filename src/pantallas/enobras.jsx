@@ -6,32 +6,52 @@ import { ir, volver } from '../negocio.js'
 import { Marco } from '../componentes.jsx'
 
 // Perrito albañil. Va en SVG y no como imagen para que pese nada y se vea bien
-// en cualquier pantalla, incluso sin internet.
+// en cualquier pantalla, incluso sin internet. Se mueve con CSS: martilla, mueve
+// las orejas y parpadea. Quien tenga activado "reducir movimiento" lo ve quieto.
 function PerritoAlbanil() {
   return (
-    <svg className="obras__perro" viewBox="0 0 200 180" role="img" aria-label="Un perrito con casco de obra">
-      {/* casco */}
-      <path d="M58 62c0-24 19-42 42-42s42 18 42 42z" fill="#f2a917" />
-      <rect x="48" y="60" width="104" height="11" rx="5.5" fill="#f2a917" />
-      <rect x="94" y="22" width="12" height="40" rx="6" fill="#d98e08" />
-      {/* orejas */}
-      <ellipse cx="55" cy="104" rx="16" ry="27" fill="#8a5a33" transform="rotate(-12 55 104)" />
-      <ellipse cx="145" cy="104" rx="16" ry="27" fill="#8a5a33" transform="rotate(12 145 104)" />
-      {/* cara */}
-      <path d="M62 74h76v42a38 38 0 0 1-76 0z" fill="#c98a52" />
-      <ellipse cx="100" cy="118" rx="38" ry="34" fill="#c98a52" />
-      {/* hocico */}
-      <ellipse cx="100" cy="132" rx="23" ry="17" fill="#f0dcc4" />
-      <ellipse cx="100" cy="123" rx="7.5" ry="5.5" fill="#3b2415" />
-      <path d="M100 129v7M100 136c-4 0-7-2-8-4M100 136c4 0 7-2 8-4" stroke="#3b2415" strokeWidth="2.6" strokeLinecap="round" fill="none" />
-      {/* ojos */}
-      <circle cx="84" cy="103" r="5.2" fill="#3b2415" />
-      <circle cx="116" cy="103" r="5.2" fill="#3b2415" />
-      <circle cx="85.8" cy="101.2" r="1.8" fill="#fff" />
-      <circle cx="117.8" cy="101.2" r="1.8" fill="#fff" />
-      {/* chaleco */}
-      <path d="M66 152h68l6 22H60z" fill="#f2a917" />
-      <path d="M86 152h28l-4 22H90z" fill="#fff" opacity="0.75" />
+    <svg className="obras__perro" viewBox="0 0 220 190" role="img" aria-label="Un perrito con casco de obra, martillando">
+      <g className="perro">
+        {/* orejas */}
+        <ellipse className="perro__oreja perro__oreja--izq" cx="55" cy="104" rx="16" ry="27" fill="#8a5a33" />
+        <ellipse className="perro__oreja perro__oreja--der" cx="145" cy="104" rx="16" ry="27" fill="#8a5a33" />
+
+        {/* casco */}
+        <path d="M58 62c0-24 19-42 42-42s42 18 42 42z" fill="#f2a917" />
+        <rect x="48" y="60" width="104" height="11" rx="5.5" fill="#f2a917" />
+        <rect x="94" y="22" width="12" height="40" rx="6" fill="#d98e08" />
+
+        {/* cara */}
+        <path d="M62 74h76v42a38 38 0 0 1-76 0z" fill="#c98a52" />
+        <ellipse cx="100" cy="118" rx="38" ry="34" fill="#c98a52" />
+
+        {/* hocico */}
+        <ellipse cx="100" cy="132" rx="23" ry="17" fill="#f0dcc4" />
+        <ellipse cx="100" cy="123" rx="7.5" ry="5.5" fill="#3b2415" />
+        <path d="M100 129v7M100 136c-4 0-7-2-8-4M100 136c4 0 7-2 8-4" stroke="#3b2415" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+
+        {/* ojos */}
+        <g className="perro__ojos">
+          <circle cx="84" cy="103" r="5.2" fill="#3b2415" />
+          <circle cx="116" cy="103" r="5.2" fill="#3b2415" />
+          <circle cx="85.8" cy="101.2" r="1.8" fill="#fff" />
+          <circle cx="117.8" cy="101.2" r="1.8" fill="#fff" />
+        </g>
+
+        {/* chaleco */}
+        <path d="M66 152h68l6 22H60z" fill="#f2a917" />
+        <path d="M86 152h28l-4 22H90z" fill="#fff" opacity="0.75" />
+
+        {/* martillo: da el golpe y el resto del cuerpo lo acusa */}
+        <g className="perro__brazo">
+          {/* patita que lo sujeta */}
+          <circle cx="156" cy="160" r="11" fill="#c98a52" />
+          {/* mango y cabeza del martillo */}
+          <rect x="152" y="116" width="9" height="44" rx="4.5" fill="#a9703f" />
+          <rect x="140" y="106" width="34" height="15" rx="4" fill="#6b7280" />
+          <rect x="166" y="102" width="12" height="23" rx="3" fill="#4b5563" />
+        </g>
+      </g>
     </svg>
   )
 }
@@ -39,18 +59,18 @@ function PerritoAlbanil() {
 const MENSAJES = {
   marca: {
     titulo: 'Tu marca',
-    frase: 'Estamos construyendo esta parte',
+    frase: 'Estamos construyendo esto',
     detalle:
-      'Acá vas a poder armar la cara de tu negocio: tu foto de marca, cómo te presentas y un calendario para saber qué publicar y cuándo, con las fechas que mueven las ventas.',
-    accionTexto: 'Mientras tanto, saca las cuentas de tu negocio',
+      'Acá vas a armar la cara de tu negocio: tu foto de marca y un calendario para saber qué publicar y cuándo.',
+    accionTexto: 'Mientras tanto, ve a tus cuentas',
     accionRuta: '/',
   },
   escalemos: {
     titulo: 'Revista ESCALA',
-    frase: 'Estamos construyendo esta parte',
+    frase: 'Estamos construyendo esto',
     detalle:
-      'Acá van a salir las convocatorias, las ferias y los talleres de la red. Y vas a poder postular tu emprendimiento para que lo contemos en la revista.',
-    accionTexto: 'Mientras tanto, saca las cuentas de tu negocio',
+      'Acá van a salir las convocatorias, ferias y talleres de la red. Y vas a poder postular tu emprendimiento para la revista.',
+    accionTexto: 'Mientras tanto, ve a tus cuentas',
     accionRuta: '/',
   },
 }
