@@ -914,13 +914,13 @@ h1, h2, p { margin: 0; }
 .obras__perro { width: 186px; height: 162px; overflow: visible; }
 .perro { transform-box: fill-box; transform-origin: 50% 100%; }
 .obras__perro--martillo .perro { animation: perro-golpe 1.1s ease-in-out infinite; }
-.obras__perro--rodillo .perro { animation: perro-pincela 2s ease-in-out infinite; }
+.obras__perro--balde .perro { animation: perro-mece 2.4s ease-in-out infinite; }
 .obras__perro--reciclaje .perro { animation: perro-respira 3.6s ease-in-out infinite; }
 .perro__brazo { transform-box: fill-box; transform-origin: 42% 92%; }
 .obras__perro--martillo .perro__brazo { animation: perro-martillo 1.1s ease-in-out infinite; }
-.obras__perro--rodillo .perro__brazo { animation: perro-rodillo 2s ease-in-out infinite; }
+.obras__perro--balde .perro__brazo { animation: perro-balde 2.4s ease-in-out infinite; transform-origin: 50% 6%; }
 .perro__oreja { transform-box: fill-box; transform-origin: 50% 8%; animation: perro-oreja 1.1s ease-in-out infinite; }
-.obras__perro--rodillo .perro__oreja { animation-duration: 2s; }
+.obras__perro--balde .perro__oreja { animation-duration: 2.4s; }
 .obras__perro--reciclaje .perro__oreja { animation-duration: 3.6s; }
 .perro__oreja--der { animation-name: perro-oreja-der; }
 .perro__ojos { transform-box: fill-box; transform-origin: 50% 50%; animation: perro-parpadeo 5s infinite; }
@@ -974,11 +974,12 @@ h1, h2, p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .perro__reciclaje { animation: none; } }
 
 /* Pintar es un vaivén lento: nada que ver con el golpe seco del martillo. */
-@keyframes perro-pincela {
-  0%, 100% { transform: translateX(-3px) rotate(-1.4deg); }
-  50% { transform: translateX(3px) rotate(1.4deg); }
+@keyframes perro-mece {
+  0%, 100% { transform: rotate(-1.4deg); }
+  50% { transform: rotate(1.4deg); }
 }
-@keyframes perro-rodillo {
-  0%, 100% { transform: rotate(-16deg) translateY(6px); }
-  50% { transform: rotate(4deg) translateY(-7px); }
+/* El balde cuelga y se mece como péndulo, en contra del cuerpo. */
+@keyframes perro-balde {
+  0%, 100% { transform: rotate(7deg); }
+  50% { transform: rotate(-7deg); }
 }

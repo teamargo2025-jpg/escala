@@ -16,7 +16,7 @@ const CASCOS = {
 
 const ETIQUETAS = {
   martillo: 'Fiel, un perrito blanco con casco de obra, martillando',
-  rodillo: 'Fiel, un perrito blanco con casco de obra, pintando con un rodillo',
+  balde: 'Fiel, un perrito blanco con casco de obra, cargando un balde de pintura',
   reciclaje: 'Fiel, un perrito blanco con casco verde y un símbolo de reciclaje',
 }
 
@@ -110,14 +110,15 @@ function Fiel({ casco = 'obra', lleva = 'martillo' }) {
               </g>
             </g>
           </>
-        ) : lleva === 'rodillo' ? (
-          /* rodillo: va y viene pintando, más lento y suave que el martillo */
+        ) : lleva === 'balde' ? (
+          /* balde de pintura colgando de la patita: se mece como péndulo */
           <g className="perro__brazo">
-            <circle cx="156" cy="160" r="11" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
-            <rect x="152" y="118" width="9" height="42" rx="4.5" fill="#a9703f" />
-            <path d="M156 120v-16h14" stroke="#6b7280" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-            <rect x="150" y="88" width="46" height="18" rx="9" fill="#6d28d9" />
-            <rect x="156" y="92" width="34" height="5" rx="2.5" fill="#fff" opacity="0.45" />
+            <path d="M150 126 Q168 106 186 126" stroke="#6b7280" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+            <circle cx="168" cy="112" r="10" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
+            <path d="M148 128h40l-4 34h-32z" fill="#cfc9dc" />
+            <rect x="145" y="123" width="46" height="9" rx="4.5" fill="#a9a3b8" />
+            <ellipse cx="168" cy="127" rx="19" ry="3.6" fill="#6d28d9" />
+            <path d="M152 134c0 7 5 7 5 14" stroke="#fff" strokeWidth="2" opacity="0.45" fill="none" strokeLinecap="round" />
           </g>
         ) : (
           /* martillo: da el golpe y el resto del cuerpo lo acusa */
@@ -146,7 +147,7 @@ export function EnObras({ seccion }) {
   const m = MENSAJES[seccion] ?? MENSAJES.marca
   return (
     <div className="obras">
-      <Fiel lleva={seccion === 'marca' ? 'rodillo' : 'martillo'} />
+      <Fiel lleva={seccion === 'marca' ? 'balde' : 'martillo'} />
       <span className="obras__cinta">🚧 En obra</span>
       <h1>Deja a Fiel chambear</h1>
       <p className="obras__pronto">Estamos construyendo esto. Te avisamos apenas esté listo.</p>
