@@ -497,8 +497,9 @@ h1, h2, p { margin: 0; }
   display: grid; gap: 10px; justify-items: center; text-align: center;
 }
 .portada__logo {
-  width: 104px; height: 104px; border-radius: 26px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 6px rgba(255, 255, 255, 0.09);
+  /* Crece con la pantalla, con tope para que no se desborde en una tablet. */
+  width: min(46vw, 168px); height: min(46vw, 168px); border-radius: 13%;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.38), 0 0 0 7px rgba(255, 255, 255, 0.09);
 }
 .portada__alto h1 { font-size: 34px; line-height: 1.08; font-weight: 900; margin-top: 14px; }
 .portada__alto p { max-width: 34ch; }
