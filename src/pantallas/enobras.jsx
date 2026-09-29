@@ -5,21 +5,32 @@ import { MATERIALES } from '../data/eco.js'
 import { ir, volver } from '../negocio.js'
 import { Marco } from '../componentes.jsx'
 
-// Perrito albañil. Va en SVG y no como imagen para que pese nada y se vea bien
-// en cualquier pantalla, incluso sin internet. Se mueve con CSS: martilla, mueve
-// las orejas y parpadea. Quien tenga activado "reducir movimiento" lo ve quieto.
-function PerritoAlbanil() {
+// Fiel. Va en SVG y no como imagen para que pese nada y se vea bien en cualquier
+// pantalla, incluso sin internet. Se mueve con CSS: martilla o gira su símbolo de
+// reciclaje, mueve las orejas y parpadea. Quien tenga activado "reducir
+// movimiento" en su celular lo ve quieto.
+const CASCOS = {
+  obra: { claro: '#f2a917', oscuro: '#d98e08' },
+  eco: { claro: '#1f8a5b', oscuro: '#176b47' },
+}
+
+function Fiel({ casco = 'obra', lleva = 'martillo' }) {
+  const color = CASCOS[casco] ?? CASCOS.obra
+  const etiqueta =
+    lleva === 'reciclaje'
+      ? 'Fiel, un perrito blanco con casco verde y un símbolo de reciclaje'
+      : 'Fiel, un perrito blanco con casco de obra, martillando'
   return (
-    <svg className="obras__perro" viewBox="0 0 220 190" role="img" aria-label="Fiel, un perrito blanco con casco de obra, martillando">
+    <svg className="obras__perro" viewBox="0 0 220 190" role="img" aria-label={etiqueta}>
       <g className="perro">
         {/* orejas */}
         <ellipse className="perro__oreja perro__oreja--izq" cx="55" cy="104" rx="16" ry="27" fill="#8a5a33" />
         <ellipse className="perro__oreja perro__oreja--der" cx="145" cy="104" rx="16" ry="27" fill="#8a5a33" />
 
         {/* casco */}
-        <path d="M58 62c0-24 19-42 42-42s42 18 42 42z" fill="#f2a917" />
-        <rect x="48" y="60" width="104" height="11" rx="5.5" fill="#f2a917" />
-        <rect x="94" y="22" width="12" height="40" rx="6" fill="#d98e08" />
+        <path d="M58 62c0-24 19-42 42-42s42 18 42 42z" fill={color.claro} />
+        <rect x="48" y="60" width="104" height="11" rx="5.5" fill={color.claro} />
+        <rect x="94" y="22" width="12" height="40" rx="6" fill={color.oscuro} />
 
         {/* cara: blanca, con un contorno suave para que se despegue del fondo claro */}
         <path d="M62 74h76v42a38 38 0 0 1-76 0z" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" strokeLinejoin="round" />
@@ -52,8 +63,8 @@ function PerritoAlbanil() {
           <circle cx="117.8" cy="101.2" r="1.8" fill="#fff" />
         </g>
 
-        {/* chaleco */}
-        <path d="M66 156h68l6 18H60z" fill="#f2a917" />
+        {/* chaleco, del color del casco */}
+        <path d="M66 156h68l6 18H60z" fill={color.claro} />
         <path d="M86 156h28l-4 18H90z" fill="#fff" opacity="0.75" />
 
         {/* collar con su nombre */}
@@ -72,15 +83,35 @@ function PerritoAlbanil() {
           FIEL
         </text>
 
-        {/* martillo: da el golpe y el resto del cuerpo lo acusa */}
-        <g className="perro__brazo">
-          {/* patita que lo sujeta */}
-          <circle cx="156" cy="160" r="11" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
-          {/* mango y cabeza del martillo */}
-          <rect x="152" y="116" width="9" height="44" rx="4.5" fill="#a9703f" />
-          <rect x="140" y="106" width="34" height="15" rx="4" fill="#6b7280" />
-          <rect x="166" y="102" width="12" height="23" rx="3" fill="#4b5563" />
-        </g>
+        {lleva === 'reciclaje' ? (
+          <>
+            {/* la patita sostiene el cartel del símbolo */}
+            <circle cx="172" cy="152" r="10" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
+            <circle cx="172" cy="120" r="24" fill="#e2f4ea" stroke={color.claro} strokeWidth="2.5" />
+            {/* Tres flechas separadas, cada una con su punta: juntas y cerradas
+                se leen como un triángulo cualquiera, no como reciclaje. */}
+            {/* La posición va en un grupo y el giro en otro: si comparten grupo,
+                el transform del CSS pisa al del atributo y el símbolo se va a la esquina. */}
+            <g transform="translate(172 120)">
+              <g className="perro__reciclaje">
+                {[0, 120, 240].map((giro) => (
+                  <g key={giro} transform={`rotate(${giro})`}>
+                    <path d="M0 -15 L7.5 -2" stroke={color.claro} strokeWidth="5" strokeLinecap="butt" fill="none" />
+                    <polygon points="11,4.1 3.2,0.5 11.8,-4.5" fill={color.claro} />
+                  </g>
+                ))}
+              </g>
+            </g>
+          </>
+        ) : (
+          /* martillo: da el golpe y el resto del cuerpo lo acusa */
+          <g className="perro__brazo">
+            <circle cx="156" cy="160" r="11" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
+            <rect x="152" y="116" width="9" height="44" rx="4.5" fill="#a9703f" />
+            <rect x="140" y="106" width="34" height="15" rx="4" fill="#6b7280" />
+            <rect x="166" y="102" width="12" height="23" rx="3" fill="#4b5563" />
+          </g>
+        )}
       </g>
     </svg>
   )
@@ -99,7 +130,7 @@ export function EnObras({ seccion }) {
   const m = MENSAJES[seccion] ?? MENSAJES.marca
   return (
     <div className="obras">
-      <PerritoAlbanil />
+      <Fiel />
       <span className="obras__cinta">🚧 En obra</span>
       <h1>Deja a Fiel chambear</h1>
       <p className="obras__pronto">Estamos construyendo esto. Te avisamos apenas esté listo.</p>
@@ -117,6 +148,8 @@ export function EcoPronto({ guardado }) {
   const materiales = Object.values(MATERIALES)
   return (
     <Marco titulo="EcoEscala" emoji="🌱" guardado={guardado} onAtras={() => volver('/')}>
+      <Fiel casco="eco" lleva="reciclaje" />
+
       <div className="eco-pronto">
         <p className="eco-pronto__kicker">Muy pronto</p>
         <h1 className="eco-pronto__titulo">Empieza a juntar desde hoy</h1>

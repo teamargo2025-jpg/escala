@@ -944,3 +944,8 @@ h1, h2, p { margin: 0; }
   .perro__oreja--der { transform: rotate(9deg); transform-box: fill-box; transform-origin: 50% 8%; }
   .perro__brazo { transform: rotate(-20deg); transform-box: fill-box; transform-origin: 20% 95%; }
 }
+
+/* El símbolo de reciclaje gira despacio: acompaña, no distrae. */
+.perro__reciclaje { animation: perro-reciclar 9s linear infinite; transform-origin: 0 0; }
+@keyframes perro-reciclar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .perro__reciclaje { animation: none; } }
