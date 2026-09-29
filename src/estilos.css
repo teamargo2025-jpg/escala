@@ -892,7 +892,7 @@ h1, h2, p { margin: 0; }
   border-radius: 20px; padding: 22px 20px 4px; display: grid; gap: 8px; justify-items: center; text-align: center;
 }
 .eco-pronto .obras__perro {
-  width: 142px; height: 124px; margin-top: 4px;
+  width: 196px; height: 170px; margin-top: 2px;
   background: radial-gradient(circle at 50% 56%, rgba(255, 255, 255, 0.16) 0 47%, transparent 48%);
 }
 .eco-pronto__kicker { font-size: 11px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: #a7e8c8; }
