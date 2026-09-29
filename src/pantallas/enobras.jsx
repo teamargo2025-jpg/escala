@@ -14,14 +14,21 @@ const CASCOS = {
   eco: { claro: '#3ed693', oscuro: '#1f8a5b' },
 }
 
+const ETIQUETAS = {
+  martillo: 'Fiel, un perrito blanco con casco de obra, martillando',
+  rodillo: 'Fiel, un perrito blanco con casco de obra, pintando con un rodillo',
+  reciclaje: 'Fiel, un perrito blanco con casco verde y un símbolo de reciclaje',
+}
+
 function Fiel({ casco = 'obra', lleva = 'martillo' }) {
   const color = CASCOS[casco] ?? CASCOS.obra
-  const etiqueta =
-    lleva === 'reciclaje'
-      ? 'Fiel, un perrito blanco con casco verde y un símbolo de reciclaje'
-      : 'Fiel, un perrito blanco con casco de obra, martillando'
   return (
-    <svg className="obras__perro" viewBox="0 0 220 190" role="img" aria-label={etiqueta}>
+    <svg
+      className={`obras__perro obras__perro--${lleva}`}
+      viewBox="0 0 220 190"
+      role="img"
+      aria-label={ETIQUETAS[lleva] ?? ETIQUETAS.martillo}
+    >
       <g className="perro">
         {/* orejas */}
         <ellipse className="perro__oreja perro__oreja--izq" cx="55" cy="104" rx="16" ry="27" fill="#8a5a33" />
@@ -103,6 +110,15 @@ function Fiel({ casco = 'obra', lleva = 'martillo' }) {
               </g>
             </g>
           </>
+        ) : lleva === 'rodillo' ? (
+          /* rodillo: va y viene pintando, más lento y suave que el martillo */
+          <g className="perro__brazo">
+            <circle cx="156" cy="160" r="11" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
+            <rect x="152" y="118" width="9" height="42" rx="4.5" fill="#a9703f" />
+            <path d="M156 120v-16h14" stroke="#6b7280" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+            <rect x="150" y="88" width="46" height="18" rx="9" fill="#6d28d9" />
+            <rect x="156" y="92" width="34" height="5" rx="2.5" fill="#fff" opacity="0.45" />
+          </g>
         ) : (
           /* martillo: da el golpe y el resto del cuerpo lo acusa */
           <g className="perro__brazo">
@@ -130,13 +146,13 @@ export function EnObras({ seccion }) {
   const m = MENSAJES[seccion] ?? MENSAJES.marca
   return (
     <div className="obras">
-      <Fiel />
+      <Fiel lleva={seccion === 'marca' ? 'rodillo' : 'martillo'} />
       <span className="obras__cinta">🚧 En obra</span>
       <h1>Deja a Fiel chambear</h1>
       <p className="obras__pronto">Estamos construyendo esto. Te avisamos apenas esté listo.</p>
       <p className="obras__detalle">{m.detalle}</p>
       <button className="btn btn--principal" onClick={() => ir('/')}>
-        Mientras tanto, ve a tus cuentas
+        Ve a tus cuentas
       </button>
     </div>
   )
