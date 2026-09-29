@@ -10,7 +10,7 @@ import { Marco } from '../componentes.jsx'
 // las orejas y parpadea. Quien tenga activado "reducir movimiento" lo ve quieto.
 function PerritoAlbanil() {
   return (
-    <svg className="obras__perro" viewBox="0 0 220 190" role="img" aria-label="Un perrito con casco de obra, martillando">
+    <svg className="obras__perro" viewBox="0 0 220 190" role="img" aria-label="Fiel, un perrito blanco con casco de obra, martillando">
       <g className="perro">
         {/* orejas */}
         <ellipse className="perro__oreja perro__oreja--izq" cx="55" cy="104" rx="16" ry="27" fill="#8a5a33" />
@@ -21,12 +21,13 @@ function PerritoAlbanil() {
         <rect x="48" y="60" width="104" height="11" rx="5.5" fill="#f2a917" />
         <rect x="94" y="22" width="12" height="40" rx="6" fill="#d98e08" />
 
-        {/* cara */}
-        <path d="M62 74h76v42a38 38 0 0 1-76 0z" fill="#c98a52" />
-        <ellipse cx="100" cy="118" rx="38" ry="34" fill="#c98a52" />
+        {/* cara: blanca, con un contorno suave para que se despegue del fondo claro */}
+        <path d="M62 74h76v42a38 38 0 0 1-76 0z" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" strokeLinejoin="round" />
+        <ellipse cx="100" cy="118" rx="38" ry="34" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
+        <path d="M63 76h74" stroke="#fdfdff" strokeWidth="4" />
 
         {/* hocico */}
-        <ellipse cx="100" cy="132" rx="23" ry="17" fill="#f0dcc4" />
+        <ellipse cx="100" cy="132" rx="23" ry="17" fill="#f1eef7" />
         <ellipse cx="100" cy="123" rx="7.5" ry="5.5" fill="#3b2415" />
         <path d="M100 129v7M100 136c-4 0-7-2-8-4M100 136c4 0 7-2 8-4" stroke="#3b2415" strokeWidth="2.6" strokeLinecap="round" fill="none" />
 
@@ -39,13 +40,29 @@ function PerritoAlbanil() {
         </g>
 
         {/* chaleco */}
-        <path d="M66 152h68l6 22H60z" fill="#f2a917" />
-        <path d="M86 152h28l-4 22H90z" fill="#fff" opacity="0.75" />
+        <path d="M66 156h68l6 18H60z" fill="#f2a917" />
+        <path d="M86 156h28l-4 18H90z" fill="#fff" opacity="0.75" />
+
+        {/* collar con su nombre */}
+        <rect x="65" y="145" width="70" height="17" rx="8.5" fill="#c2412d" />
+        <circle cx="100" cy="166" r="6.5" fill="#f2a917" stroke="#d98e08" strokeWidth="1.5" />
+        <text
+          x="100"
+          y="157.5"
+          textAnchor="middle"
+          fill="#fff"
+          fontSize="11"
+          fontWeight="800"
+          letterSpacing="1.4"
+          fontFamily="Nunito, system-ui, sans-serif"
+        >
+          FIEL
+        </text>
 
         {/* martillo: da el golpe y el resto del cuerpo lo acusa */}
         <g className="perro__brazo">
           {/* patita que lo sujeta */}
-          <circle cx="156" cy="160" r="11" fill="#c98a52" />
+          <circle cx="156" cy="160" r="11" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
           {/* mango y cabeza del martillo */}
           <rect x="152" y="116" width="9" height="44" rx="4.5" fill="#a9703f" />
           <rect x="140" y="106" width="34" height="15" rx="4" fill="#6b7280" />
