@@ -88,20 +88,10 @@ function PerritoAlbanil() {
 
 const MENSAJES = {
   marca: {
-    titulo: 'Tu marca',
-    frase: 'Estamos construyendo esto',
-    detalle:
-      'Acá vas a armar la cara de tu negocio: tu foto de marca y un calendario para saber qué publicar y cuándo.',
-    accionTexto: 'Mientras tanto, ve a tus cuentas',
-    accionRuta: '/',
+    detalle: 'Acá vas a armar la cara de tu negocio: tu foto de marca y tu calendario de publicaciones.',
   },
   escalemos: {
-    titulo: 'Revista ESCALA',
-    frase: 'Estamos construyendo esto',
-    detalle:
-      'Acá van a salir las convocatorias, ferias y talleres de la red. Y vas a poder postular tu emprendimiento para la revista.',
-    accionTexto: 'Mientras tanto, ve a tus cuentas',
-    accionRuta: '/',
+    detalle: 'Acá van a salir las convocatorias, ferias y talleres de la red, y vas a poder postular a la revista.',
   },
 }
 
@@ -111,11 +101,11 @@ export function EnObras({ seccion }) {
     <div className="obras">
       <PerritoAlbanil />
       <span className="obras__cinta">🚧 En obra</span>
-      <h1>{m.frase}</h1>
+      <h1>Deja a Fiel chambear</h1>
+      <p className="obras__pronto">Estamos construyendo esto. Te avisamos apenas esté listo.</p>
       <p className="obras__detalle">{m.detalle}</p>
-      <p className="obras__pronto">Te avisamos apenas esté lista.</p>
-      <button className="btn btn--principal" onClick={() => ir(m.accionRuta)}>
-        {m.accionTexto}
+      <button className="btn btn--principal" onClick={() => ir('/')}>
+        Mientras tanto, ve a tus cuentas
       </button>
     </div>
   )

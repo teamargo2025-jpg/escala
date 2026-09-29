@@ -884,7 +884,7 @@ h1, h2, p { margin: 0; }
 }
 .obras h1 { font-size: 23px; font-weight: 900; line-height: 1.15; margin-top: 2px; }
 .obras__detalle { font-size: 15px; line-height: 1.5; color: var(--tinta-2); max-width: 32ch; }
-.obras__pronto { font-size: 15px; color: var(--tinta-3); font-weight: 700; }
+.obras__pronto { font-size: 15px; color: var(--tinta-2); font-weight: 700; max-width: 30ch; }
 .obras .btn { margin-top: 8px; max-width: 320px; }
 
 .eco-pronto {
