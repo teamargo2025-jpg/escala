@@ -26,6 +26,17 @@ function PerritoAlbanil() {
         <ellipse cx="100" cy="118" rx="38" ry="34" fill="#fdfdff" stroke="#ddd6e6" strokeWidth="2" />
         <path d="M63 76h74" stroke="#fdfdff" strokeWidth="4" />
 
+        {/* mancha marrón en un ojo, recortada para que no se salga de la cara */}
+        <defs>
+          <clipPath id="caraDeFiel">
+            <path d="M62 74h76v42a38 38 0 0 1-76 0z" />
+            <ellipse cx="100" cy="118" rx="38" ry="34" />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#caraDeFiel)">
+          <ellipse cx="80" cy="101" rx="21" ry="19" fill="#8a5a33" transform="rotate(-10 80 101)" />
+        </g>
+
         {/* hocico */}
         <ellipse cx="100" cy="132" rx="23" ry="17" fill="#f1eef7" />
         <ellipse cx="100" cy="123" rx="7.5" ry="5.5" fill="#3b2415" />
@@ -33,6 +44,8 @@ function PerritoAlbanil() {
 
         {/* ojos */}
         <g className="perro__ojos">
+          {/* el ojo de la mancha necesita un halo claro o se pierde en el marrón */}
+          <circle cx="84" cy="103" r="7.6" fill="#f6f2fa" />
           <circle cx="84" cy="103" r="5.2" fill="#3b2415" />
           <circle cx="116" cy="103" r="5.2" fill="#3b2415" />
           <circle cx="85.8" cy="101.2" r="1.8" fill="#fff" />
