@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { ECO_PRONTO, EN_OBRAS } from './config.js'
 import { rubroDe } from './data/rubros.js'
 import { TEMA_POR_DEFECTO, aplicarTema } from './data/temas.js'
 import { registrar } from './lib/analitica.js'
@@ -23,6 +24,7 @@ import { Legal } from './pantallas/legal.jsx'
 import { CalendarioMarca, ContenidoMarca, IdentidadMarca, Marca } from './pantallas/marca.jsx'
 import { EcoEscala, Escalemos, Oportunidades, PublicarSobrante, Revista, Sobrantes } from './pantallas/escalemos.jsx'
 import { Equipo } from './pantallas/equipo.jsx'
+import { EcoPronto, EnObras } from './pantallas/enobras.jsx'
 
 const FORM_VACIO = { apodo: '', emprendimiento: '', documento: '', documento2: '', tipoDoc: 'dni', acepto: false }
 const APARTADOS_PLAN = { presupuesto: Presupuesto, costos: Costos, precio: Precio, meta: Meta, flujo: Flujo }
@@ -228,6 +230,10 @@ function ConCuenta({ usuario, ruta, onSalir }) {
     if (!esEquipo) return <Redirigir a="/" />
     return conBarra(<Equipo guardado={guardado} />, 'equipo')
   }
+
+  // Lo que todavía no está listo: se muestra la pantalla de "en obra" en vez de media sección.
+  if (EN_OBRAS.includes(seccion)) return conBarra(<EnObras seccion={seccion} />, seccion)
+  if (seccion === 'eco' && ECO_PRONTO) return conBarra(<EcoPronto guardado={guardado} />, 'eco')
 
   if (seccion === 'eco') {
     if (!sub) return conBarra(<EcoEscala {...comunes} />, 'eco')

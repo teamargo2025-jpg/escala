@@ -870,3 +870,37 @@ h1, h2, p { margin: 0; }
 .credito__esfuerzo--no_alcanza { background: var(--rojo-claro); }
 .credito-nuevo { display: grid; gap: 12px; background: var(--pista); border-radius: 16px; padding: 14px; }
 .credito-nuevo__botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ---------- Pantallas de "todavía no" ---------- */
+.obras {
+  min-height: 72dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px; padding: 24px 24px 40px; background: var(--fondo);
+}
+.obras__perro { width: 168px; height: 150px; }
+.obras__cinta {
+  background: repeating-linear-gradient(45deg, #f2a917 0 10px, #26124f 10px 20px);
+  color: #fff; font-weight: 900; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 7px 16px; border-radius: 999px; text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+.obras h1 { font-size: 26px; font-weight: 900; line-height: 1.15; margin-top: 4px; }
+.obras__detalle { font-size: 16px; line-height: 1.55; color: var(--tinta-2); max-width: 34ch; }
+.obras__pronto { font-size: 15px; color: var(--tinta-3); font-weight: 700; }
+.obras .btn { margin-top: 8px; max-width: 320px; }
+
+.eco-pronto {
+  background: var(--superficie-marca); color: #fff; border-radius: 20px; padding: 22px 20px; display: grid; gap: 8px;
+}
+.eco-pronto__kicker { font-size: 11px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; color: var(--acento); }
+.eco-pronto__titulo { font-size: 27px; font-weight: 900; line-height: 1.12; }
+.eco-pronto__texto { font-size: 16px; line-height: 1.5; color: var(--sobre-oscuro); }
+.eco-pronto__materiales { display: flex; flex-wrap: wrap; gap: 8px; }
+.eco-pronto__material {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--papel);
+  border: 1.5px solid var(--c); color: var(--c); border-radius: 999px; padding: 8px 14px;
+  font-size: 15px; font-weight: 700;
+}
+.eco-pronto__pista {
+  display: flex; gap: 12px; align-items: flex-start; background: var(--ambar-claro);
+  border-radius: 16px; padding: 14px 16px; font-size: 15px; line-height: 1.5;
+}
+.eco-pronto__pista span { font-size: 22px; }

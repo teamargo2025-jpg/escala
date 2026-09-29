@@ -24,3 +24,10 @@ export const DOMINIO_CUENTAS = 'cuentas.escala.invalid'
 // Cuántos emprendimientos puede llevar una misma cuenta. Con más de dos, los
 // números de cada uno se mezclan en la cabeza de la persona y deja de ayudar.
 export const MAX_NEGOCIOS = 2
+
+// Secciones que todavía no se muestran: la pestaña sigue en la barra, pero adentro
+// aparece la pantalla de "en obra". Para abrir una, sácala de esta lista.
+export const EN_OBRAS = ['marca', 'escalemos']
+
+// EcoEscala muestra el aviso de "empieza a juntar" en vez de los puntos y premios.
+export const ECO_PRONTO = true
