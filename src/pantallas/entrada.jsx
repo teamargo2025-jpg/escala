@@ -23,7 +23,7 @@ export function Bienvenida() {
     <div className="portada">
       <header className="portada__alto">
         <img className="portada__logo" src="/icono-192.png" width="192" height="192" alt="ESCALA, red de apoyo a emprendimientos" />
-        <h1>Saca las cuentas de tu negocio</h1>
+        <h1>Conoce tu negocio</h1>
         <p>Si recién empiezas o si ya estás vendiendo. Paso a paso, con ejemplos de tu oficio.</p>
       </header>
 

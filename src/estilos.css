@@ -490,11 +490,18 @@ h1, h2, p { margin: 0; }
 /* ---------- Portada (bienvenida) ---------- */
 .portada { min-height: 100dvh; display: flex; flex-direction: column; background: var(--fondo); }
 .portada__alto {
-  background: var(--superficie-marca); color: #fff; padding: 32px 24px 34px;
-  border-radius: 0 0 28px 28px; display: grid; gap: 10px;
+  /* Morado más profundo que el del resto de la app: es el fondo del logo, y
+     contra un morado claro el isologo blanco se lava. */
+  background: linear-gradient(165deg, #46169e 0%, #26094f 100%);
+  color: #fff; padding: 34px 24px 32px; border-radius: 0 0 28px 28px;
+  display: grid; gap: 10px; justify-items: center; text-align: center;
 }
-.portada__logo { width: 82px; height: 82px; border-radius: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+.portada__logo {
+  width: 104px; height: 104px; border-radius: 26px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 6px rgba(255, 255, 255, 0.09);
+}
 .portada__alto h1 { font-size: 34px; line-height: 1.08; font-weight: 900; margin-top: 14px; }
+.portada__alto p { max-width: 34ch; }
 .portada__alto p { color: var(--sobre-oscuro); }
 .portada__cuerpo {
   flex: 1; display: flex; flex-direction: column; gap: 12px;
